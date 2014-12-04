@@ -9,7 +9,7 @@ namespace MtbGraph.GraphComponent
 {
     public interface ICOMInterop_Line
     {
-        //void SetType(ref Object type);
+        void SetType(ref Object type);
         //void SetColor(ref Object color); 避免與Trend 繪製衝突先關閉
         void SetSize(ref Object size);
         void SetDefault();

@@ -30,6 +30,10 @@ namespace MtbGraph.GraphComponent
     {
         Auto, RightTop, LeftDown
     }
+    public enum DatlabPlace
+    {
+        Default, Center, Below
+    }
 
     public enum DatlabType
     {
@@ -45,5 +49,17 @@ namespace MtbGraph.GraphComponent
         Trend, Symbol, Bar
     }
 
+    public enum DataRegionStype
+    {
+        Default, Transparent
+    }
 
+    public enum BarChartType
+    {
+        Stack, Cluster
+    }
+    public enum BarChartTableArrangement
+    {
+        RowsOuterMost, ColsOuterMost
+    }
 }

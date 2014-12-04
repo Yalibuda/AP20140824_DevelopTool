@@ -62,47 +62,8 @@ namespace MtbGraph.GraphComponent
         public Reference Reference { set; get; }
         public ContinuousScale SecsScale { private set; get; }
         public MyGScale GScale { private set; get; }
+        public bool ShowHighSide { set; get; }
 
-        /*
-         * secs 資訊需要傳給 Secondary 的 Scale，所以設為 public，因為裝飾者模式的關係，
-         * Secondary 的 Getcommand() 要能有 secondary 的資訊，但是 Secondary 屬性的 
-         * Scale 無法直接使用 SetSecondary 方法(避免在 Secondary 中設 Secondary)
-         * ==> 改以 SetScaleVariable(ref object o, Mtb.Worksheet ws) 取代
-         */
-        //public String secsInfo = String.Empty;
-        //public void SetSecondary(ref object columns)
-        //{
-        //    if (this.scale_axis == ScaleType.Secondary_Y_axis)//避免在 Secondary Scale 上再宣告 SECS
-        //    {
-        //        throw new ArgumentException("You cannot set secondary scale at a secondary scale.");
-        //        return;
-        //    }
-        //    Type t = columns.GetType();
-        //    if (t.IsArray)
-        //    {
-        //        try
-        //        {
-        //            IEnumerable enumerable = columns as IEnumerable;
-        //            foreach (object o in enumerable)
-        //            {
-        //                secsInfo = secsInfo + o.ToString() + " ";
-        //            }
-        //            secsInfo = secsInfo.Trim();
-        //        }
-        //        catch
-        //        {
-        //            secsInfo = String.Empty;
-        //            throw new ArgumentException("Invalid input of Secondary scale");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        secsInfo = columns.ToString();
-        //    }
-
-        //    //重要!! 最後將資訊傳給真正用的到的 Secondary scale
-        //    SecsScale.secsInfo = secsInfo;
-        //}
         public virtual String GetCommand()
         {
             StringBuilder cmnd = new StringBuilder();
@@ -125,6 +86,11 @@ namespace MtbGraph.GraphComponent
             }
             else
             {
+                if (this.ShowHighSide)
+                {
+                    sb.AppendLine("  LDISP 1 0 0 0;" + Environment.NewLine + "  HDISP 1 1 1 0;");
+                }
+
                 //cmnd.Append(" SCALE " + k + ";" + Environment.NewLine);
                 if (this.Min.Value < 1.23456E+30)
                 {
@@ -144,7 +110,7 @@ namespace MtbGraph.GraphComponent
                         if ((this.GScale.TMIN == 1.23456E+30 & Min.Value == 1.23456E+30) ||
                             (this.GScale.TMAX == 1.23456E+30 & Max.Value == 1.23456E+30))
                         {
-                            sb.AppendLine(@"#未輸入變數或Scale邊界，無法使用 interval 方法");
+                            sb.AppendLine("  #未輸入變數或Scale邊界，無法使用 interval 方法");
                         }
                         else
                         {

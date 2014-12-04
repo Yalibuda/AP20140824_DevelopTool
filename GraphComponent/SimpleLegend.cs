@@ -26,8 +26,9 @@ namespace MtbGraph.GraphComponent
             this.sizeOfLgnd = new Size(0, 0);
             Show = true;
             NotationType = LegendNotationType.Trend;
+            this.GraphSize = new Size(576, 384);
         }
-
+        public Size GraphSize { set; get; }
         public SimpleLegend Clone()
         {
             /*
@@ -56,7 +57,7 @@ namespace MtbGraph.GraphComponent
 
         //private String sectTitle = null;
         public String SectTitle { set; get; }
-        
+
         /*
          * 計算legend box 需要的大小，不自動考慮 head，回傳 pixel。如果需
          * 要計算包含 head 的大小，直接把 head 納入其中
@@ -122,21 +123,39 @@ namespace MtbGraph.GraphComponent
                 }
                 else
                 {
+                    double w = 576, h = 384;//將 pixel 轉換為 figure unit 的基數
+                    if (this.GraphSize.Width != 576 || this.GraphSize.Height != 384)//當圖形大小改變時，基數須修正
+                    {
+                        /*
+                         * 圖形預設以 fit window 模式顯示，所以產出視窗必為576*384...圖形比例應為3:2，
+                         * 如果比例不為3:2，表示圖形在視窗中不會填滿...
+                         */
+                        double k1 = (double)this.GraphSize.Width / this.GraphSize.Height;
+                        double k2 = (double)3 / 2;
+                        if (k1 > k2)//表示圖形的高度基數被修正
+                        {
+                            h = w * this.GraphSize.Height / this.GraphSize.Width;
+                        }
+                        else if (k1 < k2)//表示圖形的寬度基數被修正
+                        {
+                            w = h * this.GraphSize.Width / this.GraphSize.Height;
+                        }
+
+                    }
                     switch (this.Location)
                     {
                         case Location.RightTop:
                             xmax = 0.998;
                             ymax = 0.998;
-                            dynamic aa = (double)tmp.Width / 576;
-                            xmin = Math.Max(xmax - Math.Max((double)sizeOfLgnd.Width / 576, (double)tmp.Width / 576), 0);
-                            ymin = Math.Max(ymax - ((double)(sizeOfLgnd.Height + tmp.Height) / 384), 0);
+                            xmin = Math.Max(xmax - Math.Max((double)sizeOfLgnd.Width / w, (double)tmp.Width / w), 0);
+                            ymin = Math.Max(ymax - ((double)(sizeOfLgnd.Height + tmp.Height) / h), 0);
                             coordinate = " " + xmin + " " + xmax + " " + ymin + " " + ymax;
                             break;
                         case Location.LeftDown:
                             xmin = 0.002;
                             ymin = 0.001;
-                            xmax = Math.Min(xmin + Math.Max((double)sizeOfLgnd.Width / 576, (double)tmp.Width / 576), 1);
-                            ymax = Math.Min(ymin + (double)(sizeOfLgnd.Height + tmp.Height / 384), 1);
+                            xmax = Math.Min(xmin + Math.Max((double)sizeOfLgnd.Width / w, (double)tmp.Width / w), 1);
+                            ymax = Math.Min(ymin + (double)(sizeOfLgnd.Height + tmp.Height / h), 1);
                             coordinate = " " + xmin + " " + xmax + " " + ymin + " " + ymax;
                             break;
                     }

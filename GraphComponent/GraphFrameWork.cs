@@ -26,6 +26,7 @@ namespace MtbGraph.GraphComponent
             float dpiX;
             dpiX = g.DpiX;
             incrPercent = (dpiX == 96 ? 100 : (dpiX == 120 ? 125 : 150));
+            GraphSize = new Size(576, 384);
         }
         /*
          * 為VB6 設計的建構子，因此 VB6使用時須自行設定 Minitab 參數
@@ -38,6 +39,7 @@ namespace MtbGraph.GraphComponent
             float dpiX;            
             dpiX = g.DpiX;
             incrPercent = (dpiX == 96 ? 100 : (dpiX == 120 ? 125 : 150));
+            GraphSize = new Size(576, 384);
         }
 
         public void SetMtbEnvironment(Mtb.Project proj, Mtb.Worksheet ws)
@@ -208,5 +210,6 @@ namespace MtbGraph.GraphComponent
         protected int[] dLineColor = { 64, 8, 9, 12, 18, 34 };
         protected int[] dSymbType = { 6, 12, 16, 20, 23, 26, 29 };
         protected int[] dLineType = { 1, 2, 3, 4, 5 };
+        public Size GraphSize { set; get; }
     }
 }

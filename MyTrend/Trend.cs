@@ -29,7 +29,6 @@ namespace MtbGraph.MyTrend
             this.X_Scale = new CategoricalScale(ScaleType.X_axis);
             this.Y_Scale = new ContinuousScale(ScaleType.Y_axis);
             this.Annotation = new Annotation();
-            this.LegendBox = new SimpleLegend();
             this.Datalabel = new Datlab();
             this.LegendBox = new SimpleLegend();
             this.TargetAttribute = new TargetAttribute();
@@ -38,7 +37,10 @@ namespace MtbGraph.MyTrend
         public Trend(Mtb.Project proj, Mtb.Worksheet ws)
             : base(proj, ws)
         {
+            this.Line = new Line();
             this.X_Scale = new CategoricalScale(ScaleType.X_axis);
+            this.Y_Scale = new ContinuousScale(ScaleType.Y_axis);
+            this.Annotation = new Annotation();
             this.Datalabel = new Datlab();
             this.LegendBox = new SimpleLegend();
             this.TargetAttribute = new TargetAttribute();
@@ -184,7 +186,7 @@ namespace MtbGraph.MyTrend
             List<String> allCols = varCols;
             if (targetCols.Count > 0) allCols = allCols.Concat(targetCols).ToList();
             Object obj = allCols.ToArray();
-            this.X_Scale.SetScaleVariable(ref obj, ws);
+            this.X_Scale.SetScaleVariable(ref obj, ws); //這裡要Setvariable的原因是為了要讓 X 軸的 tick 數可被控制(抓資料數)
 
             //主軸變數
             List<String> prmyvarCols = this.variables;
@@ -220,7 +222,32 @@ namespace MtbGraph.MyTrend
                 //調整 Symbol type
                 array1 = new int[trendCount];
                 array2 = new int[targetCount];
-                for (int i = 0; i < trendCount; i++) array1[i] = dSymbType[i % this.dSymbType.Length];
+                if (this.Line.Symbols.GetTypes() != null)
+                {
+                    //需要檢查 symbol type 是 array 或是單一值...然後塞回 array1 中
+                    Type t = this.Line.Symbols.GetTypes().GetType();
+                    if (t.IsArray)
+                    {
+                        IEnumerable tmp = this.Line.Symbols.GetTypes() as IEnumerable;
+                        List<int> typeArray = new List<int>();
+                        foreach (object o in tmp) typeArray.Add(Convert.ToInt16(o));
+                        for (int i = 0; i < trendCount; i++)
+                        {
+                            array1[i] = typeArray[i % typeArray.Count];
+                        }
+                    }
+                    else
+                    {
+                        int stypes = Convert.ToInt16(this.Line.Symbols.GetTypes());
+                        for (int i = 0; i < trendCount; i++) array1[i] = stypes;
+                    }
+
+                }
+                else
+                {
+                    for (int i = 0; i < trendCount; i++) array1[i] = dSymbType[i % this.dSymbType.Length];
+                }
+
                 for (int i = 0; i < targetCount; i++) array2[i] = 0;
                 obj = array1.Concat(array2).ToArray();
                 this.Line.Symbols.SetType(ref obj);
@@ -250,6 +277,35 @@ namespace MtbGraph.MyTrend
                 }
 
             }
+            else
+            {
+                //調整 Symbol type
+                array1 = new int[trendCount];
+                array2 = new int[targetCount];
+                if (this.Line.Symbols.GetTypes() != null)
+                {
+                    //需要檢查 symbol type 是 array 或是單一值...然後塞回 array1 中
+                    Type t = this.Line.Symbols.GetTypes().GetType();
+                    if (t.IsArray)
+                    {
+                        IEnumerable tmp = this.Line.Symbols.GetTypes() as IEnumerable;
+                        List<int> typeArray = new List<int>();
+                        foreach (object o in tmp) typeArray.Add(Convert.ToInt16(o));
+                        for (int i = 0; i < trendCount; i++)
+                        {
+                            array1[i] = typeArray[i % typeArray.Count];
+                        }
+                    }
+                    else
+                    {
+                        int stypes = Convert.ToInt16(this.Line.Symbols.GetTypes());
+                        for (int i = 0; i < trendCount; i++) array1[i] = stypes;
+                    }
+                    obj = array1;
+                    this.Line.Symbols.SetType(ref obj);
+                }
+
+            }
             cmnd.Append(this.Line.GetCommand());
             if (this.Datalabel.Show)
             {
@@ -268,7 +324,7 @@ namespace MtbGraph.MyTrend
                         models.Add(model);
                     }
                     this.Datalabel.SetCustomDatlab(models);
-                }                
+                }
 
                 if (targetCount > 0)
                 {
@@ -300,6 +356,7 @@ namespace MtbGraph.MyTrend
 
             if (this.LegendBox.Show)
             {
+                this.LegendBox.GraphSize = this.GraphSize;
                 if ((this.LegendBox.HideHead == true & allCols.Count <= 3) ||
                     (this.LegendBox.HideHead == false & allCols.Count <= 2))
                     this.LegendBox.Location = Location.RightTop;
@@ -480,7 +537,6 @@ namespace MtbGraph.MyTrend
                         foreach (var item in unstackTg) groupedData.Add(item.Value.Data);
                         unstackWs.Columns.Item(nm).SetData(groupedData.ToArray());
                     }
-
                 }
             }
 
@@ -493,6 +549,7 @@ namespace MtbGraph.MyTrend
             trend.Y_Scale = (ContinuousScale)this.Y_Scale.Clone();
             trend.Annotation = this.Annotation.Clone();
             trend.Datalabel = this.Datalabel; //---> 還沒有寫 Clone 方法..需要嗎?
+            trend.GraphSize = this.GraphSize;
             //開始設定轉換後參數
             String[] copyArray = new String[summaryColArray.Length - 1];
             Array.Copy(summaryColArray, 1, copyArray, 0, summaryColArray.Length - 1);
@@ -542,7 +599,18 @@ namespace MtbGraph.MyTrend
 
             mtbCmnd.AppendLine("NOTITLE" + Environment.NewLine + "BRIEF 0");
             String cmnd = GetCommand();
-            mtbCmnd.AppendLine(cmnd.Substring(0, cmnd.Length - Environment.NewLine.Length - 1) + ".");
+
+            if (this.GraphSize.Width != 576 || this.GraphSize.Height != 384)
+            {
+                mtbCmnd.Append(cmnd);
+                mtbCmnd.AppendLine("GRAPH " + (double)this.GraphSize.Width / (96 * this.incrPercent / 100) + " " +
+                    (double)this.GraphSize.Height / (96 * this.incrPercent / 100) + ".");
+            }
+            else
+            {
+                mtbCmnd.AppendLine(cmnd.Substring(0, cmnd.Length - Environment.NewLine.Length - 1) + ".");
+            }
+           
             Console.Write(mtbCmnd.ToString());
             /*
              * 準備暫存檔，用於執行巨集
@@ -617,7 +685,7 @@ namespace MtbGraph.MyTrend
                  * 使用 summary data trend 模式
                  */
                 this.CreateTSPlot();
-            }            
+            }
         }
     }
 }
