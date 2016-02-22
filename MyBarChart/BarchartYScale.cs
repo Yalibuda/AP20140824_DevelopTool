@@ -41,7 +41,8 @@ namespace MtbGraph.MyBarChart
                 {
                     foreach (String col in varCols)
                     {
-                        data = ws.Columns.Item(col).GetData();
+                        data = ws.Columns.Item(col).GetData();                        
+                        data = data.Select(value => value).Where(value => value < 1.23456E+30).ToArray();
                         datas.Add(data.Sum());
                     }
                     min = datas.Min();
@@ -60,8 +61,12 @@ namespace MtbGraph.MyBarChart
                     Matrix<double> mat = new DenseMatrix(rows, cols, data);
                     Matrix<double> iden = Matrix<double>.Build.Dense(cols, 1, 1);
                     Matrix<double> stackvalue = mat * iden;
-                    min = stackvalue.ToColumnWiseArray().Min();
-                    max = stackvalue.ToColumnWiseArray().Max();
+                    tmp = stackvalue.ToColumnWiseArray();
+                    tmp = tmp.Select(value => value).Where(value => value < 1.23456E+30).ToArray();
+                    min = tmp.Min();
+                    max = tmp.Max();
+                    //min = stackvalue.ToColumnWiseArray().Min();
+                    //max = stackvalue.ToColumnWiseArray().Max();
                 }
                 this.GScale.Run(min, max, proj, ws);
 

@@ -11,6 +11,9 @@ namespace MtbGraph.GraphComponent
     public interface ICOMInterop_Legend
     {
         bool Show { set; get; }
+        Single FontSize { set; get; }
+        
+        double VerticalBase { set; get; }
         LegendboxLook LegendBoxLook { set; get; }       
         bool HideHead { set; get; }
         String SectTitle { set; get; }

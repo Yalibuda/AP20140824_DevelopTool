@@ -19,8 +19,28 @@ namespace MtbGraph.GraphComponent
         public Reference(ScaleType scale_axis)
         {
             this.scale_axis = scale_axis;
+            this.Side = 2;
+        }
+        /*
+         * 20150129:
+         * 新增 haveValues 方法，讓舊版 Bar-line plot 可以
+         * 增加 Reference line
+         * ...未來可以考慮刪除
+         */ 
+        
+        public bool haveValues()
+        {
+            if (this.value != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
+        public long Side { set; private get; }//20150129: 新增的屬性，可以設定輔助線顯示的位置
         public Reference Clone()
         {
             Reference refe = new Reference(this.scale_axis);
@@ -42,6 +62,7 @@ namespace MtbGraph.GraphComponent
                 foreach (String s in this.refType)
                     refe.refType.Add(s);
             }
+
             return refe;
         }
 
@@ -132,6 +153,8 @@ namespace MtbGraph.GraphComponent
             }
         }
 
+        public bool HideLabel { set; get; }
+
         public void Clear()
         {
             value = null;
@@ -173,6 +196,8 @@ namespace MtbGraph.GraphComponent
                         if (this.color != null) cmnd.AppendLine("  COLOR " + String.Join(" ", this.color.ToArray()) + ";");
                         if (this.refType != null) cmnd.AppendLine("  TYPE " + String.Join(" ", this.refType.ToArray()) + ";");
                         if (this.scale_axis == ScaleType.Secondary_Y_axis) cmnd.AppendLine("  SECS;");
+                        cmnd.AppendLine("  Side " + this.Side+";");
+                        if (this.HideLabel) cmnd.AppendLine("  LABEL \"\";");
                         break;
                     case RefeStatus.Multi:
                         String[] array1 = new String[value.Count()];
@@ -212,6 +237,8 @@ namespace MtbGraph.GraphComponent
                             if (this.color != null) cmnd.AppendLine("  COLOR " + array1[i] + ";");
                             if (this.refType != null) cmnd.AppendLine("  TYPE " + array2[i] + ";");
                             if (this.scale_axis == ScaleType.Secondary_Y_axis) cmnd.AppendLine("  SECS;");
+                            cmnd.AppendLine("  Side " + this.Side + ";");
+                            if (this.HideLabel) cmnd.AppendLine("  LABEL \"\";");
                         }
                         break;
                     default:

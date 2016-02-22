@@ -27,8 +27,12 @@ namespace MtbGraph.GraphComponent
             Show = true;
             NotationType = LegendNotationType.Trend;
             this.GraphSize = new Size(576, 384);
+            this.FontSize = 0f;
+            this.VerticalBase = 0;
         }
         public Size GraphSize { set; get; }
+        public Single FontSize { set; get; }
+        public double VerticalBase { set; get; }
         public SimpleLegend Clone()
         {
             /*
@@ -112,6 +116,15 @@ namespace MtbGraph.GraphComponent
                 if (!HideHead)
                 {
                     tmp = TextRenderer.MeasureText((this.SectTitle == null ? "Variable" : this.SectTitle), this.fontLgnd);
+                    switch (this.NotationType)
+                    {
+                        case LegendNotationType.Trend:
+                            tmp.Width = tmp.Width + 33;//(30 標記 + 3 間距 )
+                            break;
+                        case LegendNotationType.Bar:
+                            tmp.Width = tmp.Width + 17;//(13 標記 + 4 間距 )
+                            break;
+                    }
                 }
                 /*
                  * 判斷是否要自訂 Legend 位置
@@ -158,11 +171,13 @@ namespace MtbGraph.GraphComponent
                             ymax = Math.Min(ymin + (double)(sizeOfLgnd.Height + tmp.Height / h), 1);
                             coordinate = " " + xmin + " " + xmax + " " + ymin + " " + ymax;
                             break;
+
                     }
                 }
 
                 cmnd.AppendLine(" LEGE" + coordinate + ";");
                 if (this.LegendBoxLook == LegendboxLook.Transparent) cmnd.AppendLine("  TYPE 0;" + Environment.NewLine + "ETYPE 0;");
+                if (this.FontSize != 0f) cmnd.AppendLine("  PSize " + this.FontSize + ";");
                 cmnd.AppendLine("  SECT 1;");
                 if (HideHead)
                 {
@@ -171,7 +186,7 @@ namespace MtbGraph.GraphComponent
                 else if (!String.IsNullOrEmpty(this.SectTitle))
                 {
                     cmnd.AppendLine("   CHEAD 2 \"" + this.SectTitle + "\";");
-                }
+                }                
             }
             else
             {

@@ -260,12 +260,22 @@ namespace MtbGraph.GraphComponent
             if (ws == null || proj == null) return;
 
             double[] datas = new double[0];
-            double[] data;
+            double[] data;            
             foreach (String str in varCols)
             {
-                data = ws.Columns.Item(str).GetData();
+                data = ws.Columns.Item(str).GetData();                
+                //加入判斷有無遺失值程序，避免抓取 max/min 得到1.23456E+30
+                if (ws.Columns.Item(str).MissingCount > 0)
+                {
+                    var querydata = from nonmissing in data
+                                    where nonmissing < 1.23456E+30
+                                    select nonmissing;
+                    data = querydata.ToArray();
+                }
                 datas = datas.Concat(data).ToArray();
             }
+            
+
 
             double min = datas.Min();
             double max = datas.Max();

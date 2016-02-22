@@ -12,6 +12,7 @@ namespace MtbGraph.GraphComponent
         void SetValue(ref Object value);
         void SetColor(ref Object value);
         void SetType(ref Object value);
+        bool HideLabel { set; get; }
         void Clear();
     }
 }

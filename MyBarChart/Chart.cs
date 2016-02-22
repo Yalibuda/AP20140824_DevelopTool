@@ -226,7 +226,7 @@ namespace MtbGraph.MyBarChart
                     {
                         sizeText = TextRenderer.MeasureText((this.Annotation.Title == null ? "Bar-Chart" : this.Annotation.Title),
                             new Font(System.Drawing.SystemFonts.DialogFont.Name,
-                                (float)this.Annotation.TitleFontSize * (100 / this.incrPercent), FontStyle.Bold));
+                                (float)this.Annotation.TitleFontSize * 100 / this.incrPercent, FontStyle.Bold));
                         dYMax = dYMax - (double)sizeText.Height / 384;
                     }
 
@@ -253,7 +253,7 @@ namespace MtbGraph.MyBarChart
                         foreach (dynamic s in tmp)
                         {
                             tmpSize = TextRenderer.MeasureText(s.ToString(), new Font(System.Drawing.SystemFonts.DialogFont.Name,
-                                (float)this.X_Scale.Tick.FontSize * (100 / this.incrPercent), FontStyle.Regular));
+                                (float)this.X_Scale.Tick.FontSize * 100 / this.incrPercent, FontStyle.Regular));
                             if (tmpSize.Width > sizeText.Width) sizeText.Width = tmpSize.Width;
                         }
                     }
@@ -263,7 +263,7 @@ namespace MtbGraph.MyBarChart
                         foreach (String s in this.variables)
                         {
                             tmpSize = TextRenderer.MeasureText(ws.Columns.Item(s).Label, new Font(System.Drawing.SystemFonts.DialogFont.Name,
-                                (float)this.X_Scale.Tick.FontSize * (100 / this.incrPercent), FontStyle.Regular));
+                                (float)this.X_Scale.Tick.FontSize * 100 / this.incrPercent, FontStyle.Regular));
                             if (tmpSize.Width > sizeText.Width) sizeText.Width = tmpSize.Width;
                         }
                     }
@@ -308,13 +308,13 @@ namespace MtbGraph.MyBarChart
             StringBuilder mtbCmnd = new StringBuilder();
             StringBuilder exportString;
 
-            mtbCmnd.AppendLine("NOTITLE" + Environment.NewLine + "BRIEF 0");
+            mtbCmnd.AppendLine("TITLE" + Environment.NewLine + "BRIEF 0");
             String cmnd = GetCommand();
             if (this.GraphSize.Width != 576 || this.GraphSize.Height != 384)
             {
                 mtbCmnd.Append(cmnd);
-                mtbCmnd.AppendLine("GRAPH " + (double)this.GraphSize.Width / (96 * this.incrPercent / 100) + " " +
-                    (double)this.GraphSize.Height / (96 * this.incrPercent / 100) + ".");
+                mtbCmnd.AppendLine("GRAPH " + (double)this.GraphSize.Width / ((double)96 * this.incrPercent / 100) + " " +
+                    (double)this.GraphSize.Height / ((double)96 * this.incrPercent / 100) + ".");
             }
             else
             {

@@ -28,7 +28,7 @@ namespace MtbGraph.GraphComponent
 
     public enum Location
     {
-        Auto, RightTop, LeftDown
+        Auto, RightTop, LeftDown, Custom
     }
     public enum DatlabPlace
     {

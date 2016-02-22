@@ -29,7 +29,8 @@ namespace MtbGraph
             }
             catch (Exception e)
             {
-                MessageBox.Show("#" + e.HResult + " - " + e.Message, mTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(e.Message, mTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                //MessageBox.Show("#" + e.HResult + " - " + e.Message, mTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             return colName;
         }
@@ -62,7 +63,8 @@ namespace MtbGraph
             }
             catch (Exception e)
             {
-                MessageBox.Show("#" + e.HResult + " - " + e.Message, mTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                //MessageBox.Show("#" + e.HResult + " - " + e.Message, mTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(e.Message, mTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             return colName;
         }

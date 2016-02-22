@@ -202,6 +202,9 @@ namespace MtbGraph.GraphComponent
          */ 
         public void Dispose()
         {
+
+            this.proj = null;
+            this.ws = null;
             GC.Collect();
         }
 
@@ -211,5 +214,6 @@ namespace MtbGraph.GraphComponent
         protected int[] dSymbType = { 6, 12, 16, 20, 23, 26, 29 };
         protected int[] dLineType = { 1, 2, 3, 4, 5 };
         public Size GraphSize { set; get; }
+
     }
 }
