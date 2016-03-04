@@ -59,7 +59,7 @@ namespace MtbGraph.MyBarChart
         }
 
         private List<String> labvariable = null;
-        public void SetLabelVarible(ref object variables)
+        public void SetLabelVariable(ref object variables)
         {
             labvariable = mtools.TransObjToMtbColList(variables, ws);
         }
@@ -190,6 +190,15 @@ namespace MtbGraph.MyBarChart
                     foreach (DatlabModelAttribute m in models)
                     {
                         m.Color = this.datcolor;
+                    }
+                }
+
+
+                if (this.Datalabel.FontSize != 0 ) //有指定 Datlab 字型大小
+                {
+                    foreach (DatlabModelAttribute m in models)
+                    {
+                        m.Size = (int)this.Datalabel.FontSize;
                     }
                 }
 

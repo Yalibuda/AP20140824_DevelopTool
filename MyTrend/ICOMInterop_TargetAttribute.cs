@@ -6,14 +6,19 @@ using System.Threading.Tasks;
 
 namespace MtbGraph.MyTrend
 {
-    public interface ICOMInterop_TargetAttribute
+    public interface ICOMInterop_TargetAttribute: GraphComponent.ICOMInterop_Line
     {
-        void SetTargetColor(dynamic color);
-        dynamic TargetColor { get; }
-        void SetTargetType(dynamic linetype);
-        dynamic TargetType { get; }
-        void SetNotationColor(dynamic color);
-        dynamic NotationColor { get; }
+        void SetColor(dynamic color);
+        void SetType(dynamic linetype);
+        void SetSize(dynamic size);
+        void SetNotationSize(dynamic fontSize);
+
+        void SetDefault();
+        
+        
+        //dynamic TargetType { get; }
+        //void SetNotationColor(dynamic color);
+        //dynamic NotationColor { get; }
 
     }
 }

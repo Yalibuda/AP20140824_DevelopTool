@@ -10,6 +10,7 @@ namespace MtbGraph.GraphComponent
     {
         bool Show { set; get; }
         DatlabColor Color { set; get; }
+        float FontSize { set; get; }
         //DatlabType LabelType { set; get; }
         //void SetDatlabInvisible(List<DatlabModelAttribute> modelAttribute); //VB6 無法顯示此方法
         //void SetCustomDatlab(List<DatlabModelAttribute> modelAttribute); //VB6 無法顯示此方法

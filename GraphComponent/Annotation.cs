@@ -11,12 +11,7 @@ namespace MtbGraph.GraphComponent
     {
         public Annotation()
         {
-            Title = null;
-            footnotes = new List<string>();
-            footnoteColor = new List<int>();
-            footnoteItalic = new List<bool>();
-            this.TitleFontSize = 13;
-            this.FootnoteFontSize = 9;
+            SetDefault();
         }
 
         public Annotation Clone()
@@ -24,55 +19,111 @@ namespace MtbGraph.GraphComponent
             Annotation annotation = new Annotation();
             annotation.Title = this.Title;
             annotation.TitleFontSize = this.TitleFontSize;
-            annotation.FootnoteFontSize = this.FootnoteFontSize;
-            if (this.footnotes != null)
+            if (_footnote != null)
             {
-                for (int i = 0; i < this.footnotes.Count; i++)
-                    annotation.AddFootnote(this.footnotes[i], this.footnoteColor[i], this.footnoteItalic[i]);
+                foreach (INotation item in _footnote)
+                {
+                    annotation.AddFootnote(item.Clone());
+                }
             }
-
+          
             return annotation;
         }
 
-        public String Title { set; get; }
-        public double TitleFontSize { set; get; }
 
-        public double FootnoteFontSize { set; get; }
+        /**
+         * 
+         * 新版 Annotation 做法: 用 Title、Footnote 物件去控制
+         * 
+         */
+        private INotation _title;
+        private INotation[] _footnote;
 
-        private List<String> footnotes;
+
+        /// <summary>
+        /// 設定或取得 Title 的文字
+        /// </summary>
+        public String Title
+        {
+            set
+            {
+                _title.Text = value;
+            }
+            get
+            {
+                return _title.Text;
+            }
+        }
+
+        /// <summary>
+        /// 設定或取得 Title 大小
+        /// </summary>
+        public float TitleFontSize
+        {
+            set
+            {
+                _title.Size = value;
+            }
+            get
+            {
+                return _title.Size;
+            }
+        }
+
+        //private List<String> footnotes;
         public void AddFootnote(String footnote)
         {
-            AddFootnote(footnote, -1, false);
+            Footnote f = new Footnote();
+            f.Text = footnote;
+            AddFootnote(f);
+            //AddFootnote(footnote, -1, false);
+
         }
-        private List<int> footnoteColor;
-        private List<bool> footnoteItalic;
-        public void AddFootnote(String footnote, int color = -1, bool italic = false)
+
+        public void AddFootnote(INotation footnote)
         {
-            footnotes.Add(footnote);
-            footnoteColor.Add(color);
-            footnoteItalic.Add(italic);
+            List<INotation> l = new List<INotation>();
+
+            if (_footnote != null)
+                l = _footnote.ToList();
+            INotation f = footnote.Clone();
+            l.Add(f);
+            _footnote = l.ToArray();
         }
+
+        //private List<int> footnoteColor;
+        //private List<bool> footnoteItalic;
+        //public void AddFootnote(String footnote, int color = -1, bool italic = false)
+        //{
+        //    List<INotation> fList = new List<INotation>();
+        //    if (_footnote != null) fList = _footnote.ToList();
+
+        //    Footnote f = new Footnote();
+        //    f.Text = footnote;
+        //    f.Color = color;
+        //    f.Italic = italic;
+
+        //    footnotes.Add(footnote);
+        //    footnoteColor.Add(color);
+        //    footnoteItalic.Add(italic);
+        //}
 
         public void RemoveFootnoteAt(int i)
         {
-            footnotes.RemoveAt(i);
-            footnoteColor.RemoveAt(i);
-            footnoteItalic.RemoveAt(i);
+            List<INotation> l = _footnote.ToList();
+            l.RemoveAt(i);
+            _footnote = l.ToArray();
         }
 
         public void ClearFootnote()
         {
-            footnotes.Clear();
-            footnoteColor.Clear();
-            footnoteItalic.Clear();
+            _footnote = null;         
         }
 
         public void SetDefault()
         {
-            Title = null;
-            ClearFootnote();
-            this.TitleFontSize = 13;
-            this.FootnoteFontSize = 9;
+            _title = new Title();
+            _footnote = null;
         }
 
         public String GetCommand()
@@ -88,17 +139,18 @@ namespace MtbGraph.GraphComponent
                 if (this.TitleFontSize != 13) cmnd.AppendLine("  PSIZE " + this.TitleFontSize + ";");
             }
 
-            if (this.footnotes.Count > 0)
+            if (_footnote != null && _footnote.Length > 0)
             {
-                for (int i = 0; i < footnotes.Count; i++)
+                foreach (INotation item in _footnote)
                 {
-                    cmnd.AppendLine(" FOOT \"" + footnotes[i] + "\";");
-                    if (footnoteColor[i] != -1) cmnd.AppendLine("  TCOLOR " + footnoteColor[i] + ";");
-                    if (footnoteItalic[i]) cmnd.AppendLine("  ITALIC;");
-                    if (FootnoteFontSize != 9) cmnd.AppendLine("  PSIZE " + this.FootnoteFontSize + ";");
-
+                    cmnd.AppendLine(string.Format(" FOOT \"{0}\";", item.Text));
+                    if (item.Color != -1) cmnd.AppendLine(string.Format("  TCOLOR {0};", item.Color));
+                    if (item.Size != 9) cmnd.AppendLine(string.Format("  PSIZE {0};", item.Size));
+                    if (item.Italic) cmnd.AppendLine("  ITALIC;");
+                    if (item.Bold) cmnd.AppendLine("  BOLD;");
                 }
             }
+            
 
             return cmnd.ToString();
         }

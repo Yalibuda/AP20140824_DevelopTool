@@ -11,6 +11,7 @@ namespace MtbGraph.GraphComponent
         bool Show { set; get; }
         DatlabType LabelType { set; get; }
         DatlabColor Color { set; get; }
+        float FontSize { set; get; }
         void SetDatlabInvisible(List<DatlabModelAttribute> modelAttribute);
         void SetCustomDatlab(List<DatlabModelAttribute> modelAttribute);
         void SetLabelFromColumn(String col);

@@ -15,13 +15,13 @@ namespace MtbGraph.MyTrend
         SimpleLegend LegendBox { get; }
         Annotation Annotation { get; }
         Datlab Datalabel { get; }
-        //TargetAttribute TargetAttribute { get; }
+        TargetAttribute TargetAttribute { get; }
 
         void SetVariable(ref Object variables, ScaleType scaletype);
-        void SetLabelVarible(ref object variables);
+        void SetLabelVariable(ref object variables);
         void SetTargetVariable(ref Object variables, ScaleType scaletype);
-        void SetTargetColor(ref Object colors);
-        void SetTargetType(ref Object linetype);
+        //void SetTargetColor(dynamic colors);
+        //void SetTargetType(ref Object linetype);
         void SetGroupVariable(String column);
         void SetMtbEnvironment(Mtb.Project proj, Mtb.Worksheet ws);
 

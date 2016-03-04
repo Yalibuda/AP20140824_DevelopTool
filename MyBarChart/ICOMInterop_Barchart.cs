@@ -15,11 +15,14 @@ namespace MtbGraph.MyBarChart
         Annotation Annotation { get; }
         Datlab Datalabel { get; }
 
+        /// <summary>
+        /// 設定 Bar Chart 的排列方式
+        /// </summary>
         BarChartTableArrangement TableArrangement { set; get; }
         BarChartType ChartType { set; get; }
 
         void SetVariable(ref Object variables);
-        void SetLabelVarible(ref object variables);   
+        void SetLabelVariable(ref object variables);   
         void SetMtbEnvironment(Mtb.Project proj, Mtb.Worksheet ws);
 
         void SetDatalabelColor(int color);

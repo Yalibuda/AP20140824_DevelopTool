@@ -20,14 +20,17 @@ namespace MtbGraph.GraphComponent
         {
             this.scale_axis = scale_axis;
             this.Side = 2;
+            this.FontSize = -1;
+            this.Size = -1;
+
         }
         /*
          * 20150129:
          * 新增 haveValues 方法，讓舊版 Bar-line plot 可以
          * 增加 Reference line
          * ...未來可以考慮刪除
-         */ 
-        
+         */
+
         public bool haveValues()
         {
             if (this.value != null)
@@ -45,7 +48,7 @@ namespace MtbGraph.GraphComponent
         {
             Reference refe = new Reference(this.scale_axis);
             if (this.value != null)
-            {             
+            {
                 refe.value = new List<String>();
                 foreach (String s in this.value)
                     refe.value.Add(s);
@@ -62,6 +65,9 @@ namespace MtbGraph.GraphComponent
                 foreach (String s in this.refType)
                     refe.refType.Add(s);
             }
+
+            if (this._fontSize != -1) refe.FontSize = this._fontSize;
+            if (this._size != -1) refe.Size = this._size;
 
             return refe;
         }
@@ -155,11 +161,40 @@ namespace MtbGraph.GraphComponent
 
         public bool HideLabel { set; get; }
 
+        private int _fontSize = -1;
+        public int FontSize
+        {
+            set
+            {
+                _fontSize = value;
+            }
+            get
+            {
+                return _fontSize;
+            }
+        }
+
+        private int _size = -1;
+        public int Size
+        {
+            set
+            {
+                _size = value;
+            }
+            get
+            {
+                return _size;
+            }
+        }
+
         public void Clear()
         {
             value = null;
             color = null;
             refType = null;
+            _fontSize = -1;
+            _size = -1;
+
         }
 
         public String GetCommand()
@@ -195,9 +230,18 @@ namespace MtbGraph.GraphComponent
                         cmnd.AppendLine(" REFE " + k + " " + String.Join(" ", this.value.ToArray()) + ";");
                         if (this.color != null) cmnd.AppendLine("  COLOR " + String.Join(" ", this.color.ToArray()) + ";");
                         if (this.refType != null) cmnd.AppendLine("  TYPE " + String.Join(" ", this.refType.ToArray()) + ";");
+                        if (this._size > 0) cmnd.AppendLine(string.Format("  Size {0};", this._size));
                         if (this.scale_axis == ScaleType.Secondary_Y_axis) cmnd.AppendLine("  SECS;");
-                        cmnd.AppendLine("  Side " + this.Side+";");
-                        if (this.HideLabel) cmnd.AppendLine("  LABEL \"\";");
+                        cmnd.AppendLine("  Side " + this.Side + ";");
+                        if (this.HideLabel)
+                        {
+                            cmnd.AppendLine("  LABEL \"\";");
+                        }
+                        else
+                        {
+                            if (this._fontSize > 0)
+                                cmnd.AppendLine(string.Format("  PSize {0};", this._fontSize));
+                        }
                         break;
                     case RefeStatus.Multi:
                         String[] array1 = new String[value.Count()];
@@ -236,9 +280,18 @@ namespace MtbGraph.GraphComponent
                             cmnd.AppendLine(" REFE " + k + " " + value[i] + ";");
                             if (this.color != null) cmnd.AppendLine("  COLOR " + array1[i] + ";");
                             if (this.refType != null) cmnd.AppendLine("  TYPE " + array2[i] + ";");
+                            if (this._size > 0) cmnd.AppendLine(string.Format("  Size {0};", this._size));
                             if (this.scale_axis == ScaleType.Secondary_Y_axis) cmnd.AppendLine("  SECS;");
                             cmnd.AppendLine("  Side " + this.Side + ";");
-                            if (this.HideLabel) cmnd.AppendLine("  LABEL \"\";");
+                            if (this.HideLabel)
+                            {
+                                cmnd.AppendLine("  LABEL \"\";");
+                            }
+                            else
+                            {
+                                if (this._fontSize > 0)
+                                    cmnd.AppendLine(string.Format("  PSize {0};", this._fontSize));
+                            }
                         }
                         break;
                     default:

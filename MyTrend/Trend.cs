@@ -68,7 +68,7 @@ namespace MtbGraph.MyTrend
 
         //設定 Label 欄位
         private List<String> labvariable = null;
-        public void SetLabelVarible(ref object variables)
+        public void SetLabelVariable(ref object variables)
         {
             labvariable = mtools.TransObjToMtbColList(variables, ws);
         }
@@ -76,6 +76,11 @@ namespace MtbGraph.MyTrend
         //設定 Target 欄位
         private List<String> targets = null;
         private List<String> sectargets = null;
+        /// <summary>
+        /// 設定 Target 欄位
+        /// </summary>
+        /// <param name="targets">輸入單一 Target 欄位名稱 string 或包含一個或多個的 Target 欄位名稱的文字陣列 string[]</param>
+        /// <param name="scaletype">對應的 Y 軸，Y1 或 Y2</param>
         public void SetTargetVariable(ref object targets, ScaleType scaletype = ScaleType.Y_axis)
         {
             switch (scaletype)
@@ -94,71 +99,75 @@ namespace MtbGraph.MyTrend
 
         //設定 Group 欄位(只給開放一個)
         private List<String> groupvariable = null;
+        /// <summary>
+        /// 指定用來分群的欄位，只適用於一個分群欄位
+        /// </summary>
+        /// <param name="column">分群欄位名稱</param>
         public void SetGroupVariable(String column)
         {
             this.groupvariable = mtools.TransObjToMtbColList(column, ws);
         }
 
-        private List<int> targetColor = null;
-        public void SetTargetColor(ref Object colors)
-        {
-            Type t = colors.GetType();
-            List<int> list = new List<int>();
-            if (t.IsArray)
-            {
-                try
-                {
-                    System.Collections.IEnumerable enumerable = colors as System.Collections.IEnumerable;
-                    foreach (object o in enumerable)
-                    {
-                        list.Add(Convert.ToInt16(o.ToString()));
-                    }
-                    targetColor = list;
-                }
-                catch
-                {
-                    //throw new ArgumentException("Invalid input of target color");
-                }
-            }
-            else
-            {
-                list.Add(Convert.ToInt16(colors.ToString()));
-                targetColor = list;
-            }
-        }
+        //private List<int> targetColor = null;
+        //public void SetTargetColor(dynamic colors)
+        //{
+        //    Type t = colors.GetType();
+        //    List<int> list = new List<int>();
+        //    if (t.IsArray)
+        //    {
+        //        try
+        //        {
+        //            System.Collections.IEnumerable enumerable = colors as System.Collections.IEnumerable;
+        //            foreach (object o in enumerable)
+        //            {
+        //                list.Add(Convert.ToInt16(o.ToString()));
+        //            }
+        //            targetColor = list;
+        //        }
+        //        catch
+        //        {
+        //            //throw new ArgumentException("Invalid input of target color");
+        //        }
+        //    }
+        //    else
+        //    {
+        //        list.Add(Convert.ToInt16(colors.ToString()));
+        //        targetColor = list;
+        //    }
+        //}
 
 
-        private List<int> targetType = null;
-        public void SetTargetType(ref Object linetype)
-        {
-            Type t = linetype.GetType();
-            List<int> list = new List<int>();
-            Console.WriteLine("The type of element " + Type.GetTypeCode(t));
-            if (t.IsArray)
-            {
-                try
-                {
-                    System.Collections.IEnumerable enumerable = linetype as System.Collections.IEnumerable;
-                    foreach (object o in enumerable)
-                    {
-                        list.Add(Convert.ToInt16(o.ToString()));
-                    }
-                    targetType = list;
-                }
-                catch
-                {
-                    //throw new ArgumentException("Invalid input of type ar target connect line");
-                }
+        //private List<int> targetType = null;
+        //public void SetTargetType(ref Object linetype)
+        //{
+        //    Type t = linetype.GetType();
+        //    List<int> list = new List<int>();
+        //    Console.WriteLine("The type of element " + Type.GetTypeCode(t));
+        //    if (t.IsArray)
+        //    {
+        //        try
+        //        {
+        //            System.Collections.IEnumerable enumerable = linetype as System.Collections.IEnumerable;
+        //            foreach (object o in enumerable)
+        //            {
+        //                list.Add(Convert.ToInt16(o.ToString()));
+        //            }
+        //            targetType = list;
+        //        }
+        //        catch
+        //        {
+        //            //throw new ArgumentException("Invalid input of type ar target connect line");
+        //        }
 
-            }
-            else
-            {
-                //throw new ArgumentException("Invalid input type of target connect line type");
-                list.Add(Convert.ToInt16(linetype.ToString()));
-                targetColor = list;
-            }
+        //    }
+        //    else
+        //    {
+        //        //throw new ArgumentException("Invalid input type of target connect line type");
+        //        list.Add(Convert.ToInt16(linetype.ToString()));
+        //        targetType = list;
+        //    }
 
-        }
+        //}
 
         public String GetCommand()
         {
@@ -222,24 +231,13 @@ namespace MtbGraph.MyTrend
                 //調整 Symbol type
                 array1 = new int[trendCount];
                 array2 = new int[targetCount];
+
                 if (this.Line.Symbols.GetTypes() != null)
                 {
-                    //需要檢查 symbol type 是 array 或是單一值...然後塞回 array1 中
-                    Type t = this.Line.Symbols.GetTypes().GetType();
-                    if (t.IsArray)
+                    int[] currentSettings = this.Line.Symbols.GetTypes();
+                    for (int i = 0; i < trendCount; i++)
                     {
-                        IEnumerable tmp = this.Line.Symbols.GetTypes() as IEnumerable;
-                        List<int> typeArray = new List<int>();
-                        foreach (object o in tmp) typeArray.Add(Convert.ToInt16(o));
-                        for (int i = 0; i < trendCount; i++)
-                        {
-                            array1[i] = typeArray[i % typeArray.Count];
-                        }
-                    }
-                    else
-                    {
-                        int stypes = Convert.ToInt16(this.Line.Symbols.GetTypes());
-                        for (int i = 0; i < trendCount; i++) array1[i] = stypes;
+                        array1[i] = currentSettings[i % currentSettings.Length];
                     }
 
                 }
@@ -250,30 +248,87 @@ namespace MtbGraph.MyTrend
 
                 for (int i = 0; i < targetCount; i++) array2[i] = 0;
                 obj = array1.Concat(array2).ToArray();
-                this.Line.Symbols.SetType(ref obj);
+                //this.Line.Symbols.SetType(ref obj);
+                this.Line.Symbols.SetType(obj);
 
-                /* 調整 Connectline color 和 type，當 Target 有指定顏色或類型時...
+
+                /* 
+                 * 調整 Connectline color 和 type，當 Target 有指定顏色或類型時...
                  * 不用調整 Symbol 顏色..因為 Target 沒 Symbol.../_\
                  * 
                  * 未來可考慮改用 TargetAttribute物件的屬性...即將該類別內的SetTargetcolor 這些
                  * 方法拿掉，這裡就改用判斷 TargetAttribute 處理，包含將 dynamic 轉為 array 再丟
                  * 到 Line 裡面
+                 * 
                  */
 
-                if (targetColor != null)
+                /// 
+                /// 設定 connectline 顏色
+                ///                
+                if (this.TargetAttribute.GetColor() != null)
                 {
-                    for (int i = 0; i < trendCount; i++) array1[i] = dLineColor[i % this.dLineColor.Length];
-                    for (int i = 0; i < targetCount; i++) array2[i] = targetColor[i % targetColor.Count];
+                    if (this.Line.Connectlines.GetColor() != null)
+                    {
+                        int[] currentSettings = this.Line.Connectlines.GetColor();
+                        for (int i = 0; i < trendCount; i++)
+                        {
+                            array1[i] = currentSettings[i % currentSettings.Length];
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < trendCount; i++) array1[i] = dLineColor[i % this.dLineColor.Length];
+                    }
+                    int[] currentTargSettings = this.TargetAttribute.GetColor();
+                    for (int i = 0; i < targetCount; i++) array2[i] = currentTargSettings[i % currentTargSettings.Length];
                     obj = array1.Concat(array2).ToArray();
-                    this.Line.Connectlines.SetColor(ref obj);
+                    this.Line.Connectlines.SetColor(obj);
                 }
 
-                if (targetType != null)
+                /// 
+                /// 設定 connectline Type
+                ///                
+                if (this.TargetAttribute.GetTypes() != null)
                 {
-                    for (int i = 0; i < trendCount; i++) array1[i] = dLineType[i % this.dLineType.Length];
-                    for (int i = 0; i < targetCount; i++) array2[i] = targetType[i % targetType.Count];
+                    if (this.Line.Connectlines.GetTypes() != null)
+                    {
+                        int[] currentSettings = this.Line.Connectlines.GetTypes();
+                        for (int i = 0; i < trendCount; i++)
+                        {
+                            array1[i] = currentSettings[i % currentSettings.Length];
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < trendCount; i++) array1[i] = dLineType[i % this.dLineType.Length];
+                    }
+                    int[] currentTargSettings = this.TargetAttribute.GetTypes();
+                    for (int i = 0; i < targetCount; i++) array2[i] = currentTargSettings[i % currentTargSettings.Length];
                     obj = array1.Concat(array2).ToArray();
-                    this.Line.Connectlines.SetType(ref obj);
+                    this.Line.Connectlines.SetType(obj);
+                }
+
+                /// 
+                /// 設定 connectline Size
+                ///                
+                if (this.TargetAttribute.GetSize() != null)
+                {
+                    if (this.Line.Connectlines.GetSize() != null)
+                    {
+                        int[] currentSettings = this.Line.Connectlines.GetSize();
+                        for (int i = 0; i < trendCount; i++)
+                        {
+                            array1[i] = currentSettings[i % currentSettings.Length];
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < trendCount; i++) array1[i] = 1;
+                    }
+                    int[] currentTargSettings = this.TargetAttribute.GetSize();
+                    for (int i = 0; i < targetCount; i++) array2[i] = currentTargSettings[i % currentTargSettings.Length];
+                    obj = array1.Concat(array2).ToArray();
+                    this.Line.Connectlines.SetSize(obj);
                 }
 
             }
@@ -281,50 +336,84 @@ namespace MtbGraph.MyTrend
             {
                 //調整 Symbol type
                 array1 = new int[trendCount];
-                array2 = new int[targetCount];
+
                 if (this.Line.Symbols.GetTypes() != null)
                 {
-                    //需要檢查 symbol type 是 array 或是單一值...然後塞回 array1 中
-                    Type t = this.Line.Symbols.GetTypes().GetType();
-                    if (t.IsArray)
+                    int[] currentSettings = this.Line.Symbols.GetTypes();
+                    for (int i = 0; i < trendCount; i++)
                     {
-                        IEnumerable tmp = this.Line.Symbols.GetTypes() as IEnumerable;
-                        List<int> typeArray = new List<int>();
-                        foreach (object o in tmp) typeArray.Add(Convert.ToInt16(o));
-                        for (int i = 0; i < trendCount; i++)
-                        {
-                            array1[i] = typeArray[i % typeArray.Count];
-                        }
+                        array1[i] = currentSettings[i % currentSettings.Length];
                     }
-                    else
-                    {
-                        int stypes = Convert.ToInt16(this.Line.Symbols.GetTypes());
-                        for (int i = 0; i < trendCount; i++) array1[i] = stypes;
-                    }
-                    obj = array1;
-                    this.Line.Symbols.SetType(ref obj);
+                    this.Line.Symbols.SetType(array1);
                 }
 
+
+                /// 
+                /// 設定 connectline 顏色
+                ///               
+                if (this.Line.Connectlines.GetColor() != null)
+                {
+                    int[] currentSettings = this.Line.Connectlines.GetColor();
+                    for (int i = 0; i < trendCount; i++)
+                    {
+                        array1[i] = currentSettings[i % currentSettings.Length];
+                    }
+                    this.Line.Connectlines.SetColor(array1);
+                }
+
+
+
+                /// 
+                /// 設定 connectline Type
+                ///                
+                if (this.Line.Connectlines.GetTypes() != null)
+                {
+                    int[] currentSettings = this.Line.Connectlines.GetTypes();
+                    for (int i = 0; i < trendCount; i++)
+                    {
+                        array1[i] = currentSettings[i % currentSettings.Length];
+                    }
+                    this.Line.Connectlines.SetType(array1);
+                }
+
+                /// 
+                /// 設定 connectline Size
+                ///              
+                if (this.Line.Connectlines.GetSize() != null)
+                {
+                    int[] currentSettings = this.Line.Connectlines.GetSize();
+                    for (int i = 0; i < trendCount; i++)
+                    {
+                        array1[i] = currentSettings[i % currentSettings.Length];
+                    }
+                    this.Line.Connectlines.SetSize(array1);
+                }
             }
             cmnd.Append(this.Line.GetCommand());
+
             if (this.Datalabel.Show)
             {
                 Datalabel.LabelType = DatlabType.Value;
                 DatlabModelAttribute model;
-                List<DatlabModelAttribute> models = new List<DatlabModelAttribute>();
+                List<DatlabModelAttribute> models;
+
+
                 if (this.Datalabel.Color == DatlabColor.Custom) //有指定 Custom 再修改顏色
                 {
+                    models = new List<DatlabModelAttribute>();
                     for (int i = 0; i < trendCount; i++)
                     {
                         model = new DatlabModelAttribute();
                         model.ModelIndex = i + 1;
                         model.Color = this.dLineColor[i % this.dLineColor.Length];
+                        model.Size = (int)this.Datalabel.FontSize;
                         model.Start = 1;
                         model.End = ws.Columns.Item(varCols[i]).RowCount;
                         models.Add(model);
                     }
                     this.Datalabel.SetCustomDatlab(models);
                 }
+
 
                 if (targetCount > 0)
                 {
@@ -340,18 +429,21 @@ namespace MtbGraph.MyTrend
                     this.Datalabel.SetDatlabInvisible(models);
                 }
                 cmnd.Append(Datalabel.GetCommand());
-
-                //處理 Target 的註記
-                if (targetCount > 0)
+            }
+            //處理 Target 的註記
+            if (targetCount > 0)
+            {
+                Mtb.Column[] mtbCols = ws.Columns.Cast<Mtb.Column>().Where(x => targetCols.Contains(x.SynthesizedName)).ToArray();
+                string[] fnotes = mtbCols.Select(x => string.Format("{0}: {1}", x.Label, GetTargetInfo(x.SynthesizedName, ws))).ToArray();
+                Footnote f = new Footnote();
+                f.Text = string.Join("; ", fnotes);
+                if (TargetAttribute.GetNotationSize() != null && TargetAttribute.GetNotationSize().Length > 0)
                 {
-                    StringBuilder fnotes = new StringBuilder();
-                    for (int i = 0; i < targetCount; i++)
-                    {
-                        fnotes.Append(ws.Columns.Item(targetCols[i]).Label + ": " + GetTargetInfo(targetCols[i], ws) + "; ");
-                    }
-                    this.Annotation.AddFootnote(fnotes.ToString());
+                    float size = TargetAttribute.GetNotationSize()[0]; //目前以第一個元素代表全部
+                    if (size > 0)
+                        f.Size = size;
                 }
-
+                Annotation.AddFootnote(f);
             }
 
             if (this.LegendBox.Show)
@@ -367,8 +459,13 @@ namespace MtbGraph.MyTrend
                     {
                         colname[i] = ws.Columns.Item(allCols[i]).Label;
                     }
+                    colname = colname.ToArray();
                     this.LegendBox.SetVariables(ref colname);
                 }
+                cmnd.Append(LegendBox.GetCommand());
+            }
+            else
+            {
                 cmnd.Append(LegendBox.GetCommand());
             }
             cmnd.Append(this.Annotation.GetCommand());
@@ -382,6 +479,12 @@ namespace MtbGraph.MyTrend
             return cmnd.ToString();
         }
 
+        /// <summary>
+        /// 列出 Target 欄位中的相異值文字描述
+        /// </summary>
+        /// <param name="variables">Target 的 Col Id</param>
+        /// <param name="ws">作用的工作表</param>
+        /// <returns></returns>
         private String GetTargetInfo(String variables, Mtb.Worksheet ws)
         {
             Mtb.Column col = ws.Columns.Item(variables);
@@ -390,25 +493,16 @@ namespace MtbGraph.MyTrend
 
             if (t == Mtb.MtbDataTypes.DataUnassigned || t == Mtb.MtbDataTypes.Text) return null;
 
-            StringBuilder info = new StringBuilder();
-            for (int i = 0; i < data.Length; i++)
-            {
-                if (i == 0)
-                {
-                    info.Append(data[i]);
-                }
-                else
-                {
-                    if (data[i] != data[i - 1])
-                    {
-                        info.Append(", " + data[i]);
-                    }
-                }
-            }
-            return info.ToString();
+            double[] d = col.GetData();
+            string[] distinctData = d.Distinct().Select(x => x.ToString()).ToArray();
+            return string.Join(", ", distinctData);
+
         }
 
-
+        /// <summary>
+        /// 對有分群(GroupBy)欄位的資料繪製 TSPlot
+        /// 作法為將現有資料 Unstack 後複製到新工作表，並複製設定至新的 trend 物件，再使用 CreateTSPlot
+        /// </summary>
         public void StackedDataTrend()
         {
             /*
@@ -443,7 +537,31 @@ namespace MtbGraph.MyTrend
 
             //建立新工作表
             Mtb.Worksheet unstackWs = this.proj.Worksheets.Add(1);
-            unstackWs.Name = "Summary_" + this.ws.Name + "_tmp";
+            //bool nmflag = false;
+            //String index = "";
+            int id = 0;
+            string newWsName = string.Format("Summary_{0}_Tmp", this.ws.Name);
+            while (proj.Worksheets.CheckDuplicateName(newWsName))
+            {
+                id++;
+                newWsName = string.Format("Summary_{0}_Tmp_{1}", this.ws.Name, id);
+            }
+            unstackWs.Name = newWsName;
+
+            //while (!nmflag) //20150129, 如果名稱重複的處理方式
+            //{
+            //    try
+            //    {
+            //        unstackWs.Name = "Summary_" + this.ws.Name + "_tmp" + index;
+            //        nmflag = true;
+            //    }
+            //    catch
+            //    {
+            //        id++;
+            //        index = "_" + id.ToString();
+            //    }
+            //}
+            //unstackWs.Name = "Summary_" + this.ws.Name + "_tmp";
             unstackWs.MakeWorksheetActive(0);
 
             //新增 k+1 個欄位...k+1 個放 unstack 後的 data ，剩下一個是放 tally 後的 label 資料
@@ -544,6 +662,7 @@ namespace MtbGraph.MyTrend
             Trend trend = new Trend(this.proj, unstackWs);
             //複製工程
             trend.Line = this.Line.Clone();
+            trend.TargetAttribute = this.TargetAttribute.Clone();
             trend.LegendBox = this.LegendBox.Clone();
             trend.X_Scale = (CategoricalScale)this.X_Scale.Clone();
             trend.Y_Scale = (ContinuousScale)this.Y_Scale.Clone();
@@ -556,13 +675,25 @@ namespace MtbGraph.MyTrend
             Object obj = copyArray;
             trend.SetVariable(ref obj);
             obj = summaryColArray[0];
-            trend.SetLabelVarible(ref obj); //Unstack 後的變數
+            trend.SetLabelVariable(ref obj); //Unstack 後的變數
 
             /*
-             * 如果沒有指定則將 legend box 的section title 設為原本變數的 column label
+             * 20150129: 加入邏輯..如果有 target 表示 section title 應設為 "variable"
+             * 20131204: 如果沒有指定則將 legend box 的section title 設為原本變數的 column label
              */
             if (this.LegendBox.SectTitle == null)
-                trend.LegendBox.SectTitle = ws.Columns.Item(this.variables[0]).Label;
+            {
+                if (this.targets != null)
+                {
+                    if (validTargetCol.Count == 0)
+                        trend.LegendBox.SectTitle = ws.Columns.Item(this.variables[0]).Label;
+                }
+                else
+                {
+                    trend.LegendBox.SectTitle = ws.Columns.Item(this.variables[0]).Label;
+                }
+            }
+
 
             //Graph framewoek 資訊
             trend.CopyGraphToClipboard(this.isCopyToClipboard);
@@ -570,23 +701,37 @@ namespace MtbGraph.MyTrend
             trend.SaveGraph(this.isSaveGraph, this.pathOfSaveGraph);
 
 
-
-            if (invalidTargetCol != null)
+            //加入 Target 的資訊於圖表中
+            if (invalidTargetCol != null && invalidTargetCol.Count > 0)
             {
-                trend.Annotation.AddFootnote("Invalid target variable: " + String.Join(", ", invalidTargetCol), 20, true);
+                Footnote f = new Footnote();
+                f.Text = string.Format("Invalid target variable: {0}", string.Join(", ", invalidTargetCol));
+                f.Color = 20;
+                f.Italic = true;
+                if (TargetAttribute.GetNotationSize() != null && TargetAttribute.GetNotationSize().Length > 0) // 這段 Footnote 參考 TargetAttribute 的文字大小，並且只用第一個
+                {
+                    float size = TargetAttribute.GetNotationSize()[0];
+                    if (size > 0) f.Size = size;
+                }
+                trend.Annotation.AddFootnote(f);
             }
-            if (validTargetCol != null)
+            if (validTargetCol != null && validTargetCol.Count > 0)
             {
                 obj = validTargetCol.ToArray();
                 trend.SetTargetVariable(ref obj);
-                trend.targetColor = this.targetColor;
-                trend.targetType = this.targetType;
+
+
+                //trend.targetColor = this.targetColor;
+                //trend.targetType = this.targetType;
             }
 
             trend.Run();
 
         }
 
+        /// <summary>
+        /// 建立 TSPlot
+        /// </summary>
         private void CreateTSPlot()
         {
             /*
@@ -597,7 +742,7 @@ namespace MtbGraph.MyTrend
             StringBuilder mtbCmnd = new StringBuilder();
             StringBuilder exportString;
 
-            mtbCmnd.AppendLine("NOTITLE" + Environment.NewLine + "BRIEF 0");
+            mtbCmnd.AppendLine("TITLE" + Environment.NewLine + "BRIEF 0");
             String cmnd = GetCommand();
 
             if (this.GraphSize.Width != 576 || this.GraphSize.Height != 384)
@@ -610,7 +755,7 @@ namespace MtbGraph.MyTrend
             {
                 mtbCmnd.AppendLine(cmnd.Substring(0, cmnd.Length - Environment.NewLine.Length - 1) + ".");
             }
-           
+
             Console.Write(mtbCmnd.ToString());
             /*
              * 準備暫存檔，用於執行巨集
@@ -650,7 +795,7 @@ namespace MtbGraph.MyTrend
              * 是否可以進行繪圖
              * 
              */
-            if (this.variables == null && this.labvariable == null)
+            if (this.variables == null || this.labvariable == null)
             {
                 throw new ArgumentNullException("Variable or Label is null.");
                 return;

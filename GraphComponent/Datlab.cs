@@ -9,11 +9,16 @@ namespace MtbGraph.GraphComponent
     [System.Runtime.InteropServices.ClassInterface(System.Runtime.InteropServices.ClassInterfaceType.None)]
     public class Datlab : ICOMInterop_Datlab, IDatLabel
     {
+        public Datlab()
+        {
+            SetDefault();
+        }
 
         public bool Show { get; set; }
         public DatlabType LabelType { get; set; }
         public DatlabColor Color { set; get; }
         public DatlabPlace Place { set; get; }
+        public float FontSize { set; get; }
 
         /*
          * 設定要不顯示 Datlab 的 model, position (start:end)
@@ -118,10 +123,10 @@ namespace MtbGraph.GraphComponent
 
                                     for (int i = (int)model.Start; i <= (int)model.End; i++)//Minitab 是以1為base開始算...
                                     {
-                                        cmnd.AppendLine("  POSI " + i + " \"" + labels[(i-1) % labels.Count] + "\";");
+                                        cmnd.AppendLine("  POSI " + i + " \"" + labels[(i - 1) % labels.Count] + "\";");
                                         cmnd.AppendLine("   MODEL " + model.ModelIndex + ";");
                                         if (model.Color != null) cmnd.AppendLine("   TCOLOR " + model.Color + ";");
-                                        if (model.Size != null) cmnd.AppendLine("   TSIZE " + model.Size + ";");
+                                        if (model.Size > 0) cmnd.AppendLine("   PSIZE " + model.Size + ";");
                                         if (model.Offset != null) cmnd.AppendLine("   OFFSET 0 " + offsets[(i - 1) % offsets.Count] + ";");
                                     }
                                 }
@@ -131,12 +136,16 @@ namespace MtbGraph.GraphComponent
                                 cmnd.AppendLine("  POSI " + model.Start + ":" + model.End + ";");
                                 cmnd.AppendLine("   MODEL " + model.ModelIndex + ";");
                                 if (model.Color != null) cmnd.AppendLine("   TCOLOR " + model.Color + ";");
-                                if (model.Size != null) cmnd.AppendLine("   TSIZE " + model.Size + ";");
+                                if (model.Size >0) cmnd.AppendLine("   PSIZE " + model.Size + ";");
                                 if (model.Offset != null) cmnd.AppendLine("   OFFSET 0 " + model.Offset + ";");
                             }
                             cmnd.AppendLine("  ENDP;");
                         }
                     }
+                }
+                else //表示沒有特別設定 datlabModelAttribute...所以只要關心字型大小
+                {
+                    if (this.FontSize > 0) cmnd.AppendLine(string.Format("  Psize {0};", this.FontSize));
                 }
 
                 if (this.invisibleDatlabModel != null)//有指定隱藏, 通常是Target 
@@ -164,8 +173,9 @@ namespace MtbGraph.GraphComponent
             this.LabelType = DatlabType.Value;
             this.Show = false;
             this.labColumn = String.Empty;
+            this.FontSize = -1; // -1 表示預設值
             this.invisibleDatlabModel = new List<DatlabModelAttribute>();
-            this.datlabModelAttribute = new List<DatlabModelAttribute>();
+            this.datlabModelAttribute = null;
         }
 
     }

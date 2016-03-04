@@ -62,6 +62,7 @@ namespace MtbGraph
         //functions
         private void CreateOverlayBarLinePlot(Mtb.Project proj, Mtb.Worksheet ws, BarTypes btype = BarTypes.Stack)
         {
+            
             List<String> barColList = new List<String>();
             List<String> trndColList = new List<String>();
             List<String> tgColList = new List<String>();
@@ -916,6 +917,13 @@ namespace MtbGraph
         public void EnableBarEdge(bool b)
         {
             this.showBarEdge = b;
+        }
+
+
+        public override void Dispose()
+        {
+           
+           base.Dispose();
         }
 
         /*

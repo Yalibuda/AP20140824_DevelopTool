@@ -11,6 +11,7 @@ namespace MtbGraph.GraphComponent
     public interface ICOMInterop_Annotation
     {
         String Title { set; get; }
+        float TitleFontSize { set; get; }
         void AddFootnote(String footnote);
         //void AddFootnote(String footnote, int color, bool italic);
         void RemoveFootnoteAt(int i);

@@ -11,7 +11,7 @@ using System.Windows.Forms;
 namespace MtbGraph.GraphComponent
 {
     [System.Runtime.InteropServices.ClassInterface(System.Runtime.InteropServices.ClassInterfaceType.None)] 
-    public class GraphFrameWork : ICOMInterop_GFrameWork
+    public class GraphFrameWork : ICOMInterop_GFrameWork, IDisposable
     {
         protected Mtb.Project proj;
         protected Mtb.Worksheet ws;
@@ -202,7 +202,6 @@ namespace MtbGraph.GraphComponent
          */ 
         public void Dispose()
         {
-
             this.proj = null;
             this.ws = null;
             GC.Collect();
