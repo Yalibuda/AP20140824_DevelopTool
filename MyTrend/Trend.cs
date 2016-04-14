@@ -431,7 +431,7 @@ namespace MtbGraph.MyTrend
                 cmnd.Append(Datalabel.GetCommand());
             }
             //處理 Target 的註記
-            if (targetCount > 0)
+            if (targetCount > 0 && TargetAttribute.ShowNotation == true)
             {
                 Mtb.Column[] mtbCols = ws.Columns.Cast<Mtb.Column>().Where(x => targetCols.Contains(x.SynthesizedName)).ToArray();
                 string[] fnotes = mtbCols.Select(x => string.Format("{0}: {1}", x.Label, GetTargetInfo(x.SynthesizedName, ws))).ToArray();
@@ -495,6 +495,7 @@ namespace MtbGraph.MyTrend
 
             double[] d = col.GetData();
             string[] distinctData = d.Distinct().Select(x => x.ToString()).ToArray();
+            distinctData = distinctData.Select(x => x.CompareTo("1.23456E+30") == 0 ? "*" : x).ToArray();
             return string.Join(", ", distinctData);
 
         }
@@ -702,7 +703,7 @@ namespace MtbGraph.MyTrend
 
 
             //加入 Target 的資訊於圖表中
-            if (invalidTargetCol != null && invalidTargetCol.Count > 0)
+            if (invalidTargetCol != null && invalidTargetCol.Count > 0 && trend.TargetAttribute.ShowNotation == true)
             {
                 Footnote f = new Footnote();
                 f.Text = string.Format("Invalid target variable: {0}", string.Join(", ", invalidTargetCol));

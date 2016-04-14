@@ -12,7 +12,8 @@ namespace MtbGraph.MyTrend
         void SetType(dynamic linetype);
         void SetSize(dynamic size);
         void SetNotationSize(dynamic fontSize);
-
+        bool ShowNotation { set; get; }
+        
         void SetDefault();
         
         

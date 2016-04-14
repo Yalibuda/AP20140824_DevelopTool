@@ -12,7 +12,23 @@ namespace MtbGraph.MyTrend
         public TargetAttribute()
         {
 
-        }       
+        }
+
+        private bool _showTargetNotation = true;
+        /// <summary>
+        /// 用於決定 Target 的註解是否要顯示，預設值為 True
+        /// </summary>
+        public bool ShowNotation
+        {
+            set
+            {
+                _showTargetNotation = value;
+            }
+            get
+            {
+                return _showTargetNotation;
+            }
+        }
 
         private int[] _color = null;
         /// <summary>
@@ -25,7 +41,6 @@ namespace MtbGraph.MyTrend
 
         }
 
-
         private int[] _type = null;
         /// <summary>
         /// 設定 Target line 的線段類型，int[]
@@ -35,7 +50,6 @@ namespace MtbGraph.MyTrend
         {
             _type = ConvertInputToArray(linetype);
         }
-
 
         private int[] _size = null;
         /// <summary>
@@ -104,6 +118,8 @@ namespace MtbGraph.MyTrend
             _type = null;
             _size = null;
             _fontSize = null;
+            _showTargetNotation = true;
+
         }
 
         public TargetAttribute Clone()
