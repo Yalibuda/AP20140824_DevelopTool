@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace MtbGraph.SortedBarLinePlot
 {
     [System.Runtime.InteropServices.ClassInterface(System.Runtime.InteropServices.ClassInterfaceType.None)]
-    public class SBarLinePlot : ISBarLinePlot
+    public class SBarLinePlot : ISBarLinePlot, IDisposable
     {
         public SBarLinePlot()
         {
@@ -108,6 +108,14 @@ namespace MtbGraph.SortedBarLinePlot
             get
             {
                 return new Component.Region.Adapter_Region(_chart.DataRegion);
+            }
+        }
+
+        public Component.Region.ILegend Legend
+        {
+            get
+            {
+                return new Component.Region.Adapter_Legend(_chart.Legend);
             }
         }
 
@@ -469,7 +477,7 @@ namespace MtbGraph.SortedBarLinePlot
                         coord[0], coord[1] + (-0.004) * (w - ww), coord[2], coord[3]
                         );
                     _plot.DataRegion.SetCoordinate(
-                        _chart.DataRegion.GetCoordinate().ToArray());
+                        coord[0], coord[1] + (-0.004) * (w - ww), coord[2], coord[3]);
                 }
                 else
                 {
@@ -539,7 +547,7 @@ namespace MtbGraph.SortedBarLinePlot
                     _chart.DataRegion.Type = 0;
                     _chart.DataRegion.EType = 0;
                     _chart.Title.Visible = false;
-                    //_chart.Legend.HideLegend = true; //Legend box 物件尚未完成
+                    _chart.Legend.HideLegend = true;
                 }
                 if (_chart.YScale.Label.Text == null) _chart.YScale.Label.Text = "Count";
                 cmnd.Append(_chart.YScale.GetCommand());
@@ -548,17 +556,23 @@ namespace MtbGraph.SortedBarLinePlot
 
                 cmnd.AppendLine("gapw 0;");
                 cmnd.AppendLine("decr;");
-                if (i == 0)
-                {
-                    cmnd.AppendLine("legend;");
-                    cmnd.AppendLine("sect 1;");
-                    cmnd.AppendLine("chhide;");
-                    cmnd.AppendFormat("rhide {0}:{1};\r\n", legendItems + 1, ttlBarCount);
-                }
-                else
-                {
-                    cmnd.AppendLine("nolegend;");
-                }
+                Mtblib.Graph.Component.Region.LegendSection lsection
+                    = new Mtblib.Graph.Component.Region.LegendSection(1);
+                lsection.HideColumnHeader = true;
+                lsection.RowHide = Enumerable.Range(legendItems + 1, ttlBarCount+1).ToArray();
+                _chart.Legend.Sections.Add(lsection);
+                cmnd.Append(_chart.Legend.GetCommand());
+                //if (i == 0)
+                //{
+                //    cmnd.AppendLine("legend;");
+                //    cmnd.AppendLine("sect 1;");
+                //    cmnd.AppendLine("chhide;");
+                //    cmnd.AppendFormat("rhide {0}:{1};\r\n", legendItems + 1, ttlBarCount);
+                //}
+                //else
+                //{
+                //    cmnd.AppendLine("nolegend;");
+                //}
                 cmnd.AppendLine("includ;");
                 cmnd.AppendFormat("where \"xx=\"\"{0}\"\"\";\r\n", gp[i]);
 
@@ -613,6 +627,8 @@ namespace MtbGraph.SortedBarLinePlot
             //還原使用者的設定
             _chart.YScale = (Mtblib.Graph.Component.Scale.ContScale)_yscale.Clone();
             _chart.Title = (Mtblib.Graph.Component.Title)_title.Clone();
+            _chart.Legend.HideLegend = false;
+            _chart.Legend.Sections = new List<Mtblib.Graph.Component.Region.LegendSection>();
             _chart.DataRegion.Type = null;
             _chart.DataRegion.EType = null;
 
@@ -668,7 +684,31 @@ namespace MtbGraph.SortedBarLinePlot
             return cmnd.ToString();
         }
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this); 
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // Free other state (managed objects).
+                _chart.Dispose();
+                _plot.Dispose();
+            }
+            // Free your own state (unmanaged objects).
+            // Set large fields to null.
+            _proj = null;
+            _ws = null;
+            _barvar = null;
+            _trndvar = null;
+            _groupBy = null;            
 
-
+        }
+        ~SBarLinePlot()
+        {
+            Dispose(false);
+        }
     }
 }
