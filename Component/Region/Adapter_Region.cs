@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MtbGraph.Component.Region
 {
-    public class Adapter_Region : IRegion
+    internal class Adapter_Region : IRegion
     {
         Mtblib.Graph.Component.Region.Region _region;
         public Adapter_Region(Mtblib.Graph.Component.Region.Region region)

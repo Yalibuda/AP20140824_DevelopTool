@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MtbGraph.Component.Scale
 {
-    public class Adapter_ContScale : IContScale
+    internal class Adapter_ContScale : IContScale
     {
         Mtblib.Graph.Component.Scale.ContScale _scale;
         /// <summary>

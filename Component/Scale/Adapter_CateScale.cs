@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MtbGraph.Component.Scale
 {
-    public class Adapter_CateScale: ICateScale
+    internal class Adapter_CateScale : ICateScale
     {
         Mtblib.Graph.Component.Scale.CateScale _scale;
         public Adapter_CateScale(Mtblib.Graph.Component.Scale.CateScale scale)

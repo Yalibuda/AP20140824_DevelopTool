@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MtbGraph.Component
 {
-    public class Adapter_DatLab : IDatlab
+    internal class Adapter_DatLab : IDatlab
     {
         Mtblib.Graph.Component.Datlab _datlab;
         public Adapter_DatLab(Mtblib.Graph.Component.Datlab datlab)

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MtbGraph.Component.Scale
 {
-    public class Adapter_ContTick : IContTick
+    internal class Adapter_ContTick : IContTick
     {
         Mtblib.Graph.Component.Scale.Tick _tick;
         public Adapter_ContTick(Mtblib.Graph.Component.Scale.Tick tick)

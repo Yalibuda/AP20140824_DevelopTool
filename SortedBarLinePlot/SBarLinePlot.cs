@@ -351,7 +351,7 @@ namespace MtbGraph.SortedBarLinePlot
             List<double> dummyValues = new List<double>();
             List<double> dummyX = new List<double>();// Trend 的 X 座標
             // 將要繪製的 item 抓出，並依據字母順序給定 order
-            Dictionary<string, int> allItems = topKgpName.Select(x => x.Item).Distinct().
+            Dictionary<string, int> allItems = topKgpName.Select(x => x.Item).Distinct().OrderBy(x=>x).
                 Select((x, i) => new { Item = x, Index = i }).ToDictionary(x => x.Item, x => x.Index + 1);
             for (int i = 0; i < gpInfo.Count(); i++)
             {
@@ -532,7 +532,6 @@ namespace MtbGraph.SortedBarLinePlot
              * 
              */
             int baseBarCount = countEachGroupInfo.Select(x => x.Count).ToArray().Sum();
-            int cumulativeCount = 0;
 
             for (int i = 0; i < gp.Length; i++)
             {
@@ -603,18 +602,18 @@ namespace MtbGraph.SortedBarLinePlot
                 {
                     foreach (var item in nonContainedItem)
                     {
-                        _chart.DataLabel.PosititionList.Add(
+                        _chart.DataLabel.PositionList.Add(
                             new Mtblib.Graph.Component.LabelPosition(allItems[item], ""));
                     }
                 }
                 for (int j = allItems.Count + 1; j <= ttlBarCount; j++)
                 {
-                    _chart.DataLabel.PosititionList.Add(
+                    _chart.DataLabel.PositionList.Add(
                             new Mtblib.Graph.Component.LabelPosition(j, ""));
                 }
 
                 cmnd.Append(_chart.DataLabel.GetCommand());
-                _chart.DataLabel.PosititionList = new List<Mtblib.Graph.Component.LabelPosition>(); //清空設定，下一個會不同，且沒有開放介面
+                _chart.DataLabel.PositionList = new List<Mtblib.Graph.Component.LabelPosition>(); //清空設定，下一個會不同，且沒有開放介面
 
                 cmnd.Append(_chart.DataRegion.GetCommand());
                 if (_chart.Title.Text == null) _chart.Title.Text = "Bar line plot";
@@ -703,7 +702,8 @@ namespace MtbGraph.SortedBarLinePlot
             _ws = null;
             _barvar = null;
             _trndvar = null;
-            _groupBy = null;            
+            _groupBy = null;
+            GC.Collect();
 
         }
         ~SBarLinePlot()

@@ -11,5 +11,6 @@ namespace MtbGraph.Component
         bool Visible { set; get; }
         string Text { set; get; }
         float FontSize { set; get; }
+        void OffSet(double hOffset, double vOffSet);
     }
 }
