@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MtbGraph.Component.Scale
 {
-    public class Adapter_ContSecScale: IContSecScale
+    internal class Adapter_ContSecScale : IContSecScale
     {
         Mtblib.Graph.Component.Scale.ContSecScale _scale;
         public Adapter_ContSecScale(Mtblib.Graph.Component.Scale.ContSecScale scale)
@@ -27,7 +27,10 @@ namespace MtbGraph.Component.Scale
                 _scale.Variable = value;
             }
         }
-
+        public void SetVariables(dynamic d)
+        {
+            Variables = d;
+        }
         ILabel _axlab;
         public ILabel AxLab
         {

@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 namespace MtbGraph.Component.Scale
 {
     public interface IContSecScale
-    {
-        dynamic Variables { set; get; }
+    {       
+        void SetVariables(dynamic d);
         ILabel AxLab { set; get; }
         double Min { set; get; }
         double Max { set; get; }
