@@ -8,12 +8,13 @@ namespace MtbGraph.Component.Scale
 {
     internal class Adapter_CateScale : ICateScale
     {
-        Mtblib.Graph.Component.Scale.CateScale _scale;
+        Mtblib.Graph.Component.Scale.CateScale _scale;        
         public Adapter_CateScale(Mtblib.Graph.Component.Scale.CateScale scale)
         {
             _scale = scale;
             _axlab = new Adapter_Lab(_scale.Label);
             _tick = new Adapter_CateTick(_scale.Ticks);
+            _refe = new Adapter_Refe(_scale.Refes);
         }
 
         private ILabel _axlab;
@@ -34,6 +35,12 @@ namespace MtbGraph.Component.Scale
             {
                 _tick = value;
             }
+        }
+
+        private IRefe _refe;
+        public IRefe Refe
+        {
+            get { return _refe; }
         }
     }
 }

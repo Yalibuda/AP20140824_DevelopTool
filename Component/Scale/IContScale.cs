@@ -12,6 +12,7 @@ namespace MtbGraph.Component.Scale
         double Min { set; get; }
         double Max { set; get; }
         IContTick Tick { get; }
+        IRefe Refe { get; }
         IContSecScale SecScale { get; }
 
     }

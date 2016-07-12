@@ -11,5 +11,6 @@ namespace MtbGraph.Component.Scale
         int NMajor { set; get; }
         int NMinor { set; get; }
         float FontSize { set; get; }
+        double Angle { set; get; }
     }
 }

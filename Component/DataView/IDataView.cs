@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace MtbGraph.Component.DataView
 {
-    public interface ISymbol
+    public interface IDataView
     {
+        bool Visible { set; get; }
+        void SetType(dynamic var);
+        void SetColor(dynamic var);
+        void SetSize(dynamic var);
     }
 }

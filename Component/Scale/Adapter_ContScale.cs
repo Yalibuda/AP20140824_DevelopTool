@@ -8,7 +8,7 @@ namespace MtbGraph.Component.Scale
 {
     internal class Adapter_ContScale : IContScale
     {
-        Mtblib.Graph.Component.Scale.ContScale _scale;
+        private Mtblib.Graph.Component.Scale.ContScale _scale;        
         /// <summary>
         /// 將元件轉為使用者可使用的介面
         /// </summary>
@@ -19,6 +19,8 @@ namespace MtbGraph.Component.Scale
             _axlab = new Adapter_Lab(_scale.Label);
             _tick = new Adapter_ContTick(_scale.Ticks);
             _secscale = new Adapter_ContSecScale(_scale.SecScale);
+            _refe = new Adapter_Refe(_scale.Refes);
+
         }
 
         private ILabel _axlab;
@@ -57,5 +59,10 @@ namespace MtbGraph.Component.Scale
             }
         }
 
+        private IRefe _refe;
+        public IRefe Refe
+        {
+            get { return _refe; }
+        }
     }
 }

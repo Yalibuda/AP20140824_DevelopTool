@@ -8,7 +8,8 @@ namespace MtbGraph.Component.Scale
 {
     public interface ICateScale
     {
-        ILabel AxLab { set; get; }
-        ICateTick Tick { set; get; }
+        ILabel AxLab { get; }
+        ICateTick Tick { get; }
+        IRefe Refe { get; }
     }
 }

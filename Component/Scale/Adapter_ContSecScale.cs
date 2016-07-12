@@ -8,12 +8,13 @@ namespace MtbGraph.Component.Scale
 {
     internal class Adapter_ContSecScale : IContSecScale
     {
-        Mtblib.Graph.Component.Scale.ContSecScale _scale;
+        private Mtblib.Graph.Component.Scale.ContSecScale _scale;
         public Adapter_ContSecScale(Mtblib.Graph.Component.Scale.ContSecScale scale)
         {
             _scale = scale;
             _axlab = new Adapter_Lab(_scale.Label);
             _tick = new Adapter_ContTick(_scale.Ticks);
+            _refe = new Adapter_Refe(_scale.Refes);
         }
 
         public dynamic Variables
@@ -27,10 +28,12 @@ namespace MtbGraph.Component.Scale
                 _scale.Variable = value;
             }
         }
+
         public void SetVariables(dynamic d)
         {
             Variables = d;
         }
+
         ILabel _axlab;
         public ILabel AxLab
         {
@@ -62,5 +65,12 @@ namespace MtbGraph.Component.Scale
                 _tick = value;
             }
         }
+
+        private IRefe _refe;
+        public IRefe Refe
+        {
+            get { return _refe; }
+        }
+
     }
 }

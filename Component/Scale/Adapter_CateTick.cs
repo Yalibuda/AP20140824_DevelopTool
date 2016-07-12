@@ -49,5 +49,10 @@ namespace MtbGraph.Component.Scale
                 _tick.FontSize = value;
             }
         }
+        public double Angle
+        {
+            get { return _tick.Angle; }
+            set { _tick.Angle = value; }
+        }
     }
 }
