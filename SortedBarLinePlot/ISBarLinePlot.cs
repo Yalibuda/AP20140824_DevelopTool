@@ -21,6 +21,7 @@ namespace MtbGraph.SortedBarLinePlot
         string GSave { set; get; }
         void SetMtbEnvironment(Mtb.Project proj, Mtb.Worksheet ws);
         int TopK { set; get; }
+        bool RankOnlyWithPositiveValue { get; set; }
         void Run();
         void Dispose();
 

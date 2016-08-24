@@ -12,7 +12,6 @@ namespace MtbGraph.Component.Scale
         public Adapter_ContTick(Mtblib.Graph.Component.Scale.Tick tick)
         {
             _tick = tick;
-
         }
         public int NMajor
         {
@@ -23,6 +22,11 @@ namespace MtbGraph.Component.Scale
         {
             set { _tick.NMinor = value; }
             get { return _tick.NMinor; }
+        }
+        public double TIncreament
+        {
+            set { _tick.Increament = value; }
+            get { return _tick.Increament; }
         }
         public float FontSize
         {
@@ -40,5 +44,7 @@ namespace MtbGraph.Component.Scale
             get { return _tick.Angle; }
             set { _tick.Angle = value; }
         }
+
+        
     }
 }

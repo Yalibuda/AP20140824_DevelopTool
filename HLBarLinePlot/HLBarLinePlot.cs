@@ -540,6 +540,63 @@ namespace MtbGraph.HLBarLinePlot
             _chart.XScale.Label.Angle = 0;
             cmnd.Append(_chart.XScale.GetCommand());
 
+            #region DataScale for tick increament 處理程序
+            //指定 Tick increament 的處理程序
+            if (_chart.YScale.Ticks.Increament < Mtblib.Tools.MtbTools.MISSINGVALUE &&
+                _chart.YScale.Ticks.NMajor == -1)
+            {
+                Func<IEnumerable<double>, double> fun;
+                #region 取得函數
+                switch (this.FuncTypeAtBarChart)
+                {
+                    default:
+                    case MtbGraph.BarChart.ChartFunctionType.SUM:
+                        fun = Mtblib.Tools.Arithmetic.Sum;
+                        break;
+                    case MtbGraph.BarChart.ChartFunctionType.COUNT:
+                        fun = Mtblib.Tools.Arithmetic.Count;
+                        break;
+                    case MtbGraph.BarChart.ChartFunctionType.N:
+                        fun = Mtblib.Tools.Arithmetic.N;
+                        break;
+                    case MtbGraph.BarChart.ChartFunctionType.NMISS:
+                        fun = Mtblib.Tools.Arithmetic.NMiss;
+                        break;
+                    case MtbGraph.BarChart.ChartFunctionType.MEAN:
+                        fun = Mtblib.Tools.Arithmetic.Mean;
+                        break;
+                    case MtbGraph.BarChart.ChartFunctionType.MEDIAN:
+                        fun = Mtblib.Tools.Arithmetic.Median;
+                        break;
+                    case MtbGraph.BarChart.ChartFunctionType.MINIMUM:
+                        fun = Mtblib.Tools.Arithmetic.Min;
+                        break;
+                    case MtbGraph.BarChart.ChartFunctionType.MAXIMUM:
+                        fun = Mtblib.Tools.Arithmetic.Max;
+                        break;
+                    case MtbGraph.BarChart.ChartFunctionType.STDEV:
+                        fun = Mtblib.Tools.Arithmetic.Sum;
+                        break;
+                    case MtbGraph.BarChart.ChartFunctionType.SSQ:
+                        fun = Mtblib.Tools.Arithmetic.Sum;
+                        break;
+                }
+                #endregion
+
+                Mtblib.Tools.GScale barchartScale
+                = Mtblib.Tools.MtbTools.GetDataScaleInBarChart(_proj, _ws, varBarchart,
+                gps, pane, "", fun);
+
+                string tickString = string.Format("0:{0}/{1}",
+                    barchartScale.TMaximum, _chart.YScale.Ticks.Increament);
+                _chart.YScale.Ticks.SetTicks(tickString);
+            }
+            else
+            {
+                _chart.YScale.Ticks.SetTicks(null);
+            }
+            #endregion
+
             cmnd.Append(_chart.YScale.GetCommand());
             cmnd.Append(_chart.Bar.GetCommand());
 
@@ -579,6 +636,26 @@ namespace MtbGraph.HLBarLinePlot
             _boxplot.XScale.Ticks.HideAllTick = true;
             _boxplot.XScale.Label.Visible = false;
             cmnd.Append(_boxplot.XScale.GetCommand());
+
+            #region DataScale for tick increament 處理程序
+            //指定 Tick increament 的處理程序
+            if (_boxplot.YScale.Ticks.Increament < Mtblib.Tools.MtbTools.MISSINGVALUE &&
+                _boxplot.YScale.Ticks.NMajor == -1)
+            {
+                Mtblib.Tools.GScale boxplotScale
+                = Mtblib.Tools.MtbTools.GetDataScaleInCateChart(
+                _proj, _ws, varBoxplot, gps, pane, "", true);
+
+                string tickString = string.Format("{0}:{1}/{2}",
+                    boxplotScale.TMinimum, boxplotScale.TMaximum, _boxplot.YScale.Ticks.Increament);
+                _boxplot.YScale.Ticks.SetTicks(tickString);
+            }
+            else
+            {
+                _boxplot.YScale.Ticks.SetTicks(null);
+            }
+            #endregion
+
             cmnd.Append(_boxplot.YScale.GetCommand());
             cmnd.AppendLine("nojitter;");
             cmnd.AppendLine("nomiss;");

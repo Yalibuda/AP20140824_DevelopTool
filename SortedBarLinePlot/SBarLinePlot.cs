@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -141,12 +142,14 @@ namespace MtbGraph.SortedBarLinePlot
 
         }
         public int TopK { set; get; }
+        public bool RankOnlyWithPositiveValue { get; set; }
         private void SetDefault()
         {
             /*
              * 因為使用疊圖法，為了顯示方便使用 Scatter plot 的 X軸、Bar chart 的 Y 軸讓使用者設定
              */
             TopK = 5;
+            RankOnlyWithPositiveValue = false;
             _plot.Connectline.Visible = true;
             _plot.YScale.LDisplay = new int[] { 1, 0, 0, 0 };
             _plot.YScale.HDisplay = new int[] { 1, 1, 1, 0 };
@@ -223,7 +226,7 @@ namespace MtbGraph.SortedBarLinePlot
 
             dynamic values = gps[0].GetData();
 
-            string[] gp = null;
+            string[] gp = null; //記錄分群名稱
             if (values is double[])
             {
                 gp = ((double[])values).Select(x => x.ToString()).ToArray();
@@ -261,23 +264,56 @@ namespace MtbGraph.SortedBarLinePlot
             cmnd.AppendLine("end");
 
             #region 用 C# 計算分組 rank 值
-            List<double> stackedBarValues = new List<double>();
-            List<string> stackedGroupName = new List<string>();
-            List<string> stackedSubscript = new List<string>();
+
+            System.Data.DataTable dt = new System.Data.DataTable();
+            int currColCnt = _ws.Columns.Count;
+            string[] colstr
+                = Mtblib.Tools.MtbTools.CreateVariableStrArray(_ws, 2, Mtblib.Tools.MtbVarType.Column);
+            // 堆疊資料過程中會需要用到暫存欄位
             for (int i = 0; i < barvar.Length; i++)
             {
-                for (int j = 0; j < barvar[i].RowCount; j++)
+                List<Mtb.Column> _dataCols = new List<Mtb.Column>();
+                _dataCols.Add(gps[0]);
+                _ws.Columns.Item(colstr[0]).Clear();
+                _ws.Columns.Item(colstr[0]).SetData(
+                    barvar[i].Name, 1, barvar[i].RowCount);
+                _dataCols.Add(_ws.Columns.Item(colstr[0]));
+                _ws.Columns.Item(colstr[1]).Clear();
+                _ws.Columns.Item(colstr[1]).SetData(barvar[i].GetData());
+                _dataCols.Add(_ws.Columns.Item(colstr[1]));
+                if (i == 0)
                 {
-                    stackedSubscript.Add(barvar[i].Name);
+                    dt = Mtblib.Tools.MtbTools.GetDataTableFromMtbCols(_dataCols.ToArray());
                 }
-                stackedGroupName.AddRange(gp);
-                stackedBarValues.AddRange(barvar[i].GetData());
+                else
+                {
+                    dt.Merge(Mtblib.Tools.MtbTools.GetDataTableFromMtbCols(_dataCols.ToArray()), true);
+                }
             }
+            //刪除暫存欄位
+            for (int i = _ws.Columns.Count; i > currColCnt; i--) _ws.Columns.Remove(i);
+
+            //修改欄位名稱，方便後續編輯
+            dt.Columns[0].ColumnName = "Group";
+            dt.Columns[1].ColumnName = "Subs";
+            dt.Columns[2].ColumnName = "Value";
+            DataRow[] datarows = dt.Rows.Cast<System.Data.DataRow>().ToArray();
+
             double[] rank = Mtblib.Tools.MtbTools.GroupRank(
-                stackedBarValues.ToArray(),
-                stackedGroupName.ToArray(),
+                datarows.Select(x => Convert.ToDouble(x["Value"])).ToArray(),
+                datarows.Select(x => Convert.ToString(x["Group"])).ToArray(),
                 true,
-                Mtblib.Tools.MtbTools.RankType.RANK);
+                Mtblib.Tools.MtbTools.RankType.RANK
+                );
+            //於 DataTable 新增 Rank 欄位
+            dt.Columns.Add(new DataColumn("Rank", typeof(double)));
+            
+            //回填 Rank 的結果至 DataTable
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                dt.Rows[i]["Rank"] = rank[i];
+            }
+
             #endregion
 
             cmnd.AppendLine("set rank");
@@ -285,27 +321,35 @@ namespace MtbGraph.SortedBarLinePlot
             cmnd.AppendLine("end");
             cmnd.AppendLine("copy xx ylab yy xx ylab yy;");
             cmnd.AppendLine(" include;");
-            cmnd.AppendFormat(" where \"rank<={0}\".\r\n", TopK);
+            if (RankOnlyWithPositiveValue)
+            {
+                cmnd.AppendFormat(" where \"rank<={0} and yy >0 \".\r\n", TopK);
+            }
+            else
+            {
+                cmnd.AppendFormat(" where \"rank<={0}\".\r\n", TopK);
+            }
 
             cmnd.AppendLine("copy trnd ttrnd");
 
 
             #region 用 C# 處理虛擬欄位內容
             //取得各分群中，前K大的項目。這裡不使用 Minitab macro，因為可能會很慢
-            var topKgpName = stackedGroupName.ToArray().Zip(rank, (x, r) => new
-            {
-                Name = x,
-                Rank = r
-            }).Zip(stackedSubscript, (x, i) => new
-            {
-                Name = x.Name,
-                Rank = x.Rank,
-                Item = i
-            })
-            .Where(x => x.Rank <= TopK);
+
+            var topKgpName = from row in dt.AsEnumerable()
+                             where (Convert.ToDouble(row["Rank"]) <= TopK)
+                             select new
+                             {
+                                 Name = Convert.ToString(row["Group"]),
+                                 Rank = Convert.ToDouble(row["Rank"]),
+                                 Item = Convert.ToString(row["Subs"]),
+                                 Value = Convert.ToDouble(row["Value"])
+                             };
+            if (RankOnlyWithPositiveValue) topKgpName = topKgpName.Where(x => x.Value > 0);
 
             /* 
              * 計算各組共取得多少前K大項目，因為有可能超過K的(因為 tied rank)
+             * 也把每個 Group 名稱的順序加入
              * 該匿名類型只是過客..下一個 linq 的產出才是主角 XDDD
              */
             var xx = from x in
@@ -318,7 +362,7 @@ namespace MtbGraph.SortedBarLinePlot
                      {
                          Name = z.Name,
                          Count = x.Count,
-                         Order = z.Order,
+                         Order = z.Order
                      };
             /*
              * 計算各組虛擬項目與值的資訊(有多少要排在前面、多少排在後面)，
@@ -351,7 +395,7 @@ namespace MtbGraph.SortedBarLinePlot
             List<double> dummyValues = new List<double>();
             List<double> dummyX = new List<double>();// Trend 的 X 座標
             // 將要繪製的 item 抓出，並依據字母順序給定 order
-            Dictionary<string, int> allItems = topKgpName.Select(x => x.Item).Distinct().OrderBy(x=>x).
+            Dictionary<string, int> allItems = topKgpName.Select(x => x.Item).Distinct().OrderBy(x => x).
                 Select((x, i) => new { Item = x, Index = i }).ToDictionary(x => x.Item, x => x.Index + 1);
             for (int i = 0; i < gpInfo.Count(); i++)
             {
@@ -404,9 +448,6 @@ namespace MtbGraph.SortedBarLinePlot
             }
 
 
-
-
-
             #endregion
 
             /*
@@ -433,7 +474,8 @@ namespace MtbGraph.SortedBarLinePlot
              * 
              */
             List<double[]> allvalues = new List<double[]>();
-            allvalues.Add(stackedBarValues.ToArray());
+            //allvalues.Add(stackedBarValues.ToArray());
+            allvalues.Add(datarows.Select(x => Convert.ToDouble(x["Value"])).ToArray());
             allvalues.Add(trndvar[0].GetData());
             Mtblib.Tools.GScale[] gscale = Mtblib.Tools.MtbTools.GetMinitabGScaleInfo(allvalues, _proj, _ws);
             _chart.YScale.Max = gscale[0].SMax;
@@ -558,7 +600,7 @@ namespace MtbGraph.SortedBarLinePlot
                 Mtblib.Graph.Component.Region.LegendSection lsection
                     = new Mtblib.Graph.Component.Region.LegendSection(1);
                 lsection.HideColumnHeader = true;
-                lsection.RowHide = Enumerable.Range(legendItems + 1, ttlBarCount+1).ToArray();
+                lsection.RowHide = Enumerable.Range(legendItems + 1, ttlBarCount + 1).ToArray();
                 _chart.Legend.Sections.Add(lsection);
                 cmnd.Append(_chart.Legend.GetCommand());
                 //if (i == 0)
@@ -686,7 +728,7 @@ namespace MtbGraph.SortedBarLinePlot
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this); 
+            GC.SuppressFinalize(this);
         }
         protected virtual void Dispose(bool disposing)
         {

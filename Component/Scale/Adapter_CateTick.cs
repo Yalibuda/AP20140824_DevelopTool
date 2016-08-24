@@ -30,7 +30,7 @@ namespace MtbGraph.Component.Scale
         {
             get
             {
-                return _tick.Increament;
+                return (int)_tick.Increament;
             }
             set
             {

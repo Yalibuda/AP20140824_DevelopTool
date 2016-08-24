@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace MtbGraph.BarChart
 {
+    [System.Runtime.InteropServices.ClassInterface(System.Runtime.InteropServices.ClassInterfaceType.None)]
     public class Chart : IChart, IDisposable
     {
         private Mtblib.Graph.BarChart.Chart _chart;
@@ -63,7 +64,7 @@ namespace MtbGraph.BarChart
                     _pane = null;
                     return;
                 }
-                Mtb.Column[] _cols = Mtblib.Tools.MtbTools.GetMatchColumns(value, _ws);                
+                Mtb.Column[] _cols = Mtblib.Tools.MtbTools.GetMatchColumns(value, _ws);
                 _pane = _cols;
                 _chart.Panel.PaneledBy = _pane.Select(x => x.SynthesizedName).ToArray();
             }
@@ -102,6 +103,12 @@ namespace MtbGraph.BarChart
                        typeof(BarChart.ChartStackType),
                        _chart.StackType.ToString());
             }
+        }
+
+        public bool Transpose
+        {
+            set { _chart.Transponse = value; }
+            get { return _chart.Transponse; }
         }
 
         private int colAtGroupingLv = 4;
@@ -173,7 +180,8 @@ namespace MtbGraph.BarChart
             _chart = new Mtblib.Graph.BarChart.Chart(_proj, _ws);
             _chart.BarsRepresent = Mtblib.Graph.BarChart.Chart.ChartRepresent.A_FUNCTION_OF_A_VARIABLE;
             _chart.FuncType = Mtblib.Graph.BarChart.Chart.ChartFunctionType.SUM;
-            _chart.AdjDatlabAtStackBar = true;            
+            _chart.Transponse = false;
+            _chart.AdjDatlabAtStackBar = true;
             _chart.XScale.Label.Visible = false;
             _chart.Legend.Sections.Add(new Mtblib.Graph.Component.Region.LegendSection(1)
             {
@@ -199,7 +207,7 @@ namespace MtbGraph.BarChart
             Mtb.Column[] pane = null;
             if (_chart.Panel.PaneledBy != null)
             {
-                pane = PanelBy;               
+                pane = PanelBy;
             }
 
             StringBuilder cmnd = new StringBuilder(); // local macro 內容
@@ -245,11 +253,11 @@ namespace MtbGraph.BarChart
                 cmnd.AppendLine("stack &");
                 for (int i = 0; i < vars.Length; i++)
                 {
-                    cmnd.AppendLine("(p.1-p.m) &");
+                    cmnd.AppendLine("(p.1-p.k) &");
                 }
-                cmnd.AppendLine("(pp.1-pp.m).");
-                cmnd.AppendLine("text pp.1-pp.m pp.1-pp.m");
-                cmnd.AppendLine("vorder pp.1-pp.m;");
+                cmnd.AppendLine("(pp.1-pp.k).");
+                cmnd.AppendLine("text pp.1-pp.k pp.1-pp.k");
+                cmnd.AppendLine("vorder pp.1-pp.k;");
                 cmnd.AppendLine("work.");
             }
 
@@ -276,12 +284,197 @@ namespace MtbGraph.BarChart
                 gpNameInMacros.Insert(ColumnAtGroupingLevel - 1, "Datas");
             }
 
+            Mtblib.Graph.Component.Scale.ContScale tmpYScale
+                        = (Mtblib.Graph.Component.Scale.ContScale)_chart.YScale.Clone();
+            #region 有指定 Tick increament 時，計算刻度
+            if (this.YScale.Tick.TIncreament < Mtblib.Tools.MtbTools.MISSINGVALUE
+                && this.YScale.Tick.NMajor == -1)
+            {
+                #region Close
+                //List<Mtblib.Tools.DataSummaryInfo> dataInfos = new List<Mtblib.Tools.DataSummaryInfo>();
+
+                //#region 複製資料表格並堆疊
+                //List<Mtb.Column> mtbDataCols = new List<Mtb.Column>();
+                //List<string> colGroups = new List<string>();
+                //if (pane != null && pane.Length > 0) mtbDataCols.AddRange(pane);
+                //if (gps != null && gps.Length > 0) mtbDataCols.AddRange(gps);
+
+                ////開始堆疊資料，因為需要欄位名，過程中會加入Minitab欄位
+                //System.Data.DataTable dt = new System.Data.DataTable();
+                //int currColCnt = _ws.Columns.Count;
+                //string[] colstr
+                //    = Mtblib.Tools.MtbTools.CreateVariableStrArray(_ws, 2, Mtblib.Tools.MtbVarType.Column);
+                //for (int i = 0; i < vars.Length; i++)
+                //{
+                //    List<Mtb.Column> _dataCols = new List<Mtb.Column>();
+                //    _dataCols.AddRange(mtbDataCols);
+                //    _ws.Columns.Item(colstr[0]).Clear();
+                //    _ws.Columns.Item(colstr[0]).SetData(
+                //        vars[i].SynthesizedName, 1, vars[i].RowCount);
+                //    _dataCols.Add(_ws.Columns.Item(colstr[0]));
+                //    _ws.Columns.Item(colstr[1]).Clear();
+                //    _ws.Columns.Item(colstr[1]).SetData(vars[i].GetData());
+                //    _dataCols.Add(_ws.Columns.Item(colstr[1]));
+                //    if (i == 0)
+                //    {
+                //        dt = Mtblib.Tools.MtbTools.GetDataTableFromMtbCols(_dataCols.ToArray());
+                //    }
+                //    else
+                //    {
+                //        dt.Merge(Mtblib.Tools.MtbTools.GetDataTableFromMtbCols(_dataCols.ToArray()), true);
+                //    }
+                //}
+                ////取得 Aggregate 的欄位名稱
+                //string colAggregate = colstr[1];
+                ////取的分群欄位(依順序)                
+                //if (gps != null && gps.Length > 0) colGroups.AddRange(gps.Select(x => x.SynthesizedName));
+                //if (ColumnAtGroupingLevel > gps.Length) colGroups.Add(colstr[0]);
+                //else colGroups.Insert(ColumnAtGroupingLevel - 1, colstr[0]);
+                //if (pane != null && pane.Length > 0) colGroups.InsertRange(0, pane.Select(x => x.SynthesizedName));
+                ////刪除暫存欄位
+                //for (int i = _ws.Columns.Count; i > currColCnt; i--) _ws.Columns.Remove(i);
+
+                //#endregion
+
+                //// 1. 依分群計算結果(Mean, Median, Sun, etc.)
+                //// 2. 確認要 Stack的基準欄位，將其他分群相同的再整合(Sum)起來
+                //#region 取得計算函數
+                //Func<IEnumerable<double>, double> fun;
+                //switch (FuncType)
+                //{
+                //    case ChartFunctionType.SUM:
+                //        fun = Mtblib.Tools.Arithmetic.Sum;
+                //        break;
+                //    case ChartFunctionType.COUNT:
+                //        fun = Mtblib.Tools.Arithmetic.Count;
+                //        break;
+                //    case ChartFunctionType.N:
+                //        fun = Mtblib.Tools.Arithmetic.N;
+                //        break;
+                //    case ChartFunctionType.NMISS:
+                //        fun = Mtblib.Tools.Arithmetic.NMiss;
+                //        break;
+                //    case ChartFunctionType.MEAN:
+                //        fun = Mtblib.Tools.Arithmetic.Mean;
+                //        break;
+                //    case ChartFunctionType.MEDIAN:
+                //        fun = Mtblib.Tools.Arithmetic.Median;
+                //        break;
+                //    case ChartFunctionType.MINIMUM:
+                //        fun = Mtblib.Tools.Arithmetic.Min;
+                //        break;
+                //    case ChartFunctionType.MAXIMUM:
+                //        fun = Mtblib.Tools.Arithmetic.Max;
+                //        break;
+                //    case ChartFunctionType.STDEV://尚未完成...
+                //    case ChartFunctionType.SSQ:
+                //    default:
+                //        fun = Mtblib.Tools.Arithmetic.Sum;
+                //        break;
+                //}
+                //#endregion
+
+                //System.Data.DataTable barChartValueResult
+                //    = Mtblib.Tools.MtbTools.Apply(colAggregate, fun, colGroups.ToArray(), dt);
+
+                //#region 計算不同 Stack 條件下的座標軸最大刻度值
+                //if (_chart.StackType == Mtblib.Graph.BarChart.Chart.ChartStackType.Stack)// Stack Bar Chart
+                //{
+                //    string[] groupsInXAxis = new string[colGroups.Count - 1];
+                //    groupsInXAxis = barChartValueResult.Columns.Cast<System.Data.DataColumn>()
+                //        .Where((x, i) => i < colGroups.Count - 1).Select(x => x.ColumnName).ToArray();//根據 Stack 以外的欄位再 aggregate 一次
+                //    System.Data.DataTable aggregateValue
+                //        = Mtblib.Tools.MtbTools.Apply("Value", Mtblib.Tools.Arithmetic.Sum, groupsInXAxis, barChartValueResult);
+                //    double max = aggregateValue.Rows.Cast<System.Data.DataRow>()
+                //        .Select(x => Convert.ToDouble(x["Value"])).Where(x => x < Mtblib.Tools.MtbTools.MISSINGVALUE).Max();
+                //    Mtblib.Tools.DataSummaryInfo info = new Mtblib.Tools.DataSummaryInfo();
+                //    info.Maximum = max;
+                //    info.Minimum = 0;
+                //    dataInfos.Add(info);
+                //}
+                //else// Cluster
+                //{
+                //    var values = barChartValueResult.Rows.Cast<System.Data.DataRow>()
+                //        .Select(x => Convert.ToDouble(x["Value"]));
+                //    double min = 0;
+                //    double max = values.Where(x => x < Mtblib.Tools.MtbTools.MISSINGVALUE).Max();
+                //    Mtblib.Tools.DataSummaryInfo info = new Mtblib.Tools.DataSummaryInfo() { Minimum = min, Maximum = max };
+                //    dataInfos.Add(info);
+                //}
+                //#endregion
+
+                //Mtblib.Tools.GScale[] scaleInfo
+                //    = Mtblib.Tools.MtbTools.GetMinitabGScaleInfo(dataInfos.ToArray(), _proj, _ws);
+                //int nmajor = (int)Math.Floor(scaleInfo[0].TMaximum / this.YScale.Tick.TIncreament) + 1;
+                //double[] tickarray = new double[nmajor];
+                //double tickvalue = 0;
+
+                //for (int i = 0; i < nmajor; i++)
+                //{
+                //    tickarray[i] = tickvalue;
+                //    tickvalue = tickvalue + this.YScale.Tick.TIncreament;
+                //}
+                //if (nmajor > 1)
+                //{
+                //    tmpYScale.Ticks.SetTicks(tickarray);
+                //    tmpYScale.Max = scaleInfo[0].SMax;
+                //} 
+                #endregion
+
+                #region 取得計算函數
+                Func<IEnumerable<double>, double> fun;
+                switch (FuncType)
+                {
+                    default:
+                    case ChartFunctionType.SUM:
+                        fun = Mtblib.Tools.Arithmetic.Sum;
+                        break;
+                    case ChartFunctionType.COUNT:
+                        fun = Mtblib.Tools.Arithmetic.Count;
+                        break;
+                    case ChartFunctionType.N:
+                        fun = Mtblib.Tools.Arithmetic.N;
+                        break;
+                    case ChartFunctionType.NMISS:
+                        fun = Mtblib.Tools.Arithmetic.NMiss;
+                        break;
+                    case ChartFunctionType.MEAN:
+                        fun = Mtblib.Tools.Arithmetic.Mean;
+                        break;
+                    case ChartFunctionType.MEDIAN:
+                        fun = Mtblib.Tools.Arithmetic.Median;
+                        break;
+                    case ChartFunctionType.MINIMUM:
+                        fun = Mtblib.Tools.Arithmetic.Min;
+                        break;
+                    case ChartFunctionType.MAXIMUM:
+                        fun = Mtblib.Tools.Arithmetic.Max;
+                        break;
+                    case ChartFunctionType.STDEV:
+                        fun = Mtblib.Tools.Arithmetic.StdDev;
+                        break;
+                    case ChartFunctionType.SSQ:
+                        fun = Mtblib.Tools.Arithmetic.SSQ;
+                        break;
+                }
+                #endregion
+
+                Mtblib.Tools.GScale barchartScaleInfo
+                    = Mtblib.Tools.MtbTools.GetDataScaleInBarChart(
+                    _proj, _ws, vars, gps, pane, "", fun, _chart.StackType, this.ColumnAtGroupingLevel);
+                string tickString = string.Format("0:{0}/{1}", barchartScaleInfo.TMaximum,
+                    tmpYScale.Ticks.Increament);
+                tmpYScale.Ticks.SetTicks(tickString);
+            }
+            #endregion
+
             Mtblib.Graph.Component.Datlab tmpDatlab = (Mtblib.Graph.Component.Datlab)_chart.DataLabel.Clone();
+            #region 客製化南茂要求的Stack bar chart 的 Datlab 位移
             if (StackType == ChartStackType.Stack && _chart.DataLabel.Visible && _chart.AdjDatlabAtStackBar)
             {
                 #region 建立 Adjust stack bar chart 要的 datlab
                 cmnd.AppendLine("stat yy;");
-                cmnd.AppendFormat("by {0};\r\n",string.Join(" &\r\n",gpVarInMacros));
+                cmnd.AppendFormat("by {0};\r\n", string.Join(" &\r\n", gpVarInMacros));
                 cmnd.AppendFormat("{0} stkdlab.\r\n",
                     FuncType.ToString().ToLower() == "sum" ? "sums" : FuncType.ToString().ToLower());
                 cmnd.AppendLine("text stkdlab stkdlab");
@@ -289,7 +482,8 @@ namespace MtbGraph.BarChart
                 tmpDatlab.DatlabType = Mtblib.Graph.Component.Datlab.DisplayType.Column;
                 tmpDatlab.LabelColumn = "stkdlab";
                 tmpDatlab.Placement = new double[] { 0, -1 };
-            }            
+            }
+            #endregion
 
             cmnd.AppendFormat("Chart {0}(yy)*{1};\r\n",
                         FuncType.ToString(), gpVarInMacros[0]);
@@ -303,8 +497,8 @@ namespace MtbGraph.BarChart
             _chart.XScale.Label.MultiLables = gpNameInMacros.ToArray();
             cmnd.Append(_chart.XScale.GetCommand());
 
-
-            cmnd.Append(_chart.YScale.GetCommand());
+            cmnd.Append(tmpYScale.GetCommand());
+            if (_chart.Transponse) cmnd.AppendLine("trans;");
             cmnd.Append(tmpDatlab.GetCommand());
             /*
              * 對每一個 DataView 建立 Command
@@ -329,6 +523,7 @@ namespace MtbGraph.BarChart
             cmnd.AppendLine("endmacro");
             return cmnd.ToString();
         }
+
         public void Run()
         {
             StringBuilder cmnd = new StringBuilder();
@@ -344,7 +539,7 @@ namespace MtbGraph.BarChart
             }
             if (PanelBy != null)
             {
-                cmnd.AppendFormat("pane {0};\r\n", ((Mtb.Column[])PanelBy).Select(x=>x.SynthesizedName).ToArray() );
+                cmnd.AppendFormat("pane {0};\r\n", ((Mtb.Column[])PanelBy).Select(x => x.SynthesizedName).ToArray());
             }
             cmnd.AppendLine(".");
             cmnd.AppendLine("title");
