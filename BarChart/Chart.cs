@@ -110,6 +110,16 @@ namespace MtbGraph.BarChart
             set { _chart.Transponse = value; }
             get { return _chart.Transponse; }
         }
+        public bool NoEmpty
+        {
+            get { return _chart.NoEmpty; }
+            set { _chart.NoEmpty = value; }
+        }
+        public bool NoMissing
+        {
+            get { return _chart.NoMissing; }
+            set { _chart.NoMissing = value; }
+        }
 
         private int colAtGroupingLv = 4;
         public int ColumnAtGroupingLevel
@@ -514,6 +524,8 @@ namespace MtbGraph.BarChart
                 tmpPane.PaneledBy = "pp.1-pp.k";
             }
 
+            if (_chart.NoEmpty) cmnd.AppendLine("noem;");
+            if (_chart.NoMissing) cmnd.AppendLine("nomiss;");
             cmnd.Append(tmpPane.GetCommand());
             cmnd.Append(_chart.Legend.GetCommand());
             cmnd.Append(_chart.GetAnnotationCommand());

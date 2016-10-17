@@ -402,6 +402,7 @@ namespace MtbGraph.HLBarLinePlot
                 tmpCmnd.AppendLine("brief 0");
                 tmpCmnd.AppendFormat("stat {0};\r\n", varBarchart[0].SynthesizedName);
                 tmpCmnd.AppendFormat("by {0};\r\n", string.Join(" &\r\n", gps.Select(x => x.SynthesizedName)));
+                tmpCmnd.AppendLine("noem;");
                 tmpCmnd.AppendFormat("gval {0}.\r\n", string.Join(" &\r\n", gvalCol));
                 string[] strCol = Mtblib.Tools.MtbTools.CreateVariableStrArray(_ws, 2, Mtblib.Tools.MtbVarType.Column);
                 string[] strConst = Mtblib.Tools.MtbTools.CreateVariableStrArray(_ws, 1, Mtblib.Tools.MtbVarType.Constant);
@@ -409,8 +410,18 @@ namespace MtbGraph.HLBarLinePlot
                 tmpCmnd.AppendFormat("Set {0}\r\n", strCol[0]);
                 tmpCmnd.AppendFormat("1:{0}\r\n", strConst);
                 tmpCmnd.AppendLine("End");
-                tmpCmnd.AppendFormat("let {0}=if(Lag({1},1)<>MISS() AND {1}<>Lag({1},1),{0},MISS())\r\n",
+                //如果最外層是文字格式的資料，需要另外處理
+                if (gps[0].DataType == Mtb.MtbDataTypes.Text)
+                {
+                    tmpCmnd.AppendFormat("let {0}=if(Lag({1},1)<>\"\" AND {1}<>Lag({1},1),{0},MISS())\r\n",
                     strCol[0], gvalCol[0]);
+                }
+                else
+                {
+                    tmpCmnd.AppendFormat("let {0}=if(Lag({1},1)<>MISS() AND {1}<>Lag({1},1),{0},MISS())\r\n",
+                    strCol[0], gvalCol[0]);
+                }
+                
                 tmpCmnd.AppendLine("title");
                 tmpCmnd.AppendLine("brief 2");
                 string tPath = Mtblib.Tools.MtbTools.BuildTemporaryMacro("~tmpmacro.mtb", tmpCmnd.ToString());

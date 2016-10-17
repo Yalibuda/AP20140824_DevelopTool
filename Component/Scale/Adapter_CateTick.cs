@@ -54,5 +54,10 @@ namespace MtbGraph.Component.Scale
             get { return _tick.Angle; }
             set { _tick.Angle = value; }
         }
+
+        public void SetTShow(dynamic tickindex)
+        {
+            _tick.TShow = tickindex;
+        }
     }
 }

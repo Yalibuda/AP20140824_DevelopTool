@@ -13,5 +13,7 @@ namespace MtbGraph.Component.Scale
         double TIncreament { set; get; }
         float FontSize { set; get; }
         double Angle { set; get; }
+        void SetTShow(dynamic tickindex);
+
     }
 }

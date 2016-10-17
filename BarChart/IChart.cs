@@ -23,6 +23,8 @@ namespace MtbGraph.BarChart
         BarChart.ChartFunctionType FuncType { set; get; }
         BarChart.ChartStackType StackType { set; get; }
         bool Transpose { get; set; }
+        bool NoEmpty { get; set; }
+        bool NoMissing { get; set; }
         int ColumnAtGroupingLevel { get; set; }
         Component.Scale.ICateScale XScale { get; }
         Component.Scale.IContScale YScale { get; }

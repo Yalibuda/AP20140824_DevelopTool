@@ -139,6 +139,7 @@ namespace MtbGraph.HLBarLinePlot
                 tmpCmnd.AppendLine("brief 0");
                 tmpCmnd.AppendFormat("stat {0};\r\n", var[0].SynthesizedName);
                 tmpCmnd.AppendFormat("by {0};\r\n", string.Join(" &\r\n", gps.Select(x => x.SynthesizedName)));
+                tmpCmnd.AppendLine("noem;");
                 tmpCmnd.AppendFormat("gval {0}.\r\n", string.Join(" &\r\n", gvalCol));
                 string[] strCol = Mtblib.Tools.MtbTools.CreateVariableStrArray(_ws, 2, Mtblib.Tools.MtbVarType.Column);
                 string[] strConst = Mtblib.Tools.MtbTools.CreateVariableStrArray(_ws, 1, Mtblib.Tools.MtbVarType.Constant);
@@ -146,8 +147,17 @@ namespace MtbGraph.HLBarLinePlot
                 tmpCmnd.AppendFormat("Set {0}\r\n", strCol[0]);
                 tmpCmnd.AppendFormat("1:{0}\r\n", strConst);
                 tmpCmnd.AppendLine("End");
-                tmpCmnd.AppendFormat("let {0}=if(Lag({1},1)<>MISS() AND {1}<>Lag({1},1),{0},MISS())\r\n",
+                if (gps[0].DataType == Mtb.MtbDataTypes.Text)
+                {
+                    tmpCmnd.AppendFormat("let {0}=if(Lag({1},1)<>\"\" AND {1}<>Lag({1},1),{0},MISS())\r\n",
                     strCol[0], gvalCol[0]);
+                }
+                else
+                {
+                    tmpCmnd.AppendFormat("let {0}=if(Lag({1},1)<>MISS() AND {1}<>Lag({1},1),{0},MISS())\r\n",
+                    strCol[0], gvalCol[0]);
+                }
+                
                 tmpCmnd.AppendLine("title");
                 tmpCmnd.AppendLine("brief 2");
                 string tPath = Mtblib.Tools.MtbTools.BuildTemporaryMacro("~tmpmacro.mtb", tmpCmnd.ToString());
@@ -370,6 +380,7 @@ namespace MtbGraph.HLBarLinePlot
             {
                 cmnd.AppendLine("stat y.1;");
                 cmnd.AppendLine("by x.1-x.m;");
+                cmnd.AppendLine("noem;");
                 cmnd.AppendLine("gval xx.1-xx.m.");
                 cmnd.AppendLine("Count xx.1 ccount");
                 cmnd.AppendLine("Text xx.1-xx.m txx.1-txx.m");
