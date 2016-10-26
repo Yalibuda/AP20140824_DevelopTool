@@ -129,7 +129,7 @@ namespace MtbGraph.HLBarLinePlot
             #region 使用 Minitab command line 取得 BarChart 最外層的垂直線 vline(測試後比 DataTable 法快一點)
             //在262筆資料，3個分群下大概比 DataTable 法快約0.3秒
             if (gps != null && gps.Length > 1)
-            {                
+            {
                 StringBuilder tmpCmnd = new StringBuilder();
                 int currentWsCount = _ws.Columns.Count;
                 int currentConstCount = _ws.Constants.Count;
@@ -157,7 +157,7 @@ namespace MtbGraph.HLBarLinePlot
                     tmpCmnd.AppendFormat("let {0}=if(Lag({1},1)<>MISS() AND {1}<>Lag({1},1),{0},MISS())\r\n",
                     strCol[0], gvalCol[0]);
                 }
-                
+
                 tmpCmnd.AppendLine("title");
                 tmpCmnd.AppendLine("brief 2");
                 string tPath = Mtblib.Tools.MtbTools.BuildTemporaryMacro("~tmpmacro.mtb", tmpCmnd.ToString());
@@ -166,7 +166,7 @@ namespace MtbGraph.HLBarLinePlot
                 double[] rowid = _ws.Columns.Item(strCol[0]).GetData();
                 for (int i = _ws.Columns.Count + 1; --i > currentWsCount; ) _ws.Columns.Remove(i);
                 for (int i = _ws.Constants.Count + 1; --i > currentConstCount; ) _ws.Constants.Remove(i);
-                vlineInBarChart = rowid.Where(x => x < Mtblib.Tools.MtbTools.MISSINGVALUE).Select(x => x - 0.5).ToList();             
+                vlineInBarChart = rowid.Where(x => x < Mtblib.Tools.MtbTools.MISSINGVALUE).Select(x => x - 0.5).ToList();
             }
 
             #endregion
@@ -534,9 +534,41 @@ namespace MtbGraph.HLBarLinePlot
             if (_boxplot.YScale.Ticks.Increament < Mtblib.Tools.MtbTools.MISSINGVALUE &&
                 _boxplot.YScale.Ticks.NMajor == -1)
             {
+                //GetDataScaleInCateChart不會額外處理 varBoxPlot 數據間的運算，需要另外新增一個欄位
+                List<Mtb.Column> mtbCols = new List<Mtb.Column>();
+                mtbCols.AddRange(varBoxplot);
+                List<Mtb.Column> gpCols = new List<Mtb.Column>();
+                if (gps != null)
+                {
+                    mtbCols.AddRange(gps);
+                    gpCols.AddRange(gps);
+                }
+                if (pane != null)
+                {
+                    mtbCols.AddRange(pane);
+                    gpCols.AddRange(pane);
+                }
+
+                DataTable dt = Mtblib.Tools.MtbTools.GetDataTableFromMtbCols(mtbCols.ToArray());
+                Func<object, int?, double> fun;
+                switch (FuncTypeAtBoxPlot)
+                {
+                    case FuncType.PPM:
+                        fun = Tool.ArithmeticChipmos.PPM;
+                        break;
+                    case FuncType.YIELD:
+                    default:
+                        fun = Tool.ArithmeticChipmos.Yiled;
+                        break;
+                }
+                DataTable applyedData = Tool.ArithmeticChipmos.Apply(varBoxplot.Select(x => x.SynthesizedName).ToArray(),
+                    fun, gpCols.Select(x => x.SynthesizedName).ToArray(), dt);
+                string[] colstr = Mtblib.Tools.MtbTools.CreateVariableStrArray(_ws, 1, Mtblib.Tools.MtbVarType.Column);
+                _ws.Columns.Item(colstr[0]).SetData(applyedData.AsEnumerable().Select(x => x.Field<double>("Value")).ToArray());
+
                 Mtblib.Tools.GScale boxplotScale
                 = Mtblib.Tools.MtbTools.GetDataScaleInCateChart(
-                _proj, _ws, varBoxplot, gps, pane, "", true);
+                _proj, _ws, new Mtb.Column[]{_ws.Columns.Item(colstr[0])}, gps, pane, "", true);
 
                 string tickString = string.Format("{0}:{1}/{2}",
                     boxplotScale.TMinimum, boxplotScale.TMaximum, _boxplot.YScale.Ticks.Increament);
