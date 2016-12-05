@@ -17,6 +17,7 @@ namespace MtbGraph.SortedBarLinePlot
         Component.IDatlab Datlab { get; }
         Component.ILabel Title { get; }
         Component.Region.IRegion DataRegion { get; }
+        //Component.Region.IGraph Graph { get; }
         Component.Region.ILegend Legend { get; }
         string GSave { set; get; }
         void SetMtbEnvironment(Mtb.Project proj, Mtb.Worksheet ws);

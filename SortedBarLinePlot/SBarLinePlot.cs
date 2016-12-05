@@ -112,6 +112,14 @@ namespace MtbGraph.SortedBarLinePlot
             }
         }
 
+        //public Component.Region.IGraph Graph
+        //{
+        //    get
+        //    {
+        //        return new Component.Region.Adapter_Graph(_chart.GraphRegion);
+        //    }
+        //}
+
         public Component.Region.ILegend Legend
         {
             get
@@ -542,6 +550,7 @@ namespace MtbGraph.SortedBarLinePlot
 
             cmnd.AppendLine("layout;");
             cmnd.Append(_chart.GetOptionCommand());
+            //cmnd.Append(_chart.GraphRegion.GetCommand());
             cmnd.AppendLine(".");
 
             #region 建立 Bar 指令
@@ -660,7 +669,7 @@ namespace MtbGraph.SortedBarLinePlot
                 cmnd.Append(_chart.DataRegion.GetCommand());
                 if (_chart.Title.Text == null) _chart.Title.Text = "Bar line plot";
                 cmnd.Append(_chart.Title.GetCommand());
-                cmnd.Append(_chart.FigureRegion.GetCommand());
+                cmnd.Append(_chart.FigureRegion.GetCommand());                
                 cmnd.AppendLine("nosf;");
                 cmnd.AppendLine("noxf.");
             }

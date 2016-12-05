@@ -251,7 +251,8 @@ namespace MtbGraph.HLBarLinePlot
                  FuncTypeAtBarChart.ToString(),
                 FuncTypeAtBoxPlot.ToString());
             cmnd.AppendLine("offset 0 -0.044801;");
-            cmnd.AppendLine("graph 10 4;");
+            cmnd.Append(_chart.GraphRegion.GetCommand());
+            //cmnd.AppendLine("graph 10 4;");
             cmnd.AppendLine(".");
 
             #region 建立 Bar chart
@@ -573,6 +574,8 @@ namespace MtbGraph.HLBarLinePlot
                 string tickString = string.Format("{0}:{1}/{2}",
                     boxplotScale.TMinimum, boxplotScale.TMaximum, _boxplot.YScale.Ticks.Increament);
                 _boxplot.YScale.Ticks.SetTicks(tickString);
+
+                _ws.Columns.Item(colstr[0]).Delete(); 
             }
             else
             {

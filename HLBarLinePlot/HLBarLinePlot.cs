@@ -206,6 +206,17 @@ namespace MtbGraph.HLBarLinePlot
             get { return new Component.Scale.Adapter_CateScale(_xscale); }
         }
 
+        /// <summary>
+        /// 取得圖形中的 Graph region 元件
+        /// </summary>
+        public Component.Region.IGraph Graph
+        {
+            get
+            {
+                //因為沒有定義 Layout 時候的 Graph 元件，所以用 Chart 的 Graph 元件代替，實作程式碼的時候，建立 Graph 指令。
+                return new Component.Region.Adapter_Graph(_chart.GraphRegion);
+            }
+        }
 
         private Mtblib.Graph.Component.Title _title;
         /// <summary>
@@ -325,7 +336,7 @@ namespace MtbGraph.HLBarLinePlot
                 return cmnd.ToString();
                 #endregion
             };
-
+            _chart.GraphRegion.SetCoordinate(10,4);
 
         }
 
@@ -421,7 +432,7 @@ namespace MtbGraph.HLBarLinePlot
                     tmpCmnd.AppendFormat("let {0}=if(Lag({1},1)<>MISS() AND {1}<>Lag({1},1),{0},MISS())\r\n",
                     strCol[0], gvalCol[0]);
                 }
-                
+
                 tmpCmnd.AppendLine("title");
                 tmpCmnd.AppendLine("brief 2");
                 string tPath = Mtblib.Tools.MtbTools.BuildTemporaryMacro("~tmpmacro.mtb", tmpCmnd.ToString());
@@ -512,7 +523,8 @@ namespace MtbGraph.HLBarLinePlot
             }
             cmnd.AppendFormat("title \"{0}\";\r\n", Title.Text == null ? "Bar-Line Plot" : Title.Text);
             cmnd.AppendLine("offset 0 -0.045801;");
-            cmnd.AppendLine("graph 10 4;");
+            cmnd.Append(_chart.GraphRegion.GetCommand());
+            //cmnd.AppendLine("graph 10 4;");
             cmnd.AppendLine(".");
 
             #region 建立 Bar chart

@@ -156,6 +156,11 @@ namespace MtbGraph.BarChart
             get { return new Component.Region.Adapter_Legend(_chart.Legend); }
         }
 
+        public Component.Region.IGraph Graph
+        {
+            get { return new Component.Region.Adapter_Graph(_chart.GraphRegion); }
+        }
+
         public Component.ILabel Title
         {
             get { return new Component.Adapter_Lab(_chart.Title); }
@@ -240,20 +245,41 @@ namespace MtbGraph.BarChart
             cmnd.AppendLine("brief 0");
 
             // 先堆資料
-            cmnd.AppendLine("stack y.1-y.ny yy;");
-            cmnd.AppendLine("subs ycolnm;");
-            cmnd.AppendLine("usen.");
+            // 如果 variable >=2 用 Stack 堆疊資料
+            if (vars.Length >= 2)
+            {
+                cmnd.AppendLine("stack y.1-y.ny yy;");
+                cmnd.AppendLine("subs ycolnm;");
+                cmnd.AppendLine("usen.");
+            }
+            else
+            {
+                cmnd.AppendLine("copy y.1 yy");
+                cmnd.AppendLine("tset ycolnm");
+                cmnd.AppendFormat("{0}(\"{1}\")\r\n", vars[0].RowCount, vars[0].Name);
+                cmnd.AppendLine("end");
+            }
+            
             cmnd.AppendLine("vorder ycolnm;");
             cmnd.AppendLine("work.");
 
             if (gps != null && gps.Length > 0)
             {
-                cmnd.AppendLine("stack &");
-                for (int i = 0; i < vars.Length; i++)
+                if (vars.Length >= 2)
                 {
-                    cmnd.AppendLine("(x.1-x.m) &");
+                    cmnd.AppendLine("stack &");
+                    for (int i = 0; i < vars.Length; i++)
+                    {
+                        cmnd.AppendLine("(x.1-x.m) &");
+                    }
+                    cmnd.AppendLine("(xx.1-xx.m).");
                 }
-                cmnd.AppendLine("(xx.1-xx.m).");
+                else
+                {
+                    cmnd.AppendLine("copy x.1-x.m xx.1-xx.m");
+                }
+                
+                
                 cmnd.AppendLine("text xx.1-xx.m xx.1-xx.m");
                 cmnd.AppendLine("vorder xx.1-xx.m;");
                 cmnd.AppendLine("work.");
@@ -530,7 +556,7 @@ namespace MtbGraph.BarChart
             cmnd.Append(_chart.Legend.GetCommand());
             cmnd.Append(_chart.GetAnnotationCommand());
             cmnd.Append(_chart.GetOptionCommand());
-            cmnd.Append(_chart.GetRegionCommand());
+            cmnd.Append(_chart.GetRegionCommand());            
             cmnd.AppendLine(".");
             cmnd.AppendLine("endmacro");
             return cmnd.ToString();

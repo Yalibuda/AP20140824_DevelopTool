@@ -30,6 +30,7 @@ namespace MtbGraph.BarChart
         Component.Scale.IContScale YScale { get; }
         Component.IDatlab Datlab { get; }        
         Component.Region.ILegend Legend { get; }
+        Component.Region.IGraph Graph { get; }
         Component.ILabel Title { get; }
         Component.IFootnote Footnotes { get; }
 
