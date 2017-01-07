@@ -8,7 +8,8 @@ namespace MtbGraph.Component.Scale
 {
     public interface IRefe
     {
-        void AddValue(double value);        
+        void AddValue(double value);
+        void SetLabel(dynamic var);
         //void RemoveAt(int i);
         void RemoveAll();
         float FontSize { set; get; }

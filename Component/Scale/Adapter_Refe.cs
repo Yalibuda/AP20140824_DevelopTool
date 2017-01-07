@@ -9,7 +9,7 @@ namespace MtbGraph.Component.Scale
     internal class Adapter_Refe : IRefe
     {
         Mtblib.Graph.Component.Scale.IRefe _refe;
-       public Adapter_Refe(Mtblib.Graph.Component.Scale.IRefe refe)
+        public Adapter_Refe(Mtblib.Graph.Component.Scale.IRefe refe)
         {
             _refe = refe;
         }
@@ -24,6 +24,12 @@ namespace MtbGraph.Component.Scale
             List<string> valueStr = ((string[])_refe.Values).ToList();
             valueStr.Add(value.ToString());
             _refe.Values = valueStr.ToArray();
+        }
+
+        public void SetLabel(dynamic var)
+        {
+            _refe.Labels = var;
+
         }
 
         public void RemoveAll()
