@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace MtbGraph.HLBarLinePlot
 {
+    public enum BarColorOption
+    {
+        ByInnerMostGroup,
+        Single,
+        ByOuterMostGroup
+    }
     public interface IHLBarLinePlot
     {
         void SetVariableAtBarChart(dynamic var);
@@ -17,10 +23,14 @@ namespace MtbGraph.HLBarLinePlot
         Component.Scale.IContScale YScaleAtBoxPlot { get; }
         Component.Scale.ICateScale XScale { get; }
         Component.Region.IGraph Graph { get; }
+        Component.Region.IRegion DataRegionAtBarChart { get; }
         Component.ILabel Title { get; }
         Component.IDatlab DatlabAtBarChart { get; }
         Component.IDatlab DatlabAtBoxPlot { get; }
-
+        BarColorOption BarColorType { get; set; }
+        DatalabOption DatlabOptionAtBarChart { get; }
+        DatalabOption DatlabOptionAtBoxPlot { get; }
+        
         /// <summary>
         /// 設定 Layout 畫面分割的位置(0~1)，最下方=0
         /// </summary>

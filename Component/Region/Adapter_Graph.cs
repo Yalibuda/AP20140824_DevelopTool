@@ -6,25 +6,23 @@ using System.Threading.Tasks;
 
 namespace MtbGraph.Component.Region
 {
-    internal class Adapter_Region : IRegion
+    public class Adapter_Graph: IGraph
     {
-        Mtblib.Graph.Component.Region.Region _region;
-        public Adapter_Region(Mtblib.Graph.Component.Region.Region region)
+        public Adapter_Graph(Mtblib.Graph.Component.Region.Region region)
         {
             _region = region;
         }
+        Mtblib.Graph.Component.Region.Region _region;
 
-        public void SetCoordinate(double xmin, double xmax, double ymin, double ymax)
+        public void SetSize(double width, double height)
         {
-            _region.SetCoordinate(xmin, xmax, ymin, ymax);
+            _region.SetCoordinate(width, height);
         }
 
-        public double[] GetCoordinate()
+        public double[] GetSize()
         {
             return _region.GetCoordinate();
         }
-
-
         public bool AutoSize
         {
             get

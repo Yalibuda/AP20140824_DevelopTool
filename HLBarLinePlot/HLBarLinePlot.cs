@@ -218,6 +218,14 @@ namespace MtbGraph.HLBarLinePlot
             }
         }
 
+        /// <summary>
+        /// 取得圖形中的 Data region 元件
+        /// </summary>
+        public Component.Region.IRegion DataRegionAtBarChart
+        {
+            get { return new Component.Region.Adapter_Region(_chart.DataRegion); }
+        }
+
         private Mtblib.Graph.Component.Title _title;
         /// <summary>
         /// 取得主標題元件
@@ -249,6 +257,34 @@ namespace MtbGraph.HLBarLinePlot
             }
         }
 
+        protected BarColorOption _barColorOpt = BarColorOption.Single;
+        /// <summary>
+        /// 設定或取得 BarChart 分群的顏色設定
+        /// </summary>
+        public BarColorOption BarColorType
+        {
+            get
+            {
+                return _barColorOpt;
+            }
+            set
+            {
+                _barColorOpt = value;
+            }
+        }
+
+        /// <summary>
+        /// 設定BarChart 中 Datlab 要顯示的位數
+        /// </summary>
+        public DatalabOption DatlabOptionAtBarChart { get { return _datlabOptAtChart; } }
+        private DatalabOption _datlabOptAtChart;
+
+        /// <summary>
+        /// 設定Boxplot 中 Datlab 要顯示的位數
+        /// </summary>
+        public DatalabOption DatlabOptionAtBoxPlot { get { return _datlabOptAtBoxPlot; } }
+        private DatalabOption _datlabOptAtBoxPlot;
+
         /// <summary>
         /// 設定分割的比例值(由下往上所占的比例)
         /// </summary>
@@ -264,6 +300,8 @@ namespace MtbGraph.HLBarLinePlot
             _xscale = new Mtblib.Graph.Component.Scale.CateScale(Mtblib.Graph.Component.ScaleDirection.X_Axis);
             _chart = new Mtblib.Graph.BarChart.Chart(_proj, _ws);
             _boxplot = new Mtblib.Graph.CategoricalChart.BoxPlot(_proj, _ws);
+            _datlabOptAtChart = new DatalabOption();
+            _datlabOptAtBoxPlot = new DatalabOption();
             SetDefault();
         }
 
@@ -289,7 +327,9 @@ namespace MtbGraph.HLBarLinePlot
             _boxplot.RBox.Visible = false;
             _boxplot.Outlier.Visible = false;
             _boxplot.Title.Visible = false;
+            _boxplot.FigureRegion.AutoSize = false;
             _boxplot.FigureRegion.SetCoordinate(0, 1, Division, 1);
+
             _boxplot.YScale.GetCommand = () =>
             {
                 #region Override GetCommand of YScale
@@ -315,7 +355,10 @@ namespace MtbGraph.HLBarLinePlot
             _chart.FuncType = Mtblib.Graph.BarChart.Chart.ChartFunctionType.SUM;
             _chart.Title.Visible = false;
             _chart.Legend.HideLegend = true;
+            _chart.FigureRegion.AutoSize = false;
             _chart.FigureRegion.SetCoordinate(0, 1, 0, Division);
+            _chart.DataRegion.AutoSize = false;
+            _chart.DataRegion.SetCoordinate(0.074, 0.9641, 0.0735, 0.9627); //南茂建議的預設值
             _chart.YScale.GetCommand = () =>
             {
                 #region Override GetCommand of YScale
@@ -336,7 +379,8 @@ namespace MtbGraph.HLBarLinePlot
                 return cmnd.ToString();
                 #endregion
             };
-            _chart.GraphRegion.SetCoordinate(10,4);
+            _chart.GraphRegion.AutoSize = false;
+            _chart.GraphRegion.SetCoordinate(10, 4);
 
         }
 
@@ -390,7 +434,7 @@ namespace MtbGraph.HLBarLinePlot
             cmnd.AppendLine("group x.1-x.m;"); // 1~m 代表分群由外至內
             cmnd.AppendLine("pane p.");
             cmnd.AppendLine("mcolumn y trnd x.1-x.m");
-            cmnd.AppendLine("mcolumn xx.1-xx.m");
+            cmnd.AppendLine("mcolumn dlab");
             cmnd.AppendLine("mcolumn p");
 
             cmnd.AppendLine("mreset");
@@ -522,10 +566,28 @@ namespace MtbGraph.HLBarLinePlot
                 _chart.GraphPath = null;
             }
             cmnd.AppendFormat("title \"{0}\";\r\n", Title.Text == null ? "Bar-Line Plot" : Title.Text);
+            if (Title.FontSize > 0) cmnd.AppendFormat("psize {0};\r\n", Title.FontSize);
+
             cmnd.AppendLine("offset 0 -0.045801;");
             cmnd.Append(_chart.GraphRegion.GetCommand());
             //cmnd.AppendLine("graph 10 4;");
             cmnd.AppendLine(".");
+
+            //如果要顯示自訂Datlab位數, 就要自己算
+            //如果有 panel 的做法就必須忽略
+            if (pane == null && DatlabOptionAtBarChart.AutoDecimal == false)
+            {
+                cmnd.AppendLine("stat y;");
+                cmnd.AppendLine(" by x.1-x.m;");
+                //cmnd.AppendLine(" noem;");//不可因為 bar chart 使用 nomiss 就使用 noempty，因為 bar chart只是隱藏那些 bar 
+                cmnd.AppendFormat(" {0} dlab.\r\n", _chart.FuncType.ToString() == "SUM" ? "SUMS" : _chart.FuncType.ToString());
+                cmnd.AppendLine("fnum dlab;");
+                cmnd.AppendFormat(" fixed {0}.\r\n", DatlabOptionAtBarChart.DecimalPlace);
+                _chart.DataLabel.DatlabType = Mtblib.Graph.Component.Datlab.DisplayType.Column;
+                _chart.DataLabel.LabelColumn = "dlab";
+            }
+
+
 
             #region 建立 Bar chart
             cmnd.AppendFormat("chart {0}(y) &\r\n", _chart.FuncType.ToString());
@@ -551,7 +613,19 @@ namespace MtbGraph.HLBarLinePlot
                     tshow.Add(i);
                 }
                 _chart.XScale.Ticks.TShow = tshow.ToArray();
-                _chart.Bar.GroupingBy = "x.m";
+                switch (BarColorType)
+                {
+                    case BarColorOption.ByInnerMostGroup:
+                        _chart.Bar.GroupingBy = "x.m";
+                        break;
+                    case BarColorOption.ByOuterMostGroup:
+                        _chart.Bar.GroupingBy = "x.1";
+                        break;
+                    case BarColorOption.Single:
+                    default:
+                        break;
+                }
+                //_chart.Bar.GroupingBy = "x.m";
             }
 
             if (vlineInBarChart != null && vlineInBarChart.Count > 0)
@@ -633,6 +707,7 @@ namespace MtbGraph.HLBarLinePlot
             cmnd.Append(_chart.DataLabel.GetCommand());
             cmnd.Append(_chart.Legend.GetCommand());
             cmnd.Append(_chart.FigureRegion.GetCommand());
+            cmnd.Append(_chart.DataRegion.GetCommand());
             cmnd.Append(_chart.Title.GetCommand());
             cmnd.AppendLine("nomiss;");
             cmnd.AppendLine("noem;");
@@ -640,6 +715,18 @@ namespace MtbGraph.HLBarLinePlot
             cmnd.Append(_chart.GetAnnotationCommand());
             cmnd.AppendLine(".");
             #endregion
+
+            if (pane == null && DatlabOptionAtBoxPlot.AutoDecimal == false)
+            {
+                cmnd.AppendLine("stat trnd;");
+                cmnd.AppendLine(" by x.1-x.m;");
+                //cmnd.AppendLine(" noem;");//不可因為 bar chart 使用 nomiss 就使用 noempty，因為 bar chart只是隱藏那些 bar 
+                cmnd.AppendLine(" mean dlab.");
+                cmnd.AppendLine("fnum dlab;");
+                cmnd.AppendFormat(" fixed {0}.\r\n", DatlabOptionAtBoxPlot.DecimalPlace);
+                _boxplot.MeanDatlab.DatlabType = Mtblib.Graph.Component.Datlab.DisplayType.Column;
+                _boxplot.MeanDatlab.LabelColumn = "dlab";
+            }
 
             #region 建立 Boxplot
             cmnd.AppendLine("boxplot trnd &");
@@ -702,6 +789,7 @@ namespace MtbGraph.HLBarLinePlot
             }
 
             cmnd.Append(_boxplot.FigureRegion.GetCommand());
+            cmnd.Append(_boxplot.DataRegion.GetCommand());
             cmnd.Append(_boxplot.Title.GetCommand());
             cmnd.Append(_boxplot.GetAnnotationCommand());
             cmnd.AppendLine(".");

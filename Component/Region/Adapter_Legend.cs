@@ -35,5 +35,17 @@ namespace MtbGraph.Component.Region
         {
             return _legend.GetCoordinate();
         }
+
+        public bool AutoSize
+        {
+            get
+            {
+                return _legend.AutoSize;
+            }
+            set
+            {
+                _legend.AutoSize = value;
+            }
+        }
     }
 }

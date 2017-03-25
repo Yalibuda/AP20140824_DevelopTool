@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace MtbGraph.Component.Region
 {
-    public interface ILegend
+    public interface IGraph
     {
-        float FontSize { set; get; }
-        void SetCoordinate(double xmin, double xmax, double ymin, double ymax);
-        double[] GetCoordinate();
+        void SetSize(double width, double height);
+        double[] GetSize();
         bool AutoSize { get; set; }
     }
 }

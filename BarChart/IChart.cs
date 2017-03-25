@@ -25,6 +25,7 @@ namespace MtbGraph.BarChart
         bool Transpose { get; set; }
         bool NoEmpty { get; set; }
         bool NoMissing { get; set; }
+        bool GroupingLine { get; set; }
         int ColumnAtGroupingLevel { get; set; }
         Component.Scale.ICateScale XScale { get; }
         Component.Scale.IContScale YScale { get; }

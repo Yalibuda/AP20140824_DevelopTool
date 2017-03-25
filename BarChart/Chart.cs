@@ -120,6 +120,16 @@ namespace MtbGraph.BarChart
             get { return _chart.NoMissing; }
             set { _chart.NoMissing = value; }
         }
+        private bool _grouplingLine = false;
+        /// <summary>
+        /// 於圖形中加入最外層群組的分群線, 與 PanelBy 二者功能相似，當 PanelBy 有設定時，將會忽略此設定。
+        /// 除此之外，X軸輔助線的設定值會清除，只用於顯示分群線
+        /// </summary>
+        public bool GroupingLine
+        {
+            get { return _grouplingLine; }
+            set { _grouplingLine = value; }
+        }
 
         private int colAtGroupingLv = 4;
         public int ColumnAtGroupingLevel
@@ -238,7 +248,8 @@ namespace MtbGraph.BarChart
             cmnd.AppendLine("mcolumn p.1-p.k");
             cmnd.AppendLine("mcolumn yy ycolnm ylab stkdlab dlab xx.1-xx.m");
             cmnd.AppendLine("mcolumn pp.1-pp.k");
-            cmnd.AppendLine("mconstant nn");
+            cmnd.AppendLine("mcolumn gpline guniq gfreq gg.1-gg.4"); //分群線，當沒有設定 paneby 時才會有作用
+            cmnd.AppendLine("mconstant nn ng");
             cmnd.AppendLine("mreset");
             cmnd.AppendLine("notitle");
             cmnd.AppendLine("noecho");
@@ -259,7 +270,7 @@ namespace MtbGraph.BarChart
                 cmnd.AppendFormat("{0}(\"{1}\")\r\n", vars[0].RowCount, vars[0].Name);
                 cmnd.AppendLine("end");
             }
-            
+
             cmnd.AppendLine("vorder ycolnm;");
             cmnd.AppendLine("work.");
 
@@ -278,8 +289,8 @@ namespace MtbGraph.BarChart
                 {
                     cmnd.AppendLine("copy x.1-x.m xx.1-xx.m");
                 }
-                
-                
+
+
                 cmnd.AppendLine("text xx.1-xx.m xx.1-xx.m");
                 cmnd.AppendLine("vorder xx.1-xx.m;");
                 cmnd.AppendLine("work.");
@@ -318,6 +329,51 @@ namespace MtbGraph.BarChart
             {
                 gpVarInMacros.Insert(ColumnAtGroupingLevel - 1, "ycolnm");
                 gpNameInMacros.Insert(ColumnAtGroupingLevel - 1, "Datas");
+            }
+
+            if ((pane == null || pane.Length == 0) && GroupingLine && _chart.XScale.Ticks.HideAllTick == false) //分群線與PanelBy只能使用其一
+            {
+                List<string> gpVarInMacrosForGpLine;
+                
+                //判斷是否有任何 TShow 設定，這會影響繪製分群線的結果 
+                int[] tShow = _chart.XScale.Ticks.TShow;
+                if (tShow != null && tShow.Length > 0) 
+                {
+                    tShow = tShow.Select(x => x - 1).ToArray();
+                    gpVarInMacrosForGpLine = gpVarInMacros.Select((x, i) => new { Name = x, Id = i })
+                        .Where(x => tShow.Contains(x.Id)).Select(x => x.Name).ToList();
+                    if (!tShow.Contains(0))
+                    {
+                        gpVarInMacrosForGpLine.Insert(0, gpVarInMacros[0]);
+                    }
+                }
+                else
+                {
+                    gpVarInMacrosForGpLine = gpVarInMacros;
+                }
+
+                cmnd.AppendFormat("let ng = {0}\r\n", gpVarInMacrosForGpLine.Count);
+
+                cmnd.AppendLine("stat yy;");
+                cmnd.AppendFormat(" by {0};\r\n", string.Join("& \r\n", gpVarInMacrosForGpLine));
+                if (!NoMissing) cmnd.AppendLine("miss;");
+                if (NoEmpty) cmnd.AppendLine("noem;");
+                cmnd.AppendLine(" gids gg.1-gg.ng.");
+                cmnd.AppendLine("tally gg.1;");
+                cmnd.AppendLine(" store guniq gfreq.");
+
+                cmnd.AppendLine("if (N(guniq)>1)");
+                cmnd.AppendLine(" let nn = N(gg.ng)");
+                cmnd.AppendLine(" set gpline");
+                cmnd.AppendLine(" 1:nn");
+                cmnd.AppendLine(" end");
+                cmnd.AppendLine(" let gpline = if(gg.1<>lag(gg.1,1) and lag(gg.1,1)<>miss(), gpline-0.5,miss())");
+                cmnd.AppendLine(" copy gpline gpline;");
+                cmnd.AppendLine("  exclude;");
+                cmnd.AppendLine("  where \"gpline=miss()\".");
+                cmnd.AppendLine("else");
+                cmnd.AppendLine(" let gpline = 0.5");
+                cmnd.AppendLine("endif");
             }
 
             Mtblib.Graph.Component.Scale.ContScale tmpYScale
@@ -531,6 +587,12 @@ namespace MtbGraph.BarChart
             if (StackType == ChartStackType.Stack) cmnd.AppendLine("stack;");
 
             _chart.XScale.Label.MultiLables = gpNameInMacros.ToArray();
+
+            if ((pane == null || pane.Length == 0) && GroupingLine && _chart.XScale.Ticks.HideAllTick == false) //在沒有 PanelBy & GrouplineLine = true
+            {
+                _chart.XScale.Refes.Values = "gpline";
+                _chart.XScale.Refes.Color = new string[] { "20" };
+            }
             cmnd.Append(_chart.XScale.GetCommand());
 
             cmnd.Append(tmpYScale.GetCommand());
@@ -556,7 +618,7 @@ namespace MtbGraph.BarChart
             cmnd.Append(_chart.Legend.GetCommand());
             cmnd.Append(_chart.GetAnnotationCommand());
             cmnd.Append(_chart.GetOptionCommand());
-            cmnd.Append(_chart.GetRegionCommand());            
+            cmnd.Append(_chart.GetRegionCommand());
             cmnd.AppendLine(".");
             cmnd.AppendLine("endmacro");
             return cmnd.ToString();

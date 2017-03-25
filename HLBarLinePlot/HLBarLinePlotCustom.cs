@@ -104,6 +104,7 @@ namespace MtbGraph.HLBarLinePlot
             cmnd.AppendLine("mcolumn xx.1-xx.m");
             cmnd.AppendLine("mcolumn txx.1-txx.m");
             cmnd.AppendLine("mcolumn p pp yy xxcord yytext xxconc1 xxconc2");
+            cmnd.AppendLine("mcolumn ddlab"); //用來承接指定位數的 datlab 資料
             cmnd.AppendLine("mconstant ccount");
 
 
@@ -250,10 +251,25 @@ namespace MtbGraph.HLBarLinePlot
                 Title.Text == null ? "Bar-Line Plot" : Title.Text,
                  FuncTypeAtBarChart.ToString(),
                 FuncTypeAtBoxPlot.ToString());
+            if (Title.FontSize > 0) cmnd.AppendFormat("psize {0};\r\n", Title.FontSize);
             cmnd.AppendLine("offset 0 -0.044801;");
             cmnd.Append(_chart.GraphRegion.GetCommand());
             //cmnd.AppendLine("graph 10 4;");
             cmnd.AppendLine(".");
+
+            //如果要顯示自訂Datlab位數, 就要自己算
+            //如果有 panel 的做法就必須忽略
+            if (pane == null && DatlabOptionAtBarChart.AutoDecimal == false)
+            {
+                cmnd.AppendLine("stat y.1;");
+                cmnd.AppendLine(" by x.1-x.m;");
+                //cmnd.AppendLine(" noem;");//不可因為 bar chart 使用 nomiss 就使用 noempty，因為 bar chart只是隱藏那些 bar 
+                cmnd.AppendFormat(" {0} ddlab.\r\n", _chart.FuncType.ToString() == "SUM" ? "SUMS" : _chart.FuncType.ToString());
+                cmnd.AppendLine("fnum ddlab;");
+                cmnd.AppendFormat(" fixed {0}.\r\n", DatlabOptionAtBarChart.DecimalPlace);
+                _chart.DataLabel.DatlabType = Mtblib.Graph.Component.Datlab.DisplayType.Column;
+                _chart.DataLabel.LabelColumn = "ddlab";
+            }
 
             #region 建立 Bar chart
             cmnd.AppendFormat("chart {0}(y.1) &\r\n", _chart.FuncType.ToString());
@@ -279,7 +295,20 @@ namespace MtbGraph.HLBarLinePlot
                     tshow.Add(i);
                 }
                 _chart.XScale.Ticks.TShow = tshow.ToArray();
-                _chart.Bar.GroupingBy = "x.m";
+                _chart.XScale.Ticks.TShow = tshow.ToArray();
+                switch (BarColorType)
+                {
+                    case BarColorOption.ByInnerMostGroup:
+                        _chart.Bar.GroupingBy = "x.m";
+                        break;
+                    case BarColorOption.ByOuterMostGroup:
+                        _chart.Bar.GroupingBy = "x.1";
+                        break;
+                    case BarColorOption.Single:
+                    default:
+                        break;
+                }
+                //_chart.Bar.GroupingBy = "x.m";
             }
 
             if (vlineInBarChart != null && vlineInBarChart.Count > 0)
@@ -361,6 +390,7 @@ namespace MtbGraph.HLBarLinePlot
             cmnd.Append(_chart.DataLabel.GetCommand());
             cmnd.Append(_chart.Legend.GetCommand());
             cmnd.Append(_chart.FigureRegion.GetCommand());
+            cmnd.Append(_chart.DataRegion.GetCommand());
             cmnd.Append(_chart.Title.GetCommand());
             cmnd.AppendLine("nomiss;");
             cmnd.AppendLine("noem;");
@@ -504,7 +534,23 @@ namespace MtbGraph.HLBarLinePlot
             {
                 cmnd.AppendLine("copy xxcord xcord.1");
                 cmnd.AppendLine("copy yy ycord.1");
-                cmnd.AppendLine("text yy dlab.1");
+                //if (DatlabOptionAtBoxPlot.AutoDecimal == false)
+                //{
+                //    cmnd.AppendLine("fnum yy;");
+                //    cmnd.AppendFormat("fixed {0}.\r\n",DatlabOptionAtBoxPlot.DecimalPlace); 
+                //}
+                if (DatlabOptionAtBoxPlot.AutoDecimal == false)
+                {
+                    cmnd.AppendLine("text yy dlab.1;");
+                    cmnd.AppendLine("maxwidth 32;");
+                    cmnd.AppendFormat("decimal {0}.\r\n", DatlabOptionAtBoxPlot.DecimalPlace);
+                }
+                else
+                {
+                    cmnd.AppendLine("text yy dlab.1.");
+                }
+
+
             }
             #endregion
 
@@ -569,13 +615,13 @@ namespace MtbGraph.HLBarLinePlot
 
                 Mtblib.Tools.GScale boxplotScale
                 = Mtblib.Tools.MtbTools.GetDataScaleInCateChart(
-                _proj, _ws, new Mtb.Column[]{_ws.Columns.Item(colstr[0])}, gps, pane, "", true);
+                _proj, _ws, new Mtb.Column[] { _ws.Columns.Item(colstr[0]) }, gps, pane, "", true);
 
                 string tickString = string.Format("{0}:{1}/{2}",
                     boxplotScale.TMinimum, boxplotScale.TMaximum, _boxplot.YScale.Ticks.Increament);
                 _boxplot.YScale.Ticks.SetTicks(tickString);
 
-                _ws.Columns.Item(colstr[0]).Delete(); 
+                _ws.Columns.Item(colstr[0]).Delete();
             }
             else
             {
