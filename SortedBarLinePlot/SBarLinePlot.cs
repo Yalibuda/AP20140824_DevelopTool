@@ -164,7 +164,9 @@ namespace MtbGraph.SortedBarLinePlot
             _plot.DataRegion.Type = 0;
             _plot.DataRegion.EType = 0;
             _plot.Title.Visible = false;
+            _plot.DataRegion.AutoSize = false;
             _plot.DataRegion.SetCoordinate(0.119, 0.8211, 0.1778, 0.9);
+            _chart.DataRegion.AutoSize = false;
             _chart.DataRegion.SetCoordinate(0.119, 0.8211, 0.1778, 0.9);
             _chart.XScale.Ticks.HideAllTick = true;
             _chart.XScale.Label.Visible = false;

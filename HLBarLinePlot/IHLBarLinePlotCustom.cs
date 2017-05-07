@@ -20,6 +20,7 @@ namespace MtbGraph.HLBarLinePlot
         Component.Scale.ICateScale XScale { get; }
         Component.Region.IGraph Graph { get; }
         Component.Region.IRegion DataRegionAtBarChart { get; }
+        Component.Region.IRegion DataRegionAtBoxPlot { get; }
         Component.ILabel Title { get; }
         Component.IDatlab DatlabAtBarChart { get; }
         Component.IDatlab DatlabAtBoxPlot { get; }

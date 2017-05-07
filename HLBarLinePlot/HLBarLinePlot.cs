@@ -219,11 +219,19 @@ namespace MtbGraph.HLBarLinePlot
         }
 
         /// <summary>
-        /// 取得圖形中的 Data region 元件
+        /// 取得圖形中 Bar chart 的 Data region 元件
         /// </summary>
         public Component.Region.IRegion DataRegionAtBarChart
         {
             get { return new Component.Region.Adapter_Region(_chart.DataRegion); }
+        }
+
+        /// <summary>
+        /// 取得圖形中 Box plot 的 Data region 元件
+        /// </summary>
+        public Component.Region.IRegion DataRegionAtBoxPlot
+        {
+            get { return new Component.Region.Adapter_Region(_boxplot.DataRegion); }
         }
 
         private Mtblib.Graph.Component.Title _title;
@@ -288,7 +296,20 @@ namespace MtbGraph.HLBarLinePlot
         /// <summary>
         /// 設定分割的比例值(由下往上所占的比例)
         /// </summary>
-        public double Division { set; get; }
+        public double Division
+        {
+            set
+            {
+                _division = value;
+                _chart.FigureRegion.SetCoordinate(0, 1, 0, value);
+                _boxplot.FigureRegion.SetCoordinate(0, 1, value, 1);
+            }
+            get
+            {
+                return _division;
+            }
+        }
+        private double _division;
 
 
         public string GSave { set; get; }
@@ -329,6 +350,9 @@ namespace MtbGraph.HLBarLinePlot
             _boxplot.Title.Visible = false;
             _boxplot.FigureRegion.AutoSize = false;
             _boxplot.FigureRegion.SetCoordinate(0, 1, Division, 1);
+            _boxplot.DataRegion.AutoSize = false;
+            _boxplot.DataRegion.SetCoordinate(0.074, 0.9641, 0.005, 0.9627); 
+
 
             _boxplot.YScale.GetCommand = () =>
             {

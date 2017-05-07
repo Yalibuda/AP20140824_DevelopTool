@@ -648,6 +648,7 @@ namespace MtbGraph.HLBarLinePlot
             }
 
             cmnd.Append(_boxplot.FigureRegion.GetCommand());
+            cmnd.Append(_boxplot.DataRegion.GetCommand());
             cmnd.Append(_boxplot.Title.GetCommand());
 
             if (pane != null && pane[0].GetNumDistinctRows() > 1)
