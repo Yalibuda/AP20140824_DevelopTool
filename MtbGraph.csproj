@@ -1,0 +1,220 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{26EADA61-3AE8-4F98-8B22-33A61073F68C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MtbGraph</RootNamespace>
+    <AssemblyName>MtbGraph</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>0</WarningLevel>
+    <RegisterForComInterop>true</RegisterForComInterop>
+    <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Debug\MtbGraph.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>3</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <RegisterForComInterop>true</RegisterForComInterop>
+    <DocumentationFile>bin\Release\MtbGraph.XML</DocumentationFile>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <WarningLevel>0</WarningLevel>
+    <RegisterForComInterop>true</RegisterForComInterop>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\x86\Debug\MtbGraph.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+    <RegisterForComInterop>true</RegisterForComInterop>
+    <DocumentationFile>bin\x86\Release\MtbGraph.XML</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MathNet.Numerics">
+      <HintPath>packages\MathNet.Numerics.3.3.0\lib\net40\MathNet.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="Mtblib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\00.GeneralTool\Mtblib\Mtblib\bin\Release\Mtblib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BarChart\Chart.cs" />
+    <Compile Include="Component\Adapter_Footnote.cs" />
+    <Compile Include="Component\IFootnote.cs" />
+    <Compile Include="Component\Region\Adapter_Graph.cs" />
+    <Compile Include="Component\Region\IGraph.cs" />
+    <Compile Include="HLBarLinePlot\HLBarLinePlot.cs" />
+    <Compile Include="HLBarLinePlot\HLBarLinePlotCustom.cs" />
+    <Compile Include="HLBarLinePlot\DatalabOption.cs" />
+    <Compile Include="HLBarLinePlot\IDatalabOption.cs" />
+    <Compile Include="HLBarLinePlot\IHLBarLinePlotCustom.cs" />
+    <Compile Include="Tool\ArithmeticChipmos.cs" />
+    <Compile Include="Tool\NTuple.cs" />
+    <Compile Include="xBarChart.cs" />
+    <Compile Include="BarChart\IChart.cs" />
+    <Compile Include="BarLinePlot.cs" />
+    <Compile Include="BTChart.cs" />
+    <Compile Include="Categoricalplot\IBoxplot.cs" />
+    <Compile Include="Component\Adapter_DatLab.cs" />
+    <Compile Include="Component\DataView\Adapter_Box.cs" />
+    <Compile Include="Component\DataView\Adapter_DataView.cs" />
+    <Compile Include="Component\DataView\IBox.cs" />
+    <Compile Include="Component\DataView\IDataView.cs" />
+    <Compile Include="Component\IDatlab.cs" />
+    <Compile Include="Component\Region\Adapter_Legend.cs" />
+    <Compile Include="Component\Region\Adapter_Region.cs" />
+    <Compile Include="Component\Region\ILegend.cs" />
+    <Compile Include="Component\Region\IRegion.cs" />
+    <Compile Include="Component\ILabel.cs" />
+    <Compile Include="Component\Adapter_Lab.cs" />
+    <Compile Include="Component\Scale\Adapter_CateScale.cs" />
+    <Compile Include="Component\Scale\Adapter_CateTick.cs" />
+    <Compile Include="Component\Scale\Adapter_ContScale.cs" />
+    <Compile Include="Component\Scale\Adapter_ContSecScale.cs" />
+    <Compile Include="Component\Scale\Adapter_ContTick.cs" />
+    <Compile Include="Component\Scale\Adapter_Refe.cs" />
+    <Compile Include="Component\Scale\ICateScale.cs" />
+    <Compile Include="Component\Scale\ICateTick.cs" />
+    <Compile Include="Component\Scale\IContScale.cs" />
+    <Compile Include="Component\Scale\IContSecScale.cs" />
+    <Compile Include="Component\Scale\IContTick.cs" />
+    <Compile Include="Component\Scale\IRefe.cs" />
+    <Compile Include="DialogAppraiser.cs" />
+    <Compile Include="GraphComponent\Annotation.cs" />
+    <Compile Include="GraphComponent\AxLabel.cs" />
+    <Compile Include="GraphComponent\BarLineLegendBox.cs" />
+    <Compile Include="GraphComponent\CategoricalScale.cs" />
+    <Compile Include="GraphComponent\Connectline.cs" />
+    <Compile Include="GraphComponent\ContinuousScale.cs" />
+    <Compile Include="GraphComponent\Datlab.cs" />
+    <Compile Include="GraphComponent\DatlabModelAttribute.cs" />
+    <Compile Include="GraphComponent\Enums.cs" />
+    <Compile Include="GraphComponent\Footnote.cs" />
+    <Compile Include="GraphComponent\Graphcomp.cs" />
+    <Compile Include="GraphComponent\GraphFrameWork.cs" />
+    <Compile Include="GraphComponent\ICOMInterop_Annotation.cs" />
+    <Compile Include="GraphComponent\ICOMInterop_AxLab.cs" />
+    <Compile Include="GraphComponent\ICOMInterop_BarLineLegend.cs" />
+    <Compile Include="GraphComponent\ICOMInterop_Datlab.cs" />
+    <Compile Include="GraphComponent\ICOMInterop_GFrameWork.cs" />
+    <Compile Include="GraphComponent\ICOMInterop_Legend.cs" />
+    <Compile Include="GraphComponent\ICOMInterop_Line.cs" />
+    <Compile Include="GraphComponent\ICOMInterop_MainLine.cs" />
+    <Compile Include="GraphComponent\ICOMInterop_Refe.cs" />
+    <Compile Include="GraphComponent\ICOMInterop_Scale_Categorical.cs" />
+    <Compile Include="GraphComponent\ICOMInterop_Scale_Continuous.cs" />
+    <Compile Include="GraphComponent\ICOMInterop_Tick.cs" />
+    <Compile Include="GraphComponent\IDataView.cs" />
+    <Compile Include="GraphComponent\IDatLabel.cs" />
+    <Compile Include="GraphComponent\IGroup.cs" />
+    <Compile Include="GraphComponent\ILegendBox.cs" />
+    <Compile Include="GraphComponent\IScale.cs" />
+    <Compile Include="GraphComponent\IScaleTick.cs" />
+    <Compile Include="GraphComponent\Line.cs" />
+    <Compile Include="GraphComponent\MyGScale.cs" />
+    <Compile Include="GraphComponent\INotation.cs" />
+    <Compile Include="GraphComponent\Reference.cs" />
+    <Compile Include="GraphComponent\ScaleBoundary.cs" />
+    <Compile Include="GraphComponent\ScaleTick.cs" />
+    <Compile Include="GraphComponent\SimpleLegend.cs" />
+    <Compile Include="GraphComponent\Symbol.cs" />
+    <Compile Include="GraphComponent\Title.cs" />
+    <Compile Include="HLBarLinePlot\IHLBarLinePlot.cs" />
+    <Compile Include="IBarChart.cs" />
+    <Compile Include="IBarLinePlot.cs" />
+    <Compile Include="ITrendChart.cs" />
+    <Compile Include="MtbGraphFrame.cs" />
+    <Compile Include="MtbTools.cs" />
+    <Compile Include="MyBarChart\Chart.cs" />
+    <Compile Include="MyBarChart\BarchartXScale.cs" />
+    <Compile Include="MyBarChart\BarchartYScale.cs" />
+    <Compile Include="MyBarChart\ICOMInterop_Barchart.cs" />
+    <Compile Include="MyBarChart\ICOMInterop_BarchartXScale.cs" />
+    <Compile Include="MyBarChart\ICOMInterop_BarchartYScale.cs" />
+    <Compile Include="MyTrend\ICOMInterop_TargetAttribute.cs" />
+    <Compile Include="MyTrend\ICOMInterop_Trend.cs" />
+    <Compile Include="MyTrend\TargetAttribute.cs" />
+    <Compile Include="MyTrend\Trend.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SortedBarLinePlot\ISBarLinePlot.cs" />
+    <Compile Include="SortedBarLinePlot\SBarLinePlot.cs" />
+    <Compile Include="SPCTrend.cs" />
+    <Compile Include="Tool\GroupedData.cs" />
+    <Compile Include="Tool\MyData.cs" />
+    <Compile Include="Tool\StackData.cs" />
+    <Compile Include="TrendChart.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="Mtb">
+      <Guid>{0681D994-F2E6-4FC0-B441-6C1E9E328F57}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
