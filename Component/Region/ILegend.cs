@@ -12,5 +12,6 @@ namespace MtbGraph.Component.Region
         void SetCoordinate(double xmin, double xmax, double ymin, double ymax);
         double[] GetCoordinate();
         bool AutoSize { get; set; }
+        bool HideLegend { get; set; }
     }
 }

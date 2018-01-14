@@ -47,5 +47,18 @@ namespace MtbGraph.Component.Region
                 _legend.AutoSize = value;
             }
         }
+
+
+        public bool HideLegend
+        {
+            get
+            {
+                return _legend.HideLegend;
+            }
+            set
+            {
+                _legend.HideLegend = value;
+            }
+        }
     }
 }

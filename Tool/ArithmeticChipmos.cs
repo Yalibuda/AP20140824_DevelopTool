@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -131,5 +132,59 @@ namespace MtbGraph.Tool
             }
             return dt;
         }
+
+        /// <summary>
+        /// 把 IEnumerable<T> 轉成 DataTable
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="items"></param>
+        /// <returns></returns>
+        public static DataTable ToDataTable<T>(this IEnumerable<T> items)
+        {
+            var tb = new DataTable(typeof(T).Name);
+
+            PropertyInfo[] props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+            foreach (var prop in props)
+            {
+                tb.Columns.Add(prop.Name, prop.PropertyType);
+            }
+
+            foreach (var item in items)
+            {
+                var values = new object[props.Length];
+                for (var i = 0; i < props.Length; i++)
+                {
+                    values[i] = props[i].GetValue(item, null);
+                }
+
+                tb.Rows.Add(values);
+            }
+
+            return tb;
+        }
+
+        ///<summary>Finds the index of the first item matching an expression in an enumerable.</summary>
+        ///<param name="items">The enumerable to search.</param>
+        ///<param name="predicate">The expression to test the items against.</param>
+        ///<returns>The index of the first matching item, or -1 if no items match.</returns>
+        public static int FindIndex<T>(this IEnumerable<T> items, Func<T, bool> predicate)
+        {
+            if (items == null) throw new ArgumentNullException("items");
+            if (predicate == null) throw new ArgumentNullException("predicate");
+
+            int retVal = 0;
+            foreach (var item in items)
+            {
+                if (predicate(item)) return retVal;
+                retVal++;
+            }
+            return -1;
+        }
+        ///<summary>Finds the index of the first occurrence of an item in an enumerable.</summary>
+        ///<param name="items">The enumerable to search.</param>
+        ///<param name="item">The item to find.</param>
+        ///<returns>The index of the first matching item, or -1 if the item was not found.</returns>
+        public static int IndexOf<T>(this IEnumerable<T> items, T item) { return items.FindIndex(i => EqualityComparer<T>.Default.Equals(item, i)); }
     }
 }
