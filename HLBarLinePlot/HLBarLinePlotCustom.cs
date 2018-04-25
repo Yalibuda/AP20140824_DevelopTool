@@ -247,10 +247,8 @@ namespace MtbGraph.HLBarLinePlot
                 cmnd.Append(_chart.GetOptionCommand());
                 _chart.GraphPath = null;
             }
-            cmnd.AppendFormat("title \"{0}({1} & {2})\";\r\n",
-                Title.Text == null ? "Bar-Line Plot" : Title.Text,
-                 FuncTypeAtBarChart.ToString(),
-                FuncTypeAtBoxPlot.ToString());
+            cmnd.AppendFormat("title \"{0}\";\r\n",
+                Title.Text == null ? "Bar-Line Plot" : Title.Text);
             if (Title.FontSize > 0) cmnd.AppendFormat("psize {0};\r\n", Title.FontSize);
             cmnd.AppendLine("offset 0 -0.044801;");
             cmnd.Append(_chart.GraphRegion.GetCommand());
