@@ -265,6 +265,36 @@ namespace MtbGraph.HLBarLinePlot
             }
         }
 
+        /// <summary>
+        /// 取得 Boxplot Chart Individual Datalab 的物件
+        /// </summary>
+        public Component.IDatlab DatlabAtBoxPlotIndiv
+        {
+            get
+            {
+                return new Component.Adapter_DatLab(_boxplot.IndivDatlab);
+            }
+        }
+
+        /// <summary>
+        /// 設定 Boxplot 中 Individual Datlab 要顯示的方式
+        /// </summary>
+        public void SetDatlabAtBoxPlotIndiv(dynamic type)
+        {
+            string typestr = string.Format("{0}", type);
+            switch (typestr)
+            {
+                case "All":
+                    _boxplot.IndivDatlab.DatlabType = Mtblib.Graph.Component.Datlab.DisplayType.YValue;
+                    break;
+                case "MaxMinOnly":
+                    _boxplot.IndivDatlab.DatlabType = Mtblib.Graph.Component.Datlab.DisplayType.Column;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         protected BarColorOption _barColorOpt = BarColorOption.Single;
         /// <summary>
         /// 設定或取得 BarChart 分群的顏色設定
@@ -292,6 +322,12 @@ namespace MtbGraph.HLBarLinePlot
         /// </summary>
         public DatalabOption DatlabOptionAtBoxPlot { get { return _datlabOptAtBoxPlot; } }
         private DatalabOption _datlabOptAtBoxPlot;
+
+        /// <summary>
+        /// 設定Boxplot 中 Individual Datlab 要顯示的位數
+        /// </summary>
+        public DatalabOption DatlabOptionAtBoxPlotIndiv { get { return _datlabOptAtBoxPlotIndiv; } }
+        private DatalabOption _datlabOptAtBoxPlotIndiv;
 
         /// <summary>
         /// 設定分割的比例值(由下往上所占的比例)
@@ -323,6 +359,7 @@ namespace MtbGraph.HLBarLinePlot
             _boxplot = new Mtblib.Graph.CategoricalChart.BoxPlot(_proj, _ws);
             _datlabOptAtChart = new DatalabOption();
             _datlabOptAtBoxPlot = new DatalabOption();
+            _datlabOptAtBoxPlotIndiv = new DatalabOption();
             SetDefault();
         }
 
@@ -458,7 +495,8 @@ namespace MtbGraph.HLBarLinePlot
             cmnd.AppendLine("group x.1-x.m;"); // 1~m 代表分群由外至內
             cmnd.AppendLine("pane p.");
             cmnd.AppendLine("mcolumn y trnd x.1-x.m");
-            cmnd.AppendLine("mcolumn dlab");
+            cmnd.AppendLine("mcolumn dlabmin dlabmax d.1-d.m");
+            cmnd.AppendLine("mcolumn dlab dlabtrnd");
             cmnd.AppendLine("mcolumn p");
 
             cmnd.AppendLine("mreset");
@@ -752,6 +790,34 @@ namespace MtbGraph.HLBarLinePlot
                 _boxplot.MeanDatlab.LabelColumn = "dlab";
             }
 
+            #region 處理 Boxplot Individual顯示方式,包含顯示全部或部分、調整位數
+            if (pane == null && _boxplot.IndivDatlab.DatlabType == Mtblib.Graph.Component.Datlab.DisplayType.YValue)
+            {
+                if (DatlabOptionAtBoxPlotIndiv.AutoDecimal == false) cmnd.AppendFormat(" let dlabtrnd = text(round(trnd,{0})) \r\n;", DatlabOptionAtBoxPlotIndiv.DecimalPlace);
+                else cmnd.AppendFormat(" let dlabtrnd = text(round(trnd,{0})) \r\n;", 3);
+                _boxplot.IndivDatlab.DatlabType = Mtblib.Graph.Component.Datlab.DisplayType.Column;
+                _boxplot.IndivDatlab.LabelColumn = "dlabtrnd";
+            }
+            else if (pane == null && _boxplot.IndivDatlab.DatlabType == Mtblib.Graph.Component.Datlab.DisplayType.Column)
+            {
+                cmnd.AppendLine("stat trnd;");
+                cmnd.AppendLine(" by x.1-x.m;");
+                //cmnd.AppendLine(" noem;");//不可因為 bar chart 使用 nomiss 就使用 noempty，因為 bar chart只是隱藏那些 bar 
+                cmnd.AppendLine("Expand;");
+                cmnd.AppendLine("gval d.1-d.m;");
+                cmnd.AppendLine("Minimum dlabmin;");
+                cmnd.AppendLine("Maximum dlabmax.");
+                if (DatlabOptionAtBoxPlotIndiv.AutoDecimal == false) cmnd.AppendFormat("let dlabtrnd = if(trnd=dlabmin, text(round(trnd,{0})), IF(trnd=dlabmax, text(round(trnd,{0})), \"\" ))\r\n", DatlabOptionAtBoxPlotIndiv.DecimalPlace);
+                else cmnd.AppendFormat("let dlabtrnd = if(trnd=dlabmin, text(round(trnd,{0})), IF(trnd=dlabmax, text(round(trnd,{0})), \"\" ))\r\n", 3);
+                _boxplot.IndivDatlab.DatlabType = Mtblib.Graph.Component.Datlab.DisplayType.Column;
+                _boxplot.IndivDatlab.LabelColumn = "dlabtrnd";
+            }
+            else
+            {
+
+            }
+            #endregion
+
             #region 建立 Boxplot
             cmnd.AppendLine("boxplot trnd &");
             if (gps != null)
@@ -779,9 +845,37 @@ namespace MtbGraph.HLBarLinePlot
                 Mtblib.Tools.GScale boxplotScale
                 = Mtblib.Tools.MtbTools.GetDataScaleInCateChart(
                 _proj, _ws, varBoxplot, gps, pane, "", true);
+                boxplotScale.TMinimum = 5;
+                boxplotScale.TMaximum = 10;
+                string tickString;
+                if (YScaleAtBoxPlot.Max < Mtblib.Tools.MtbTools.MISSINGVALUE && YScaleAtBoxPlot.Min < Mtblib.Tools.MtbTools.MISSINGVALUE)
+                {
+                    tickString = string.Format("{0}:{1}/{2}",
+                        YScaleAtBoxPlot.Min, YScaleAtBoxPlot.Max, _boxplot.YScale.Ticks.Increament);
+                    double autorange = (YScaleAtBoxPlot.Max - YScaleAtBoxPlot.Min) * 0.027;
+                    YScaleAtBoxPlot.Max = YScaleAtBoxPlot.Max + autorange;
+                    YScaleAtBoxPlot.Min = YScaleAtBoxPlot.Min - autorange;
+                }
+                else if (YScaleAtBoxPlot.Max == Mtblib.Tools.MtbTools.MISSINGVALUE && YScaleAtBoxPlot.Min < Mtblib.Tools.MtbTools.MISSINGVALUE)
+                {
+                    tickString = string.Format("{0}:{1}/{2}",
+                       YScaleAtBoxPlot.Min, boxplotScale.TMaximum, _boxplot.YScale.Ticks.Increament);
+                    double autorange = (boxplotScale.TMaximum - YScaleAtBoxPlot.Min) * 0.027;
+                    YScaleAtBoxPlot.Min = YScaleAtBoxPlot.Min - autorange;
 
-                string tickString = string.Format("{0}:{1}/{2}",
-                    boxplotScale.TMinimum, boxplotScale.TMaximum, _boxplot.YScale.Ticks.Increament);
+                }
+                else if (YScaleAtBoxPlot.Max < Mtblib.Tools.MtbTools.MISSINGVALUE && YScaleAtBoxPlot.Min == Mtblib.Tools.MtbTools.MISSINGVALUE)
+                {
+                    tickString = string.Format("{0}:{1}/{2}",
+                        boxplotScale.TMinimum, YScaleAtBoxPlot.Max, _boxplot.YScale.Ticks.Increament);
+                    double autorange = (YScaleAtBoxPlot.Max - boxplotScale.TMinimum) * 0.027;
+                    YScaleAtBoxPlot.Max = YScaleAtBoxPlot.Max + autorange;
+                }
+                else
+                {
+                    tickString = string.Format("{0}:{1}/{2}",
+                        boxplotScale.TMinimum, boxplotScale.TMaximum, _boxplot.YScale.Ticks.Increament);
+                }
                 _boxplot.YScale.Ticks.SetTicks(tickString);
             }
             else
@@ -804,6 +898,7 @@ namespace MtbGraph.HLBarLinePlot
             cmnd.Append(_boxplot.Outlier.GetCommand());
 
             cmnd.Append(_boxplot.MeanDatlab.GetCommand());
+            cmnd.Append(_boxplot.IndivDatlab.GetCommand());
 
             if (pane != null)
             {
