@@ -14,6 +14,7 @@ namespace MtbGraph.HLBarLinePlot
         void SetVariableAtBoxPlot(dynamic var);
         void SetGroupingBy(dynamic var);
         void SetPanelBy(dynamic var);
+        void SetDatlabAtBoxPlotIndiv(dynamic var);
         BarChart.ChartFunctionType FuncTypeAtBarChart { set; get; }
         Component.Scale.IContScale YScaleAtBarChart { get; }
         Component.Scale.IContScale YScaleAtBoxPlot { get; }
@@ -24,9 +25,11 @@ namespace MtbGraph.HLBarLinePlot
         Component.ILabel Title { get; }
         Component.IDatlab DatlabAtBarChart { get; }
         Component.IDatlab DatlabAtBoxPlot { get; }
+        Component.IDatlab DatlabAtBoxPlotIndiv { get; }
         BarColorOption BarColorType { get; set; }
         DatalabOption DatlabOptionAtBarChart { get; }
         DatalabOption DatlabOptionAtBoxPlot { get; }
+        DatalabOption DatlabOptionAtBoxPlotIndiv { get; }
 
         /// <summary>
         /// 設定 Layout 畫面分割的位置(0~1)，最下方=0

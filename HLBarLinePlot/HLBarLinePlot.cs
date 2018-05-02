@@ -794,7 +794,7 @@ namespace MtbGraph.HLBarLinePlot
             if (pane == null && _boxplot.IndivDatlab.DatlabType == Mtblib.Graph.Component.Datlab.DisplayType.YValue)
             {
                 if (DatlabOptionAtBoxPlotIndiv.AutoDecimal == false) cmnd.AppendFormat(" let dlabtrnd = text(round(trnd,{0})) \r\n;", DatlabOptionAtBoxPlotIndiv.DecimalPlace);
-                else cmnd.AppendFormat(" let dlabtrnd = text(round(trnd,{0})) \r\n;", 3);
+                else cmnd.AppendFormat(" let dlabtrnd = text(round(trnd,{0})) \r\n", 3);
                 _boxplot.IndivDatlab.DatlabType = Mtblib.Graph.Component.Datlab.DisplayType.Column;
                 _boxplot.IndivDatlab.LabelColumn = "dlabtrnd";
             }
