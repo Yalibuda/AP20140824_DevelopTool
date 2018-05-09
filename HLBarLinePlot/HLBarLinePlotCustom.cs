@@ -104,7 +104,8 @@ namespace MtbGraph.HLBarLinePlot
             cmnd.AppendLine("mcolumn xx.1-xx.m");
             cmnd.AppendLine("mcolumn txx.1-txx.m");
             cmnd.AppendLine("mcolumn p pp yy xxcord yytext xxconc1 xxconc2");
-            cmnd.AppendLine("mcolumn ddlab"); //用來承接指定位數的 datlab 資料
+            cmnd.AppendLine("mcolumn dlabmin dlabmax d.1-d.m");
+            cmnd.AppendLine("mcolumn ddlab dlabtrnd"); //用來承接指定位數的 datlab 資料
             cmnd.AppendLine("mconstant ccount");
 
 
@@ -554,6 +555,34 @@ namespace MtbGraph.HLBarLinePlot
 
             #endregion
 
+            #region 處理 Boxplot Individual顯示方式,包含顯示全部或部分、調整位數
+            if (pane == null && _boxplot.IndivDatlab.DatlabType == Mtblib.Graph.Component.Datlab.DisplayType.YValue)
+            {
+                if (DatlabOptionAtBoxPlotIndiv.AutoDecimal == false) cmnd.AppendFormat(" let dlabtrnd = text(round(tmpy.1,{0})) \r\n;", DatlabOptionAtBoxPlotIndiv.DecimalPlace);
+                else cmnd.AppendFormat(" let dlabtrnd = text(round(tmpy.1,{0})) \r\n", 3);
+                _boxplot.IndivDatlab.DatlabType = Mtblib.Graph.Component.Datlab.DisplayType.Column;
+                _boxplot.IndivDatlab.LabelColumn = "dlabtrnd";
+            }
+            else if (pane == null && _boxplot.IndivDatlab.DatlabType == Mtblib.Graph.Component.Datlab.DisplayType.Column)
+            {
+                cmnd.AppendLine("stat tmpy.1;");
+                cmnd.AppendLine(" by x.1-x.m;");
+                //cmnd.AppendLine(" noem;");//不可因為 bar chart 使用 nomiss 就使用 noempty，因為 bar chart只是隱藏那些 bar 
+                cmnd.AppendLine("Expand;");
+                cmnd.AppendLine("gval d.1-d.m;");
+                cmnd.AppendLine("Minimum dlabmin;");
+                cmnd.AppendLine("Maximum dlabmax.");
+                if (DatlabOptionAtBoxPlotIndiv.AutoDecimal == false) cmnd.AppendFormat("let dlabtrnd = if(tmpy.1=dlabmin, text(round(tmpy.1,{0})), IF(tmpy.1=dlabmax, text(round(tmpy.1,{0})), \"\" ))\r\n", DatlabOptionAtBoxPlotIndiv.DecimalPlace);
+                else cmnd.AppendFormat("let dlabtrnd = if(tmpy.1=dlabmin, text(round(tmpy.1,{0})), IF(tmpy.1=dlabmax, text(round(tmpy.1,{0})), \"\" ))\r\n", 3);
+                _boxplot.IndivDatlab.DatlabType = Mtblib.Graph.Component.Datlab.DisplayType.Column;
+                _boxplot.IndivDatlab.LabelColumn = "dlabtrnd";
+            }
+            else
+            {
+
+            }
+            #endregion
+
             #region 建立 Boxplot
             cmnd.AppendLine("boxplot tmpy.1 &");
             if (gps != null)
@@ -637,6 +666,8 @@ namespace MtbGraph.HLBarLinePlot
             cmnd.Append(_boxplot.RBox.GetCommand());
             cmnd.Append(_boxplot.Whisker.GetCommand());
             cmnd.Append(_boxplot.Outlier.GetCommand());
+
+            cmnd.Append(_boxplot.IndivDatlab.GetCommand());
 
             if (pane != null)
             {
