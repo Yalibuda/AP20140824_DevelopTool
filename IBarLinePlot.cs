@@ -55,8 +55,12 @@ namespace MtbGraph
         void SetSecScaleMax(double d);
         void SetSecScaleTick(ScaleTickAttribute attr, double val);
         void SetDefaultSecAxlabel();
-        void SetDefaultSecScale();        
-   
+        void SetDefaultSecScale();
+        void SetLegendBoxPosiAutoSetting(bool b);
+        void SetSecScaleSize(double d);
+        void SetScaleSize(double d);
+
+
         void SetDefaultTitle();
         void Dispose();
         

@@ -25,6 +25,13 @@ namespace MtbGraph
     [ClassInterface(ClassInterfaceType.None)] //自己設計接口
     public class BarLinePlot : MtbGraphFrame, IBarLinePlot
     {
+        // hector add for setting if auto revision to legend 20180523
+        private bool _legendBoxPosiAutoSetting = true;
+        public void SetLegendBoxPosiAutoSetting(bool yesOrno)
+        {
+            _legendBoxPosiAutoSetting = yesOrno;
+        }
+
         /*
          * 20150129:
          * 新增 Bar-line plot reference line 功能...以trend/bar 為 base 加入
@@ -122,13 +129,7 @@ namespace MtbGraph
             //Check subTitle
             //Check footnote
 
-
-            /*
-             * 計算 Legend Box 的 Size
-             * Legend Box 物件在 Barline Plot 中不使用 GetCommand，因為
-             * 疊圖的 LegendBox 位置要另外給。使用的目的是紀錄字型大小、
-             * 是否隱藏標題等。(2015/5/12)
-             */
+            #region LegendBox Size
             List<string> names = new List<string>();
             Size bLgndSize = new Size(0, 0);
             LegendBox.NotationType = LegendNotationType.Bar;
@@ -154,38 +155,103 @@ namespace MtbGraph
             LegendBox.SetVariables(ref refStr);
             lLgndSize = LegendBox.GetSize();
 
-            if (barColList.Count + trndColList.Count + tgColList.Count <= 3)
+            if (barColList.Count + trndColList.Count + tgColList.Count <= 3 && _legendBoxPosiAutoSetting == true)
             {
                 //bLgndYMax = 0.9767;
-                bLgndYMax = 0.998;
+                lLgndYMax = 0.998;
             }
             else
             {
-                bLgndYMax = Math.Min(dYMax + LegendBox.VerticalBase,1);
+                lLgndYMax = Math.Min(dYMax + LegendBox.VerticalBase, 1);
             }
 
-            bLgndYMin = Math.Max(bLgndYMax - (double)bLgndSize.Height / d_gHeight, 0.005);
+            lLgndYMin = Math.Max(lLgndYMax - (double)lLgndSize.Height / d_gHeight, 0.005);
             bLgndXMin = (bLgndSize.Width < lLgndSize.Width) ? 0.998 - (double)lLgndSize.Width / d_gWidth : 0.998 - (double)bLgndSize.Width / d_gWidth;
             //bLgndXMax = 0.9767;
             if (bLgndXMin < 0.7) bLgndXMin = 0.7;
             bLgndXMax = 0.998;
 
-            lLgndYMax = bLgndYMin;
-            lLgndYMin = lLgndYMax - (double)lLgndSize.Height / d_gHeight;
+            bLgndYMax = lLgndYMin;
+            bLgndYMin = bLgndYMax - (double)bLgndSize.Height / d_gHeight;
             lLgndXMin = bLgndXMin;
             lLgndXMax = bLgndXMax;
 
             //Modify data region
-            if (barColList.Count + trndColList.Count + tgColList.Count <= 3)
+            if (barColList.Count + trndColList.Count + tgColList.Count <= 3 && _legendBoxPosiAutoSetting == true)
             {
                 //dXMax = 0.9533;
                 //dXMax = 0.97;
-                dYMax = lLgndYMin - 0.015;
+                dYMax = bLgndYMin - 0.015;
             }
             else
             {
-                dXMax = bLgndXMin - 0.0234;
+                dXMax = lLgndXMin - 0.0234;
             }
+            #endregion
+
+            /*
+             * 計算 Legend Box 的 Size
+             * Legend Box 物件在 Barline Plot 中不使用 GetCommand，因為
+             * 疊圖的 LegendBox 位置要另外給。使用的目的是紀錄字型大小、
+             * 是否隱藏標題等。(2015/5/12)
+             */
+            //List<string> names = new List<string>();
+            //Size bLgndSize = new Size(0, 0);
+            //LegendBox.NotationType = LegendNotationType.Bar;
+            //foreach (string col in barColList)
+            //{
+            //    names.Add(ws.Columns.Item(col).Label);
+            //}
+            //string[] refStr = names.ToArray();
+            //LegendBox.SetVariables(ref refStr);
+            //bLgndSize = LegendBox.GetSize();
+            //LegendBox.NotationType = LegendNotationType.Trend;
+            //Size lLgndSize = new Size(0, 0);
+            //names.Clear();
+            //foreach (string col in trndColList)
+            //{
+            //    names.Add(ws.Columns.Item(col).Label);
+            //}
+            //foreach (string col in tgColList)
+            //{
+            //    names.Add(ws.Columns.Item(col).Label);
+            //}
+            //refStr = names.ToArray();
+            //LegendBox.SetVariables(ref refStr);
+            //lLgndSize = LegendBox.GetSize();
+
+            //if (barColList.Count + trndColList.Count + tgColList.Count <= 3)
+            //{
+            //    //bLgndYMax = 0.9767;
+            //    bLgndYMax = 0.998;
+            //}
+            //else
+            //{
+            //    bLgndYMax = Math.Min(dYMax + LegendBox.VerticalBase,1);
+            //}
+
+            //bLgndYMin = Math.Max(bLgndYMax - (double)bLgndSize.Height / d_gHeight, 0.005);
+            //bLgndXMin = (bLgndSize.Width < lLgndSize.Width) ? 0.998 - (double)lLgndSize.Width / d_gWidth : 0.998 - (double)bLgndSize.Width / d_gWidth;
+            ////bLgndXMax = 0.9767;
+            //if (bLgndXMin < 0.7) bLgndXMin = 0.7;
+            //bLgndXMax = 0.998;
+
+            //lLgndYMax = bLgndYMin;
+            //lLgndYMin = lLgndYMax - (double)lLgndSize.Height / d_gHeight;
+            //lLgndXMin = bLgndXMin;
+            //lLgndXMax = bLgndXMax;
+
+            ////Modify data region
+            //if (barColList.Count + trndColList.Count + tgColList.Count <= 3)
+            //{
+            //    //dXMax = 0.9533;
+            //    //dXMax = 0.97;
+            //    dYMax = lLgndYMin - 0.015;
+            //}
+            //else
+            //{
+            //    dXMax = bLgndXMin - 0.0234;
+            //}
 
 
             //Check primary scale label
@@ -431,8 +497,13 @@ namespace MtbGraph
             if (bScalePrimary == ScalePrimary.Secondary)
             {
                 mtbCmnd.Append("  Scale 2;\r\n   LDIS 1 0 0 0;\r\n   HDIS 1 1 1 0;\r\n");
+                if (this.ySecScaleSize < 1.23456E+30) mtbCmnd.Append(string.Format("    PSIZE {0}; \r\n", ySecScaleSize));
                 if (this.secScaleMin < 1.23456E+30) mtbCmnd.Append("   Min " + this.secScaleMin + ";\r\n");
-                if (this.secScaleMax < 1.23456E+30) mtbCmnd.Append("   Max " + this.secScaleMax + ";\r\n");
+                if (this.secScaleMax < 1.23456E+30 && secScaleMax > 10)
+                {
+                    mtbCmnd.Append("   Max " + Math.Ceiling(this.secScaleMax / 10) * 10 + ";\r\n");
+                }
+                else if (this.secScaleMax < 1.23456E+30 && secScaleMax <= 10) mtbCmnd.Append("   Max " + this.secScaleMax + ";\r\n");
                 if (this.secTickAttr == ScaleTickAttribute.None)
                 {
                     if (this.secScaleMax != 1.23456E+30 || this.secScaleMin != 1.23456E+30) mtbCmnd.Append("   NMAJ 11;\r\n");
@@ -459,8 +530,14 @@ namespace MtbGraph
             else
             {
                 mtbCmnd.Append("  Scale 2;\r\n   LDIS 1 1 1 0;\r\n   HDIS 1 0 0 0;\r\n");
+                if (this.yScaleSize < 1.23456E+30) mtbCmnd.Append(string.Format("    PSIZE {0}; \r\n", yScaleSize));
                 if (this.yScaleMin < 1.23456E+30) mtbCmnd.Append("   Min " + this.yScaleMin + ";\r\n");
-                if (this.yScaleMax < 1.23456E+30) mtbCmnd.Append("   Max " + this.yScaleMax + ";\r\n");
+                if (this.yScaleMax < 1.23456E+30 && yScaleMax > 10)
+                {
+                    mtbCmnd.Append("   Max " + Math.Ceiling(this.yScaleMax / 10) * 10 + ";\r\n");
+                }
+                else if (this.yScaleMax < 1.23456E+30 && yScaleMax <= 10) mtbCmnd.Append("   Max " + this.yScaleMax + ";\r\n");
+                else if (this.yScaleMax == 1.23456E+30) mtbCmnd.AppendLine(string.Format("   Max {0}", tickValue[1]));
                 if (this.yTickAttr == ScaleTickAttribute.None)
                 {
                     if (this.yScaleMax != 1.23456E+30 || this.yScaleMin != 1.23456E+30) mtbCmnd.Append("   NMAJ 11;\r\n");
@@ -491,6 +568,8 @@ namespace MtbGraph
             }
             mtbCmnd.Append("  LEGE " + bLgndXMin + " " + bLgndXMax + " " + bLgndYMin + " " + bLgndYMax + ";\r\n");
             mtbCmnd.Append("   ETYPE 0;\r\n   TYPE 0;\r\n   SECT 1;\r\n   CHHIDE;\r\n");
+            // here is hector try revising
+            mtbCmnd.AppendLine(string.Format(" PSIZE {0};", LegendBox.FontSize));
 
             //Set data labels
             if (isShowBDatlab)
@@ -618,6 +697,7 @@ namespace MtbGraph
                 mtbCmnd.Append("  SCALE 2;\r\n");
                 mtbCmnd.Append("   LDIS " + (this.bScalePrimary == ScalePrimary.Secondary ? "0 1 1 0;\r\n" : "0 0 0 0;\r\n"));
                 mtbCmnd.Append("   HDIS 0 0 0 0;\r\n");
+                if (this.yScaleSize < 1.23456E+30) mtbCmnd.Append(string.Format("    PSIZE {0}; \r\n", yScaleSize));
                 if (this.yScaleMin != 1.23456E+30)
                 {
                     mtbCmnd.Append("   MIN " + this.yScaleMin + ";\r\n");
@@ -664,6 +744,7 @@ namespace MtbGraph
                 mtbCmnd.Append("  SCALE 2;\r\n");
                 mtbCmnd.Append("   LDIS 0 0 0 0;\r\n");
                 mtbCmnd.Append("   HDIS " + (this.bScalePrimary == ScalePrimary.Primary ? "0 1 1 0;\r\n" : "0 0 0 0;\r\n"));
+                if (this.ySecScaleSize < 1.23456E+30) mtbCmnd.Append(string.Format("    PSIZE {0}; \r\n", ySecScaleSize));
                 if (this.secScaleMin < 1.23456E+30)
                 {
                     mtbCmnd.Append("   MIN " + this.secScaleMin + ";\r\n");
@@ -733,11 +814,12 @@ namespace MtbGraph
 
             mtbCmnd.Append("  LEGE " + lLgndXMin + " " + lLgndXMax + " " + lLgndYMin + " " + lLgndYMax + ";\r\n");
             mtbCmnd.Append("   ETYPE 0;\r\n   TYPE 0;\r\n   SECT 1;\r\n   CHHIDE;\r\n");
+            mtbCmnd.AppendLine(string.Format(" PSIZE {0};", LegendBox.FontSize)); // wait to 解析整個plot才能確認去留
             mtbCmnd.Append("  DATA " + dXMin + " " + dXMax + " " + dYMin + " " + dYMax + ";\r\n   TYPE 0;\r\n   ETYPE 0;\r\n");
             mtbCmnd.Append(" NODT.\r\n");
 
             mtbCmnd.Append("ENDL\r\n");
-            mtbCmnd.Append("NOTI\r\n");
+            //mtbCmnd.Append("NOTI\r\n");
             sw = new StreamWriter(path);
             //sw = new StreamWriter(path, false, System.Text.Encoding.GetEncoding("BIG5"));
             sw.Write(mtbCmnd.ToString());

@@ -10,6 +10,28 @@ namespace MtbGraph.HLBarLinePlot
     [System.Runtime.InteropServices.ClassInterface(System.Runtime.InteropServices.ClassInterfaceType.None)]
     public class HLBarLinePlot : IHLBarLinePlot, IDisposable
     {
+        protected Mtb.Column[] _maxvar = null;
+        public virtual dynamic Maxvar
+        {
+            set
+            {
+                if (value == null)
+                {
+                    _maxvar = null;
+                    return;
+                }
+                Mtb.Column[] _cols = Mtblib.Tools.MtbTools.GetMatchColumns(value, _ws);
+                if (_cols.Length > 1)
+                    throw new ArgumentException(
+                        string.Format("輸入欄位數 {0}，不是合法的數量。HLBarLinePlot 只能繪製一個欄位。", _cols.Length));
+                _maxvar = _cols;
+            }
+            get
+            {
+                return _maxvar;
+            }
+        }
+
         /// <summary>
         /// 輸入單一 Variable 時，可以對數據套用的函數
         /// </summary>
@@ -807,15 +829,87 @@ namespace MtbGraph.HLBarLinePlot
                 cmnd.AppendLine("gval d.1-d.m;");
                 cmnd.AppendLine("Minimum dlabmin;");
                 cmnd.AppendLine("Maximum dlabmax.");
-                if (DatlabOptionAtBoxPlotIndiv.AutoDecimal == false) cmnd.AppendFormat("let dlabtrnd = if(trnd=dlabmin, text(round(trnd,{0})), IF(trnd=dlabmax, text(round(trnd,{0})), \"\" ))\r\n", DatlabOptionAtBoxPlotIndiv.DecimalPlace);
+                if (DatlabOptionAtBoxPlotIndiv.AutoDecimal == false)
+                    cmnd.AppendFormat("let dlabtrnd = if(trnd=dlabmin, text(round(trnd,{0})), IF(trnd=dlabmax, text(round(trnd,{0})), \"\" ))\r\n",
+                        DatlabOptionAtBoxPlotIndiv.DecimalPlace);
                 else cmnd.AppendFormat("let dlabtrnd = if(trnd=dlabmin, text(round(trnd,{0})), IF(trnd=dlabmax, text(round(trnd,{0})), \"\" ))\r\n", 3);
                 _boxplot.IndivDatlab.DatlabType = Mtblib.Graph.Component.Datlab.DisplayType.Column;
                 _boxplot.IndivDatlab.LabelColumn = "dlabtrnd";
-            }
-            else
-            {
+
+                // add for to increase this?
+                //Mtblib.Graph.Component.LabelPosition alabelmax = new Mtblib.Graph.Component.LabelPosition();
+                //alabelmax.Model = 1;
+                //alabelmax.RowId = 2;
+                //alabelmax.Placement = new double[2] { 1, -1 };
+
+                //Mtblib.Graph.Component.LabelPosition alabelmin = new Mtblib.Graph.Component.LabelPosition();
+                //alabelmin.Model = 1;
+                //alabelmin.RowId = 11;
+                //alabelmin.Placement = new double[2] { 1, 1 };
+                //_boxplot.IndivDatlab.PositionList.Add(alabelmax);
+                //_boxplot.IndivDatlab.PositionList.Add(alabelmin);
+
+                StringBuilder cmnd22 = new StringBuilder();
+                cmnd22.AppendLine("Name c1000 \"Minimum\" c999 \"Maximum\" c998 \"MinOnly\" c997 \"MaxOnly\"");
+                for (int i = 0; i < ((Mtb.Column[])GroupingBy).Select(x => x.SynthesizedName).Count(); i++)
+                {
+                    cmnd22.AppendFormat("Name c{0} \"ByVar{1}\" \r\n", 996 - i, i + 1);
+                }
+                //cmnd22.AppendLine("Name c29 \"ByVar1\" c30 \"ByVar2\" c31 \"Minimum\" c32 \"Maximum\" c33 \"MinOnly\" c34 \"MaxOnly\"");
+                cmnd22.AppendFormat("stat {0}; \r\n", string.Join(" &\r\n", ((Mtb.Column[])VariablesAtBoxPlot).Select(x => x.SynthesizedName).ToArray()));
+                cmnd22.AppendFormat(" by {0}; \r\n", string.Join(" ", ((Mtb.Column[])GroupingBy).Select(x => x.SynthesizedName).ToArray()));
+                cmnd22.AppendLine("Expand;");
+                cmnd22.AppendFormat("gval 'ByVar{0}'-'ByVar{1}'; \r\n", 1, ((Mtb.Column[])GroupingBy).Select(x => x.SynthesizedName).Count());
+                //cmnd22.AppendFormat("gval {0}; \r\n", "'ByVar1' 'ByVar2'");
+                cmnd22.AppendLine("Minimum 'Minimum';");
+                cmnd22.AppendLine("Maximum 'Maximum'.");
+                cmnd22.AppendFormat("let MinOnly = if( {0} = Minimum, {1}, MISS()) \r\n", VariablesAtBoxPlot[0].SynthesizedName.ToString(), VariablesAtBoxPlot[0].SynthesizedName.ToString());
+                cmnd22.AppendFormat("let MaxOnly = if( {0} = Maximum, {1}, MISS()) \r\n", VariablesAtBoxPlot[0].SynthesizedName.ToString(), VariablesAtBoxPlot[0].SynthesizedName.ToString());
+                string fpath = Mtblib.Tools.MtbTools.BuildTemporaryMacro("mycode.mtb", cmnd22.ToString());
+                _proj.ExecuteCommand(string.Format("exec \"{0}\" 1", fpath));
+
+                List<Mtb.Column> _dataCols = new List<Mtb.Column>();
+
+                dynamic maxby = "MaxOnly";
+                dynamic MaxBy = Mtblib.Tools.MtbTools.GetMatchColumns(maxby, _ws);
+                Mtb.Column[] MaxByCol = (Mtb.Column[])MaxBy;
+                _dataCols.Add(MaxByCol[0]);
+
+                dynamic minby = "MinOnly";
+                dynamic MinBy = Mtblib.Tools.MtbTools.GetMatchColumns(minby, _ws);
+                Mtb.Column[] MinByCol = (Mtb.Column[])MinBy;
+                _dataCols.Add(MinByCol[0]);
+
+                System.Data.DataTable dtt = new System.Data.DataTable();
+                dtt = Mtblib.Tools.MtbTools.GetDataTableFromMtbCols(_dataCols.ToArray());
+                dtt.Columns.Add(new DataColumn("RowNum", typeof(int)));
+                dtt.Columns[0].ColumnName = "MaxOnly";
+                dtt.Columns[1].ColumnName = "MinOnly";
+
+                for (int i = 0; i < dtt.Rows.Count; i++)
+                {
+                    dtt.Rows[i]["RowNum"] = i + 1;
+                    if (!(dtt.Rows[i]["MaxOnly"].ToString() == Mtblib.Tools.MtbTools.MISSINGVALUE.ToString()))
+                    {
+                        Mtblib.Graph.Component.LabelPosition alabelmax = new Mtblib.Graph.Component.LabelPosition();
+                        alabelmax.Model = 1;
+                        alabelmax.RowId = i + 1;
+                        alabelmax.Placement = new double[2] { 1, 1 };
+                        _boxplot.IndivDatlab.PositionList.Add(alabelmax);
+                    }
+
+                    if (!(dtt.Rows[i]["MinOnly"].ToString() == Mtblib.Tools.MtbTools.MISSINGVALUE.ToString()))
+                    {
+                        Mtblib.Graph.Component.LabelPosition alabelmin = new Mtblib.Graph.Component.LabelPosition();
+                        alabelmin.Model = 1;
+                        alabelmin.RowId = i + 1;
+                        alabelmin.Placement = new double[2] { 1, -1 };
+                        _boxplot.IndivDatlab.PositionList.Add(alabelmin);
+                    }
+                }
 
             }
+            else { }
             #endregion
 
             #region 建立 Boxplot
