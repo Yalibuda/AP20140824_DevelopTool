@@ -485,6 +485,8 @@ namespace MtbGraph.HLBarLinePlot
             {
                 cmnd.AppendFormat("pane {0};\r\n", ((Mtb.Column[])PanelBy)[0].SynthesizedName);
             }
+            //string[] storeCol = Mtblib.Tools.MtbTools.CreateVariableStrArray(_ws, 1, Mtblib.Tools.MtbVarType.Column);
+            //cmnd.AppendFormat("Store {0}\r\n", storeCol);
             cmnd.AppendLine(".");
             cmnd.AppendLine("title");
             cmnd.AppendLine("brief 2");
@@ -849,6 +851,7 @@ namespace MtbGraph.HLBarLinePlot
                 //_boxplot.IndivDatlab.PositionList.Add(alabelmax);
                 //_boxplot.IndivDatlab.PositionList.Add(alabelmin);
 
+                //將要label的值算出並儲存
                 StringBuilder cmnd22 = new StringBuilder();
                 cmnd22.AppendLine("Name c1000 \"Minimum\" c999 \"Maximum\" c998 \"MinOnly\" c997 \"MaxOnly\"");
                 for (int i = 0; i < ((Mtb.Column[])GroupingBy).Select(x => x.SynthesizedName).Count(); i++)
@@ -886,6 +889,7 @@ namespace MtbGraph.HLBarLinePlot
                 dtt.Columns[0].ColumnName = "MaxOnly";
                 dtt.Columns[1].ColumnName = "MinOnly";
 
+                // 調整label位置
                 for (int i = 0; i < dtt.Rows.Count; i++)
                 {
                     dtt.Rows[i]["RowNum"] = i + 1;

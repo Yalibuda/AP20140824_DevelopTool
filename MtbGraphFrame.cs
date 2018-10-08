@@ -19,6 +19,27 @@ namespace MtbGraph
     }
     public class MtbGraphFrame: IDisposable
     {
+        protected double yScaleSize = 1.23456E+30;
+        protected double ySecScaleSize = 1.23456E+30;
+        public void SetScaleSize(double d)
+        {
+            if (this.yScaleSize < 1.23456E+30 & d > this.yScaleSize)
+            {
+                MessageBox.Show("Invalid input value of secondary-scale minimum");
+                return;
+            }
+            yScaleSize = d;
+        }
+
+        public void SetSecScaleSize(double d)
+        {
+            if (this.ySecScaleSize < 1.23456E+30 & d > this.ySecScaleSize)
+            {
+                MessageBox.Show("Invalid input value of secondary-scale minimum");
+                return;
+            }
+            ySecScaleSize = d;
+        }
         protected int[] dFillColor = { 127, 28, 7, 58, 116, 78, 29, 45, 123, 35, 73, 8, 49, 57, 26 };
         protected int[] dLineColor = { 64, 8, 9, 12, 18, 34 };
         protected int[] dSymbType = { 6, 12, 16, 20, 23, 26, 29 };

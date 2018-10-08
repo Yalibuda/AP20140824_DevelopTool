@@ -59,7 +59,12 @@ namespace MtbGraph
         void SetLegendBoxPosiAutoSetting(bool b);
         void SetSecScaleSize(double d);
         void SetScaleSize(double d);
+        void SetSecScaleVisible(bool b);
 
+        //Primary & Secondary scale
+        void SetYScaleInt(bool b1, bool b2);
+        void SetSameScale(bool b);
+        
 
         void SetDefaultTitle();
         void Dispose();

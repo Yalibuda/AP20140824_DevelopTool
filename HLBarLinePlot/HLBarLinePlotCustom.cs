@@ -98,7 +98,10 @@ namespace MtbGraph.HLBarLinePlot
             cmnd.AppendLine("macro");
             cmnd.AppendLine("hlbarline y.1-y.k;"); // 第一個值用於 Bar chart           
             cmnd.AppendLine("group x.1-x.m;"); // 1~m 代表分群由外至內
-            cmnd.AppendLine("pane p.");
+            //cmnd.AppendLine("pane p.");
+            cmnd.AppendLine("pane p;"); // 20180706
+            cmnd.AppendLine("Store outy."); // 20180706
+            //cmnd.AppendLine("."); // 20180706
             cmnd.AppendLine("mcolumn y.1-y.k");
             cmnd.AppendLine("mcolumn x.1-x.m");
             cmnd.AppendLine("mcolumn xx.1-xx.m");
@@ -106,6 +109,7 @@ namespace MtbGraph.HLBarLinePlot
             cmnd.AppendLine("mcolumn p pp yy xxcord yytext xxconc1 xxconc2");
             cmnd.AppendLine("mcolumn dlabmin dlabmax d.1-d.m");
             cmnd.AppendLine("mcolumn ddlab dlabtrnd"); //用來承接指定位數的 datlab 資料
+            cmnd.AppendLine("mcolumn outy"); //用來承接指定位數的 datlab 資料
             cmnd.AppendLine("mconstant ccount");
 
 
@@ -126,6 +130,8 @@ namespace MtbGraph.HLBarLinePlot
             cmnd.AppendLine("noecho");
             cmnd.AppendLine("brief 0");
 
+            StringBuilder cmndCopy = new StringBuilder(cmnd.ToString()); // copy for compute y value to global workwheet
+            
             List<double> vlineInBarChart = new List<double>();
 
             #region 使用 Minitab command line 取得 BarChart 最外層的垂直線 vline(測試後比 DataTable 法快一點)
@@ -461,6 +467,7 @@ namespace MtbGraph.HLBarLinePlot
                     cmnd.AppendLine("fnum yy;");
                     cmnd.AppendLine("fixed 0.");
                     cmnd.AppendLine("let tmpy.1 = y.2/y.3*(10^6)");
+                    cmnd.AppendLine("let outy = tmpy.1");
                     break;
                 case FuncType.YIELD:
                 default:
@@ -486,9 +493,18 @@ namespace MtbGraph.HLBarLinePlot
                     cmnd.AppendLine("fnum yy;");
                     cmnd.AppendLine("fixed 2.");
                     cmnd.AppendLine("let tmpy.1 = y.2/y.3*100");
+                    cmnd.AppendLine("let outy = tmpy.1");
                     break;
             }
 
+            #endregion
+
+            #region 要標示的值匯出以便整理
+            /*
+            目前採用先跑一次macro,將計算結果儲存至global worksheet
+            */
+            ExportYOut(pane, gps, cmndCopy);
+            
             #endregion
 
             #region 建立 X coordinate 規則 (類別 --> 圖上的位置)
@@ -581,8 +597,8 @@ namespace MtbGraph.HLBarLinePlot
             {
 
             }
+            //#endregion
             #endregion
-
             #region 建立 Boxplot
             cmnd.AppendLine("boxplot tmpy.1 &");
             if (gps != null)
@@ -792,7 +808,201 @@ namespace MtbGraph.HLBarLinePlot
 
             return cmnd.ToString();
         }
+        private void ExportYOut(Mtb.Column[] paneY, Mtb.Column[] gpsY, StringBuilder cmndCopy)
+        {
 
+            StringBuilder cmndYComputation = new StringBuilder();
+            cmndYComputation = cmndCopy;
+            Mtb.Column[] pane = paneY;
+            Mtb.Column[] gps = gpsY;
+
+            /*
+             * 處理方式會因是否有 Panel Data 有很大的差異；有 Panel data 時，
+             * 不同 Panel 的點、線、文字對應不同的 Unit
+             */
+            #region 將分組資訊轉換成數值，用於最後繪製 Marker, Line, Text
+            if (gps != null)
+            {
+                cmndYComputation.AppendLine("stat y.1;");
+                cmndYComputation.AppendLine("by x.1-x.m;");
+                cmndYComputation.AppendLine("noem;");
+                cmndYComputation.AppendLine("gval xx.1-xx.m.");
+                cmndYComputation.AppendLine("Count xx.1 ccount");
+                cmndYComputation.AppendLine("Text xx.1-xx.m txx.1-txx.m");
+                if (gps.Length > 1)
+                {
+                    cmndYComputation.AppendLine("conc txx.1-txx.m xxconc1");
+                }
+                else
+                {
+                    cmndYComputation.AppendLine("copy txx.1 xxconc1");
+                }
+
+            }
+            else
+            {
+                cmndYComputation.AppendLine("copy 1 ccount");
+            }
+
+
+            cmndYComputation.AppendLine("set xxcord");
+            cmndYComputation.AppendLine(" 1:ccount");
+            cmndYComputation.AppendLine(" end"); // 到此為止建立一了一個 conversion table: xxconc1 xxcord
+            #endregion
+
+            #region 計算要標示的值
+            switch (FuncTypeAtBoxPlot)
+            {
+                case FuncType.PPM:
+                    cmndYComputation.AppendLine("let yy = y.2");
+                    cmndYComputation.AppendLine("stat yy;");
+                    if (pane != null || gps != null) cmndYComputation.AppendLine("by &");
+                    if (pane != null) cmndYComputation.AppendLine(" p &");
+                    if (gps != null) cmndYComputation.AppendLine(" x.1-x.m;");
+                    cmndYComputation.AppendLine("noem;");
+                    cmndYComputation.AppendLine("sums tmpy.1;");
+                    if (pane != null || gps != null) cmndYComputation.AppendLine("gval &");
+                    if (pane != null) cmndYComputation.AppendLine(" pp &");
+                    if (gps != null) cmndYComputation.AppendLine(" xx.1-xx.m;");
+                    cmndYComputation.AppendLine(".");
+
+                    cmndYComputation.AppendLine("stat y.3;");
+                    if (pane != null || gps != null) cmndYComputation.AppendLine("by &");
+                    if (pane != null) cmndYComputation.AppendLine(" p &");
+                    if (gps != null) cmndYComputation.AppendLine(" x.1-x.m;");
+                    cmndYComputation.AppendLine("noem;");
+                    cmndYComputation.AppendLine("sums tmpy.2.");
+                    cmndYComputation.AppendLine("let yy = tmpy.1/tmpy.2*(10^6)");
+                    cmndYComputation.AppendLine("fnum yy;");
+                    cmndYComputation.AppendLine("fixed 0.");
+                    cmndYComputation.AppendLine("let tmpy.1 = y.2/y.3*(10^6)");
+                    cmndYComputation.AppendLine("let outy = tmpy.1");
+                    break;
+                case FuncType.YIELD:
+                default:
+                    cmndYComputation.AppendLine("let yy = y.2");
+                    cmndYComputation.AppendLine("stat yy;");
+                    if (pane != null || gps != null) cmndYComputation.AppendLine("by &");
+                    if (pane != null) cmndYComputation.AppendLine(" p &");
+                    if (gps != null) cmndYComputation.AppendLine(" x.1-x.m;");
+                    cmndYComputation.AppendLine("noem;");
+                    cmndYComputation.AppendLine("sums tmpy.1;");
+                    if (pane != null || gps != null) cmndYComputation.AppendLine("gval &");
+                    if (pane != null) cmndYComputation.AppendLine(" pp &");
+                    if (gps != null) cmndYComputation.AppendLine(" xx.1-xx.m;");
+                    cmndYComputation.AppendLine(".");
+
+                    cmndYComputation.AppendLine("stat y.3;");
+                    if (pane != null || gps != null) cmndYComputation.AppendLine("by &");
+                    if (pane != null) cmndYComputation.AppendLine(" p &");
+                    if (gps != null) cmndYComputation.AppendLine(" x.1-x.m;");
+                    cmndYComputation.AppendLine("noem;");
+                    cmndYComputation.AppendLine("sums tmpy.2.");
+                    cmndYComputation.AppendLine("let yy = tmpy.1/tmpy.2*100");
+                    cmndYComputation.AppendLine("fnum yy;");
+                    cmndYComputation.AppendLine("fixed 2.");
+                    cmndYComputation.AppendLine("let tmpy.1 = y.2/y.3*100");
+                    cmndYComputation.AppendLine("let outy = tmpy.1");
+                    break;
+            }
+
+            #endregion
+
+            cmndYComputation.AppendLine("endlayout");
+            cmndYComputation.AppendLine("endmacro");
+
+            string macroPath = Mtblib.Tools.MtbTools.BuildTemporaryMacro("mychart.mac", cmndYComputation.ToString());
+
+            #region export y out
+            StringBuilder cmndYOut = new StringBuilder();
+            cmndYOut.AppendLine("notitle");
+            cmndYOut.AppendLine("brief 0");
+            cmndYOut.AppendFormat("%\"{0}\" {1} {2};\r\n", macroPath,
+                string.Join(" &\r\n", ((Mtb.Column[])VariablesAtBarChart).Select(x => x.SynthesizedName).ToArray()),
+                string.Join(" &\r\n", ((Mtb.Column[])VariablesAtBoxPlot).Select(x => x.SynthesizedName).ToArray()));
+            if (GroupingBy != null)
+            {
+                cmndYOut.AppendFormat("group {0};\r\n", string.Join(" &\r\n",
+                    ((Mtb.Column[])GroupingBy).Select(x => x.SynthesizedName).ToArray()));
+            }
+            if (PanelBy != null)
+            {
+                cmndYOut.AppendFormat("pane {0};\r\n", ((Mtb.Column[])PanelBy)[0].SynthesizedName);
+            }
+            string[] storeCol = Mtblib.Tools.MtbTools.CreateVariableStrArray(_ws, 1, Mtblib.Tools.MtbVarType.Column);
+            cmndYOut.AppendFormat("Store {0};\r\n", storeCol);
+            cmndYOut.AppendLine(".");
+            cmndYOut.AppendLine("title");
+            cmndYOut.AppendLine("brief 2");
+            string fpath = Mtblib.Tools.MtbTools.BuildTemporaryMacro("mycode.mtb", cmndYOut.ToString());
+            _proj.ExecuteCommand(string.Format("exec \"{0}\" 1", fpath));
+            #endregion
+
+            #region change label position
+            StringBuilder cmnd22 = new StringBuilder();
+            cmnd22.AppendLine("Name c1000 \"Minimum\" c999 \"Maximum\" c998 \"MinOnly\" c997 \"MaxOnly\"");
+            for (int i = 0; i < ((Mtb.Column[])GroupingBy).Select(x => x.SynthesizedName).Count(); i++)
+            {
+                cmnd22.AppendFormat("Name c{0} \"ByVar{1}\" \r\n", 996 - i, i + 1);
+            }
+            //cmnd22.AppendFormat("stat {0}; \r\n", string.Join(" &\r\n", ((Mtb.Column[])VariablesAtBoxPlot).Select(x => x.SynthesizedName).ToArray()));
+            cmnd22.AppendFormat("stat {0}; \r\n", storeCol); 
+            cmnd22.AppendFormat(" by {0}; \r\n", string.Join(" ", ((Mtb.Column[])GroupingBy).Select(x => x.SynthesizedName).ToArray()));
+            cmnd22.AppendLine("Expand;");
+            cmnd22.AppendFormat("gval 'ByVar{0}'-'ByVar{1}'; \r\n", 1, ((Mtb.Column[])GroupingBy).Select(x => x.SynthesizedName).Count());
+            cmnd22.AppendLine("Minimum 'Minimum';");
+            cmnd22.AppendLine("Maximum 'Maximum'.");
+            //cmnd22.AppendFormat("let MinOnly = if( {0} = Minimum, {1}, MISS()) \r\n", VariablesAtBoxPlot[0].SynthesizedName.ToString(), VariablesAtBoxPlot[0].SynthesizedName.ToString());
+            //cmnd22.AppendFormat("let MaxOnly = if( {0} = Maximum, {1}, MISS()) \r\n", VariablesAtBoxPlot[0].SynthesizedName.ToString(), VariablesAtBoxPlot[0].SynthesizedName.ToString());storeCol
+            cmnd22.AppendFormat("let MinOnly = if( {0} = Minimum, {0}, MISS()) \r\n", storeCol);
+            cmnd22.AppendFormat("let MaxOnly = if( {0} = Maximum, {0}, MISS()) \r\n", storeCol);
+            
+            string fpath2 = Mtblib.Tools.MtbTools.BuildTemporaryMacro("mycode.mtb", cmnd22.ToString());
+            _proj.ExecuteCommand(string.Format("exec \"{0}\" 1", fpath2));
+
+            List<Mtb.Column> _dataCols = new List<Mtb.Column>();
+
+            dynamic maxby = "MaxOnly";
+            dynamic MaxBy = Mtblib.Tools.MtbTools.GetMatchColumns(maxby, _ws);
+            Mtb.Column[] MaxByCol = (Mtb.Column[])MaxBy;
+            _dataCols.Add(MaxByCol[0]);
+
+            dynamic minby = "MinOnly";
+            dynamic MinBy = Mtblib.Tools.MtbTools.GetMatchColumns(minby, _ws);
+            Mtb.Column[] MinByCol = (Mtb.Column[])MinBy;
+            _dataCols.Add(MinByCol[0]);
+
+            System.Data.DataTable dtt = new System.Data.DataTable();
+            dtt = Mtblib.Tools.MtbTools.GetDataTableFromMtbCols(_dataCols.ToArray());
+            dtt.Columns.Add(new DataColumn("RowNum", typeof(int)));
+            dtt.Columns[0].ColumnName = "MaxOnly";
+            dtt.Columns[1].ColumnName = "MinOnly";
+
+            // 調整label位置
+            for (int i = 0; i < dtt.Rows.Count; i++)
+            {
+                dtt.Rows[i]["RowNum"] = i + 1;
+                if (!(dtt.Rows[i]["MaxOnly"].ToString() == Mtblib.Tools.MtbTools.MISSINGVALUE.ToString()))
+                {
+                    Mtblib.Graph.Component.LabelPosition alabelmax = new Mtblib.Graph.Component.LabelPosition();
+                    alabelmax.Model = 1;
+                    alabelmax.RowId = i + 1;
+                    alabelmax.Placement = new double[2] { 1, 1 };
+                    _boxplot.IndivDatlab.PositionList.Add(alabelmax);
+                }
+
+                if (!(dtt.Rows[i]["MinOnly"].ToString() == Mtblib.Tools.MtbTools.MISSINGVALUE.ToString()))
+                {
+                    Mtblib.Graph.Component.LabelPosition alabelmin = new Mtblib.Graph.Component.LabelPosition();
+                    alabelmin.Model = 1;
+                    alabelmin.RowId = i + 1;
+                    alabelmin.Placement = new double[2] { 1, -1 };
+                    _boxplot.IndivDatlab.PositionList.Add(alabelmin);
+                }
+            }
+            #endregion
+
+        }
         public FuncType FuncTypeAtBoxPlot { set; get; }
     }
     /// <summary>
