@@ -276,134 +276,144 @@ namespace MtbGraph.HLBarLinePlot
                 _chart.DataLabel.LabelColumn = "ddlab";
             }
 
-            #region 建立 Bar chart
-            cmnd.AppendFormat("chart {0}(y.1) &\r\n", _chart.FuncType.ToString());
-            if (gps != null)
-            {
-                cmnd.AppendLine("*x.1;");
-                if (gps.Length > 1)
+            //if (!BoxPlotVisibleOnly)
+            //{
+                #region 建立 Bar chart
+                cmnd.AppendFormat("chart {0}(y.1) &\r\n", _chart.FuncType.ToString());
+                if (gps != null)
                 {
-                    cmnd.AppendLine("group x.2-x.m;");
+                    cmnd.AppendLine("*x.1;");
+                    if (gps.Length > 1)
+                    {
+                        cmnd.AppendLine("group x.2-x.m;");
+                    }
                 }
-            }
-            else
-            {
-                cmnd.AppendLine(";");
-            }
-
-            _chart.XScale = (Mtblib.Graph.Component.Scale.CateScale)_xscale.Clone();
-            if (gps != null && gps.Length > 1)
-            {
-                List<int> tshow = new List<int>();
-                for (int i = gps.Length; i >= 1; i--)
+                else
                 {
-                    tshow.Add(i);
+                    cmnd.AppendLine(";");
                 }
-                _chart.XScale.Ticks.TShow = tshow.ToArray();
-                _chart.XScale.Ticks.TShow = tshow.ToArray();
-                switch (BarColorType)
+
+                _chart.XScale = (Mtblib.Graph.Component.Scale.CateScale)_xscale.Clone();
+                if (gps != null && gps.Length > 1)
                 {
-                    case BarColorOption.ByInnerMostGroup:
-                        _chart.Bar.GroupingBy = "x.m";
-                        break;
-                    case BarColorOption.ByOuterMostGroup:
-                        _chart.Bar.GroupingBy = "x.1";
-                        break;
-                    case BarColorOption.Single:
-                    default:
-                        break;
+                    List<int> tshow = new List<int>();
+                    for (int i = gps.Length; i >= 1; i--)
+                    {
+                        tshow.Add(i);
+                    }
+                    _chart.XScale.Ticks.TShow = tshow.ToArray();
+                    _chart.XScale.Ticks.TShow = tshow.ToArray();
+                    switch (BarColorType)
+                    {
+                        case BarColorOption.ByInnerMostGroup:
+                            _chart.Bar.GroupingBy = "x.m";
+                            break;
+                        case BarColorOption.ByOuterMostGroup:
+                            _chart.Bar.GroupingBy = "x.1";
+                            break;
+                        case BarColorOption.Single:
+                        default:
+                            break;
+                    }
+                    //_chart.Bar.GroupingBy = "x.m";
                 }
-                //_chart.Bar.GroupingBy = "x.m";
-            }
 
-            if (vlineInBarChart != null && vlineInBarChart.Count > 0)
-            {
-                _chart.XScale.Refes.Values = vlineInBarChart.ToArray();
-                _chart.XScale.Refes.Type = 3;
-                _chart.XScale.Refes.Color = 20;
-            }
-            _chart.XScale.Label.Angle = 0;
-            cmnd.Append(_chart.XScale.GetCommand());
-
-            #region DataScale for tick increament 處理程序
-            //指定 Tick increament 的處理程序
-            if (_chart.YScale.Ticks.Increament < Mtblib.Tools.MtbTools.MISSINGVALUE &&
-                _chart.YScale.Ticks.NMajor == -1)
-            {
-                Func<IEnumerable<double>, double> fun;
-                #region 取得函數
-                switch (this.FuncTypeAtBarChart)
+                if (vlineInBarChart != null && vlineInBarChart.Count > 0)
                 {
-                    default:
-                    case MtbGraph.BarChart.ChartFunctionType.SUM:
-                        fun = Mtblib.Tools.Arithmetic.Sum;
-                        break;
-                    case MtbGraph.BarChart.ChartFunctionType.COUNT:
-                        fun = Mtblib.Tools.Arithmetic.Count;
-                        break;
-                    case MtbGraph.BarChart.ChartFunctionType.N:
-                        fun = Mtblib.Tools.Arithmetic.N;
-                        break;
-                    case MtbGraph.BarChart.ChartFunctionType.NMISS:
-                        fun = Mtblib.Tools.Arithmetic.NMiss;
-                        break;
-                    case MtbGraph.BarChart.ChartFunctionType.MEAN:
-                        fun = Mtblib.Tools.Arithmetic.Mean;
-                        break;
-                    case MtbGraph.BarChart.ChartFunctionType.MEDIAN:
-                        fun = Mtblib.Tools.Arithmetic.Median;
-                        break;
-                    case MtbGraph.BarChart.ChartFunctionType.MINIMUM:
-                        fun = Mtblib.Tools.Arithmetic.Min;
-                        break;
-                    case MtbGraph.BarChart.ChartFunctionType.MAXIMUM:
-                        fun = Mtblib.Tools.Arithmetic.Max;
-                        break;
-                    case MtbGraph.BarChart.ChartFunctionType.STDEV:
-                        fun = Mtblib.Tools.Arithmetic.Sum;
-                        break;
-                    case MtbGraph.BarChart.ChartFunctionType.SSQ:
-                        fun = Mtblib.Tools.Arithmetic.Sum;
-                        break;
+                    _chart.XScale.Refes.Values = vlineInBarChart.ToArray();
+                    _chart.XScale.Refes.Type = 3;
+                    _chart.XScale.Refes.Color = 20;
+                }
+                _chart.XScale.Label.Angle = 0;
+                cmnd.Append(_chart.XScale.GetCommand());
+
+                #region DataScale for tick increament 處理程序
+                //指定 Tick increament 的處理程序
+                if (_chart.YScale.Ticks.Increament < Mtblib.Tools.MtbTools.MISSINGVALUE &&
+                    _chart.YScale.Ticks.NMajor == -1)
+                {
+                    Func<IEnumerable<double>, double> fun;
+                    #region 取得函數
+                    switch (this.FuncTypeAtBarChart)
+                    {
+                        default:
+                        case MtbGraph.BarChart.ChartFunctionType.SUM:
+                            fun = Mtblib.Tools.Arithmetic.Sum;
+                            break;
+                        case MtbGraph.BarChart.ChartFunctionType.COUNT:
+                            fun = Mtblib.Tools.Arithmetic.Count;
+                            break;
+                        case MtbGraph.BarChart.ChartFunctionType.N:
+                            fun = Mtblib.Tools.Arithmetic.N;
+                            break;
+                        case MtbGraph.BarChart.ChartFunctionType.NMISS:
+                            fun = Mtblib.Tools.Arithmetic.NMiss;
+                            break;
+                        case MtbGraph.BarChart.ChartFunctionType.MEAN:
+                            fun = Mtblib.Tools.Arithmetic.Mean;
+                            break;
+                        case MtbGraph.BarChart.ChartFunctionType.MEDIAN:
+                            fun = Mtblib.Tools.Arithmetic.Median;
+                            break;
+                        case MtbGraph.BarChart.ChartFunctionType.MINIMUM:
+                            fun = Mtblib.Tools.Arithmetic.Min;
+                            break;
+                        case MtbGraph.BarChart.ChartFunctionType.MAXIMUM:
+                            fun = Mtblib.Tools.Arithmetic.Max;
+                            break;
+                        case MtbGraph.BarChart.ChartFunctionType.STDEV:
+                            fun = Mtblib.Tools.Arithmetic.Sum;
+                            break;
+                        case MtbGraph.BarChart.ChartFunctionType.SSQ:
+                            fun = Mtblib.Tools.Arithmetic.Sum;
+                            break;
+                    }
+                    #endregion
+
+                    Mtblib.Tools.GScale barchartScale
+                    = Mtblib.Tools.MtbTools.GetDataScaleInBarChart(_proj, _ws, varBarchart,
+                    gps, pane, "", fun);
+
+                    string tickString = string.Format("0:{0}/{1}",
+                        barchartScale.TMaximum, _chart.YScale.Ticks.Increament);
+                    _chart.YScale.Ticks.SetTicks(tickString);
+                }
+                else
+                {
+                    _chart.YScale.Ticks.SetTicks(null);
                 }
                 #endregion
 
-                Mtblib.Tools.GScale barchartScale
-                = Mtblib.Tools.MtbTools.GetDataScaleInBarChart(_proj, _ws, varBarchart,
-                gps, pane, "", fun);
+                cmnd.Append(_chart.YScale.GetCommand());
 
-                string tickString = string.Format("0:{0}/{1}",
-                    barchartScale.TMaximum, _chart.YScale.Ticks.Increament);
-                _chart.YScale.Ticks.SetTicks(tickString);
-            }
-            else
+            //加在後面
+            if (BoxPlotVisibleOnly)
             {
-                _chart.YScale.Ticks.SetTicks(null);
+                cmnd.AppendLine("Scale 2;");
+                cmnd.AppendLine("LDisplay 0 0 0 0;");
+                cmnd.AppendLine("HDisplay 0 0 0 0;");
             }
-            #endregion
+                cmnd.Append(_chart.Bar.GetCommand());
 
-            cmnd.Append(_chart.YScale.GetCommand());
-            cmnd.Append(_chart.Bar.GetCommand());
+                if (pane != null)
+                {
+                    _chart.Panel.PaneledBy = "p";
+                    _chart.Panel.RowColumn = new int[] { 1, pane[0].GetNumDistinctRows() };
+                    cmnd.Append(_chart.Panel.GetCommand());
+                }
 
-            if (pane != null)
-            {
-                _chart.Panel.PaneledBy = "p";
-                _chart.Panel.RowColumn = new int[] { 1, pane[0].GetNumDistinctRows() };
-                cmnd.Append(_chart.Panel.GetCommand());
-            }
-
-            cmnd.Append(_chart.DataLabel.GetCommand());
-            cmnd.Append(_chart.Legend.GetCommand());
-            cmnd.Append(_chart.FigureRegion.GetCommand());
-            cmnd.Append(_chart.DataRegion.GetCommand());
-            cmnd.Append(_chart.Title.GetCommand());
-            cmnd.AppendLine("nomiss;");
-            cmnd.AppendLine("noem;");
-            cmnd.AppendLine("coffset 0.1;");
-            cmnd.Append(_chart.GetAnnotationCommand());
-            cmnd.AppendLine(".");
-            #endregion
-
+                cmnd.Append(_chart.DataLabel.GetCommand());
+                cmnd.Append(_chart.Legend.GetCommand());
+                cmnd.Append(_chart.FigureRegion.GetCommand());
+                cmnd.Append(_chart.DataRegion.GetCommand());
+                cmnd.Append(_chart.Title.GetCommand());
+                cmnd.AppendLine("nomiss;");
+                cmnd.AppendLine("noem;");
+                cmnd.AppendLine("coffset 0.1;");
+                cmnd.Append(_chart.GetAnnotationCommand());
+                cmnd.AppendLine(".");
+                #endregion
+            //}
             #region 計算客製的平均位置
             /*
              * 處理方式會因是否有 Panel Data 有很大的差異；有 Panel data 時，
@@ -588,9 +598,23 @@ namespace MtbGraph.HLBarLinePlot
                 cmnd.AppendLine("gval d.1-d.m;");
                 cmnd.AppendLine("Minimum dlabmin;");
                 cmnd.AppendLine("Maximum dlabmax.");
-                if (DatlabOptionAtBoxPlotIndiv.AutoDecimal == false) cmnd.AppendFormat("let dlabtrnd = if(tmpy.1=dlabmin, text(round(tmpy.1,{0})), IF(tmpy.1=dlabmax, text(round(tmpy.1,{0})), \"\" ))\r\n", DatlabOptionAtBoxPlotIndiv.DecimalPlace);
-                else cmnd.AppendFormat("let dlabtrnd = if(tmpy.1=dlabmin, text(round(tmpy.1,{0})), IF(tmpy.1=dlabmax, text(round(tmpy.1,{0})), \"\" ))\r\n", 3);
-                _boxplot.IndivDatlab.DatlabType = Mtblib.Graph.Component.Datlab.DisplayType.Column;
+                if (DatlabOptionAtBoxPlotIndiv.AutoDecimal == false)
+                {
+                    if (_maxVisible && _minVisible) cmnd.AppendFormat("let dlabtrnd = if(tmpy.1=dlabmin, text(round(tmpy.1,{0})), IF(tmpy.1=dlabmax, text(round(tmpy.1,{0})), \"\" ))\r\n", DatlabOptionAtBoxPlotIndiv.DecimalPlace);
+                    else if (_maxVisible) cmnd.AppendFormat("let dlabtrnd = if(tmpy.1=dlabmax, text(round(tmpy.1,{0})), \"\")\r\n", DatlabOptionAtBoxPlotIndiv.DecimalPlace);
+                    else if (_minVisible) cmnd.AppendFormat("let dlabtrnd = if(tmpy.1=dlabmin, text(round(tmpy.1,{0})), \"\" )\r\n", DatlabOptionAtBoxPlotIndiv.DecimalPlace);
+                    else;
+                }
+                else
+                {
+                    if (_maxVisible && _minVisible)
+                        cmnd.AppendFormat("let dlabtrnd = if(tmpy.1=dlabmin, text(round(tmpy.1,{0})), IF(tmpy.1=dlabmax, text(round(tmpy.1,{0})), \"\" ))\r\n", 3);
+                    else if (_maxVisible) cmnd.AppendFormat("let dlabtrnd = if(tmpy.1=dlabmax, text(round(tmpy.1,{0})), \"\" )\r\n", 3);
+                    else if (_minVisible) cmnd.AppendFormat("let dlabtrnd = if(tmpy.1=dlabmin, text(round(tmpy.1,{0})), \"\" )\r\n", 3);
+                    else;
+
+                }
+                //_boxplot.IndivDatlab.DatlabType = Mtblib.Graph.Component.Datlab.DisplayType.Column; //沒用
                 _boxplot.IndivDatlab.LabelColumn = "dlabtrnd";
             }
             else
@@ -972,32 +996,37 @@ namespace MtbGraph.HLBarLinePlot
             Mtb.Column[] MinByCol = (Mtb.Column[])MinBy;
             _dataCols.Add(MinByCol[0]);
 
+            // 取值並調整label位置
             System.Data.DataTable dtt = new System.Data.DataTable();
             dtt = Mtblib.Tools.MtbTools.GetDataTableFromMtbCols(_dataCols.ToArray());
             dtt.Columns.Add(new DataColumn("RowNum", typeof(int)));
-            dtt.Columns[0].ColumnName = "MaxOnly";
-            dtt.Columns[1].ColumnName = "MinOnly";
-
-            // 調整label位置
+            if (_maxVisible) dtt.Columns[0].ColumnName = "MaxOnly";
+            if (_minVisible) dtt.Columns[1].ColumnName = "MinOnly";
+            
             for (int i = 0; i < dtt.Rows.Count; i++)
             {
                 dtt.Rows[i]["RowNum"] = i + 1;
-                if (!(dtt.Rows[i]["MaxOnly"].ToString() == Mtblib.Tools.MtbTools.MISSINGVALUE.ToString()))
+                if (_maxVisible)
                 {
-                    Mtblib.Graph.Component.LabelPosition alabelmax = new Mtblib.Graph.Component.LabelPosition();
-                    alabelmax.Model = 1;
-                    alabelmax.RowId = i + 1;
-                    alabelmax.Placement = new double[2] { 1, 1 };
-                    _boxplot.IndivDatlab.PositionList.Add(alabelmax);
+                    if (!(dtt.Rows[i]["MaxOnly"].ToString() == Mtblib.Tools.MtbTools.MISSINGVALUE.ToString()))
+                    {
+                        Mtblib.Graph.Component.LabelPosition alabelmax = new Mtblib.Graph.Component.LabelPosition();
+                        alabelmax.Model = 1;
+                        alabelmax.RowId = i + 1;
+                        alabelmax.Placement = new double[2] { 1, 1 };
+                        _boxplot.IndivDatlab.PositionList.Add(alabelmax);
+                    }
                 }
-
-                if (!(dtt.Rows[i]["MinOnly"].ToString() == Mtblib.Tools.MtbTools.MISSINGVALUE.ToString()))
+                if (_minVisible)
                 {
-                    Mtblib.Graph.Component.LabelPosition alabelmin = new Mtblib.Graph.Component.LabelPosition();
-                    alabelmin.Model = 1;
-                    alabelmin.RowId = i + 1;
-                    alabelmin.Placement = new double[2] { 1, -1 };
-                    _boxplot.IndivDatlab.PositionList.Add(alabelmin);
+                    if (!(dtt.Rows[i]["MinOnly"].ToString() == Mtblib.Tools.MtbTools.MISSINGVALUE.ToString()))
+                    {
+                        Mtblib.Graph.Component.LabelPosition alabelmin = new Mtblib.Graph.Component.LabelPosition();
+                        alabelmin.Model = 1;
+                        alabelmin.RowId = i + 1;
+                        alabelmin.Placement = new double[2] { 1, -1 };
+                        _boxplot.IndivDatlab.PositionList.Add(alabelmin);
+                    }
                 }
             }
             #endregion

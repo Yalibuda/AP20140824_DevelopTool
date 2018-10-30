@@ -39,6 +39,7 @@ namespace MtbGraph.HLBarLinePlot
         /// 設定 Layout 畫面分割的位置(0~1)，最下方=0
         /// </summary>
         double Division { set; get; }
+        bool BoxPlotVisibleOnly { get; set; }
         string GSave { set; get; }
         void SetMtbEnvironment(Mtb.Project proj, Mtb.Worksheet ws);
         void Run();

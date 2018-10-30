@@ -12,6 +12,16 @@ namespace MtbGraph.TrendChart
         void SetGroupingBy(dynamic var);
         void SetXGroup(dynamic var);
         void SetStamp(dynamic var);
+        void SetSymbolSize(dynamic var);
+        void SetLineSize(dynamic var);
+        void SetGridXVisibile(dynamic var);
+        void SetGridYVisibile(dynamic var);
+        //void SetY1LabelDec(dynamic var);
+        //void SetY2LabelDec(dynamic var);
+        //void SetY1LabelVisible(dynamic var);
+        //void SetY2LabelVisible(dynamic var);
+        //void SetY1Target(dynamic var);
+        //void SetY2Target(dynamic var);
         Component.Scale.IContScale XScale { get; }
         Component.Scale.IContScale YScale { get; }
         Component.IDatlab Datlab { get; }
@@ -19,7 +29,7 @@ namespace MtbGraph.TrendChart
         Component.Region.IRegion DataRegion { get; }
         Component.Region.IGraph Graph { get; }
         Component.ILabel Title { get; }
-        Component.IFootnote Footnotes { get; }        
+        Component.IFootnote Footnotes { get; }
 
         string GSave { set; get; }
         void SetMtbEnvironment(Mtb.Project proj, Mtb.Worksheet ws);

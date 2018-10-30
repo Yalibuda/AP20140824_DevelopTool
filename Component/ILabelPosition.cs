@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace MtbGraph.Component
 {
-    public interface ILabel
+    public interface ILabelPosition
     {
         bool Visible { set; get; }
-        string Text { set; get; }
         float FontSize { set; get; }
-        void OffSet(double hOffset, double vOffSet);
         int FontColor { get; set; }
+        int Model { set; get; }
+        int[] RowId { set; get; }
+        string Text { set; get; }
     }
 }

@@ -10,5 +10,7 @@ namespace MtbGraph.Component
     {
         bool Visible { set; get; }
         float FontSize { set; get; }
+        int FontColor { get; set; }
+        List<ILabelPosition> PositionList { get; set; }
     }
 }

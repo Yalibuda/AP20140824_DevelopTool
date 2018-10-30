@@ -28,7 +28,198 @@ namespace MtbGraph.TrendChart
         {
             base.SetDefault();
             _tsplot.XScale.Label.Visible = false;
+            _symbolSize = "0.75";
+            _isGridXVisible = true;
+            IsGridYVisible = false;
+            #region PCR 201810XX(未開放)
+            //_y1Decimal = 5;
+            //_y2Decimal = 5;
+            //_y1LabelVisible = true;
+            //_y2LabelVisible = true;
+            #endregion
         }
+
+        /// <summary>
+        /// Avoid the default red(coding in 8)
+        /// </summary>
+        private int[] COLOR = { 64, 9, 12, 18, 34 }; // default 64 8 9 12 18 34
+        /// <summary>
+        /// All symbols are cirlce
+        /// </summary>
+        private int[] TYPE = { 6, 6, 6, 6, 6 };
+
+        #region PCR 201810XX(未開放)
+        /// <summary>
+        /// 設定Y1 TARGET
+        /// </summary>
+        //private Mtb.Column[] _y1Target = null;
+        //public dynamic Y1Target
+        //{
+        //    set
+        //    {
+        //        if (value == null)
+        //        {
+        //            _y1Target = null;
+        //        }
+        //        else
+        //        {
+        //            _y1Target = Mtblib.Tools.MtbTools.GetMatchColumns(value, _ws);
+        //        }
+        //    }
+        //    get
+        //    {
+        //        return _y1Target;
+        //    }
+        //}
+        //public void SetY1Target(dynamic var)
+        //{
+        //    Y1Target = var;
+        //}
+
+        ///// <summary>
+        ///// 設定Y2 TARGET
+        ///// </summary>
+        //private Mtb.Column[] _y2Target = null;
+        //public dynamic Y2Target
+        //{
+        //    set
+        //    {
+        //        if (value == null)
+        //        {
+        //            _y2Target = null;
+        //        }
+        //        else
+        //        {
+        //            _y2Target = Mtblib.Tools.MtbTools.GetMatchColumns(value, _ws);
+        //        }
+        //    }
+        //    get
+        //    {
+        //        return _y2Target;
+        //    }
+        //}
+        //public void SetY2Target(dynamic var)
+        //{
+        //    Y2Target = var;
+        //}
+        #endregion 
+
+        //vline is visible
+        public bool IsGridXVisible
+        {
+            get
+            {
+                return _isGridXVisible;
+            }
+            set
+            {
+                _isGridXVisible = value;
+            }
+        }
+        private bool _isGridXVisible;
+        public void SetGridXVisibile(dynamic var)
+        {
+            _isGridXVisible = var;
+        }
+
+        //hline is visible
+        public bool IsGridYVisible
+        {
+            get
+            {
+                return _isGridYVisible;
+            }
+            set
+            {
+                _isGridYVisible = value;
+            }
+        }
+        private bool _isGridYVisible;
+        public void SetGridYVisibile(dynamic var)
+        {
+            IsGridYVisible = var;
+        }
+
+        #region PCR 201810XX(未開放)
+        /// <summary>
+        /// 設定Y1,Y2 label小數位數
+        /// </summary>
+        /// <param name=""></param>
+        //private int _y1Decimal;
+        //public int Y1Decimal
+        //{
+        //    get
+        //    {
+        //        return _y1Decimal;
+        //    }
+        //    set
+        //    {
+        //        _y1Decimal = value;
+        //        //if(int.TryParse(value.ToString(), out _y1Decimal)) 
+        //    }
+        //}
+        //public void SetY1LabelDec(dynamic var)
+        //{
+        //    _y1Decimal = var;
+        //}
+
+        //private int _y2Decimal;
+        //public int Y2Decimal
+        //{
+        //    get
+        //    {
+        //        return _y2Decimal;
+        //    }
+        //    set
+        //    {
+        //        _y2Decimal = value;
+        //        //if(int.TryParse(value.ToString(), out _y1Decimal)) 
+        //    }
+        //}
+        //public void SetY2LabelDec(dynamic var)
+        //{
+        //    _y2Decimal = var;
+        //}
+
+        /// <summary>
+        /// 設定Y1,Y2 label是否顯示
+        /// </summary>
+        /// <param name=""></param>
+        //private bool _y1LabelVisible;
+        //public bool Y1LabelVisible
+        //{
+        //    get
+        //    {
+        //        return _y1LabelVisible;
+        //    }
+        //    set
+        //    {
+        //        _y1LabelVisible = value;
+        //    }
+        //}
+        //public void SetY1LabelVisible(dynamic var)
+        //{
+        //    Y1LabelVisible = var;
+        //}
+
+        // Set Y2 Label Visible
+        //private bool _y2LabelVisible;
+        //public bool Y2LabelVisible
+        //{
+        //    get
+        //    {
+        //        return _y2LabelVisible;
+        //    }
+        //    set
+        //    {
+        //        _y2LabelVisible = value;
+        //    }
+        //}
+        //public void SetY2LabelVisible(dynamic var)
+        //{
+        //    Y2LabelVisible = var;
+        //}
+        #endregion  
 
         public override void SetGroupingBy(dynamic var)
         {
@@ -53,6 +244,34 @@ namespace MtbGraph.TrendChart
         }
         private Mtb.Column[] _xgroups = null;
 
+        public void SetSymbolSize(dynamic var)
+        {
+            SymbolSize = var.ToString();
+        }
+        private string _symbolSize;
+        public string SymbolSize
+        {
+            get { return _symbolSize; }
+            set
+            {
+                if (value != null) _symbolSize = value;
+            }
+        }
+
+        public void SetLineSize(dynamic var)
+        {
+            LineSize = var.ToString();
+        }
+
+        private string _lineSize;
+        public string LineSize
+        {
+            get { return _lineSize; }
+            set
+            {
+                if (value != null) _lineSize = value;
+            }
+        }
 
         protected override string GetCommand()
         {
@@ -102,7 +321,7 @@ namespace MtbGraph.TrendChart
             cmnd.AppendLine("mcolumn y.1-y.ny ");
             cmnd.AppendLine("mcolumn x.1-x.m g stmp");
             cmnd.AppendLine("mcolumn xx.1-xx.4 nn.1-nn.4 yy uniq freq index link vline");
-            cmnd.AppendLine("mcolumn colr symb line lcolr lsymb lline tmp.1-tmp.10");
+            cmnd.AppendLine("mcolumn colr symb line type lcolr lsymb lline ltype tmp.1-tmp.10");
             cmnd.AppendLine("mconstant i j cnt ycnt const.1-const.5");
 
             cmnd.AppendLine("mreset");
@@ -254,7 +473,7 @@ namespace MtbGraph.TrendChart
                 cmnd.AppendLine("let const.1 = cnt + 1");
                 //Set color list 
                 cmnd.AppendLine("set colr");
-                cmnd.AppendFormat(" cnt({0})\r\n", string.Join(" ", Mtblib.Tools.MtbTools.COLOR));
+                cmnd.AppendFormat(" cnt({0})\r\n", string.Join(" ", COLOR)); 
                 cmnd.AppendLine("end");
                 cmnd.AppendLine("let const.2 = Count(colr)");
                 cmnd.AppendLine("delete const.1:const.2 colr");
@@ -264,12 +483,19 @@ namespace MtbGraph.TrendChart
                 cmnd.AppendLine("end");
                 cmnd.AppendLine("let const.2 = Count(symb)");
                 cmnd.AppendLine("delete const.1:const.2 symb");
-                //Set symbol list 
+                //Set line list 
                 cmnd.AppendLine("set line");
                 cmnd.AppendFormat(" cnt({0})\r\n", string.Join(" ", Mtblib.Tools.MtbTools.LINETPYE));
                 cmnd.AppendLine("end");
                 cmnd.AppendLine("let const.2 = Count(line)");
                 cmnd.AppendLine("delete const.1:const.2 line");
+                //Set type list
+                cmnd.AppendLine("set type");
+                cmnd.AppendFormat(" cnt({0})\r\n", string.Join(" ", TYPE));
+                cmnd.AppendLine("end");
+                cmnd.AppendLine("let const.2 = Count(type)");
+                cmnd.AppendLine("delete const.1:const.2 type");
+
                 #endregion
 
                 //計算出 legend box 的主體，取得實際要使用的顯示風格
@@ -283,6 +509,7 @@ namespace MtbGraph.TrendChart
                 cmnd.AppendLine("convert uniq colr link lcolr");
                 cmnd.AppendLine("convert uniq symb link lsymb");
                 cmnd.AppendLine("convert uniq line link lline");
+                cmnd.AppendLine("convert uniq type link ltype");
                 #endregion
             }
             //開始畫圖
@@ -306,12 +533,14 @@ namespace MtbGraph.TrendChart
             {
                 _tsplot.XScale.Label.MultiLables = gps_x.Select(x => x.Name).ToArray();
             }
-            if (dcGroup_x.Count > 0)
+            if (dcGroup_x.Count > 0 && IsGridXVisible)
             {
                 _tsplot.XScale.Refes.Values = "vline";
                 _tsplot.XScale.Refes.Color = new string[] { "20" };
             }
             cmnd.Append(_tsplot.XScale.GetCommand());
+
+            if (IsGridYVisible) cmnd.AppendLine("Grid 2;");
             Mtblib.Graph.Component.Scale.ContScale tmpYScale = (Mtblib.Graph.Component.Scale.ContScale)_tsplot.YScale.Clone();
             if (_tsplot.YScale.SecScale.Variable != null)
             {
@@ -325,7 +554,7 @@ namespace MtbGraph.TrendChart
             }
             cmnd.Append(tmpYScale.GetCommand());
 
-            
+            //if (SymbolSize != null) _tsplot.Symbol.Size = SymbolSize;
             if (dcGroup.Count > 0)
             {
                 Mtblib.Graph.Component.DataView.Symbol tmpSymbol = (Mtblib.Graph.Component.DataView.Symbol)_tsplot.Symbol.Clone();
@@ -338,6 +567,24 @@ namespace MtbGraph.TrendChart
                 tmpConn.GroupingBy = dcGroup.Values.ToArray();
                 tmpConn.Color = "lcolr";
                 tmpConn.Type = "lline";
+                tmpConn.Visible = true;
+
+                tmpSymbol.Size = SymbolSize;
+                tmpConn.Size = LineSize;
+                tmpSymbol.Type = "ltype";
+
+                cmnd.Append(tmpSymbol.GetCommand());
+                cmnd.Append(tmpConn.GetCommand());
+            }
+            else
+            {
+                Mtblib.Graph.Component.DataView.Symbol tmpSymbol = (Mtblib.Graph.Component.DataView.Symbol)_tsplot.Symbol.Clone();
+                Mtblib.Graph.Component.DataView.Connect tmpConn = (Mtblib.Graph.Component.DataView.Connect)_tsplot.Connectline.Clone();
+
+                tmpSymbol.Visible = true;
+                tmpSymbol.Size = SymbolSize;
+                tmpConn.Size = LineSize;
+
                 tmpConn.Visible = true;
                 cmnd.Append(tmpSymbol.GetCommand());
                 cmnd.Append(tmpConn.GetCommand());
@@ -410,7 +657,83 @@ namespace MtbGraph.TrendChart
                 mtb_sections.Add(section);
                 _tsplot.Legend.Sections = mtb_sections;
             }
+
+            #region PCR 201810XX(未開放)
+            // 處理 y label相關，包含Y1, Y2是否顯示、調整小數位數、超過Target顯示，尚未開放 PCR 201810XX
+            //DataTable dttest = Mtblib.Tools.MtbTools.GetDataTableFromMtbCols(vars);
+            //DataTable dty1target = null;
+            //DataTable dty2target = null;
+            //if (_y1Target != null)
+            //{
+            //    //Mtb.Column[] tmpCol1 = (Mtb.Column[])Y1Target;
+            //    //dty1target = Mtblib.Tools.MtbTools.GetDataTableFromMtbCols(tmpCol1);
+            //    dty1target = Mtblib.Tools.MtbTools.GetDataTableFromMtbCols(_y1Target); //更換取資料方式
+            //}
+            //if (_y2Target != null)
+            //{
+            //    dty2target = Mtblib.Tools.MtbTools.GetDataTableFromMtbCols(_y2Target);
+            //}
+
             
+            //for (int i = 0; i < dttest.Rows.Count; i++)
+            //{
+            //    double decimaltmp = 1;
+            //    Mtblib.Graph.Component.LabelPosition testitem = new Mtblib.Graph.Component.LabelPosition();
+            //    string tmpstring = "";
+            //    if (Y1LabelVisible == true)
+            //    {
+            //        for (int j = 0; j < Y1Decimal; j++) decimaltmp *= 10;
+            //        tmpstring = (Math.Round(decimaltmp * (double)dttest.Rows[i].ItemArray[0]) / decimaltmp).ToString();
+            //        if(_y1Target != null)
+            //        {
+            //            tmpstring =
+            //            ((double)dttest.Rows[i].ItemArray[0] >= (double)dty1target.Rows[i].ItemArray[0]) ? tmpstring : "";
+            //        }
+            //        testitem.Model = 1;
+            //        testitem.Text = tmpstring;
+            //        testitem.RowId = i + 1;
+            //        testitem.FontColor = 50;
+            //        _tsplot.DataLabel.PositionList.Add(testitem);
+            //    }
+            //    else
+            //    {
+            //        tmpstring = "";
+
+            //        testitem.Model = 1;
+            //        testitem.Text = tmpstring;
+            //        testitem.RowId = i + 1;
+            //        _tsplot.DataLabel.PositionList.Add(testitem);
+            //    }
+
+            //    if (Y2LabelVisible == true)
+            //    {
+            //        decimaltmp = 1;
+            //        for (int j = 0; j < Y2Decimal; j++) decimaltmp *= 10;
+            //        tmpstring = (Math.Round(decimaltmp * (double)dttest.Rows[i].ItemArray[1]) / decimaltmp).ToString(); ;
+            //        if (_y2Target != null)
+            //        {
+            //            tmpstring =
+            //            ((double)dttest.Rows[i].ItemArray[1] >= (double)dty2target.Rows[i].ItemArray[0]) ? tmpstring : "";
+            //        }
+            //        testitem = new Mtblib.Graph.Component.LabelPosition();
+            //        testitem.Model = 2;
+            //        testitem.Text = tmpstring;
+            //        testitem.RowId = i + 1;
+            //        testitem.FontColor = 4;
+            //        _tsplot.DataLabel.PositionList.Add(testitem);
+            //    }
+            //    else
+            //    {
+            //        tmpstring = "";
+            //        testitem = new Mtblib.Graph.Component.LabelPosition();
+
+            //        testitem.Model = 2;
+            //        testitem.Text = tmpstring;
+            //        testitem.RowId = i + 1;
+            //        _tsplot.DataLabel.PositionList.Add(testitem);
+            //    }
+            //}
+            #endregion 
 
             cmnd.Append(_tsplot.Legend.GetCommand());
             cmnd.Append(_tsplot.DataLabel.GetCommand());
@@ -458,5 +781,6 @@ namespace MtbGraph.TrendChart
 
         }
 
+        
     }
 }

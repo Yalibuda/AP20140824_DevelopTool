@@ -55,6 +55,21 @@ namespace MtbGraph.Component
         }
 
         /// <summary>
+        /// 設定或取得 Label 的字體大小
+        /// </summary>
+        public int FontColor
+        {
+            get
+            {
+                return _lab.FontColor;
+            }
+            set
+            {
+                _lab.FontColor = value;
+            }
+        }
+
+        /// <summary>
         /// 設定 Label 的位移的距離，合法的輸入是一個數值陣列(double[2])。
         /// 第一個參數是水平位移、第二的是垂直位移(Figure unit)
         /// </summary>
