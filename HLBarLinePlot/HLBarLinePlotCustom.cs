@@ -739,7 +739,7 @@ namespace MtbGraph.HLBarLinePlot
                     _boxplot.ALineLst.Add(line);
                     Mtblib.Graph.Component.Annotation.Marker mark = new Mtblib.Graph.Component.Annotation.Marker()
                     {
-                        Size = 1.5,
+                        Size = BoxPlotMeanSymbolSize,
                         Type = 6,
                         Color = 64,
                         Unit = i + 1
@@ -791,7 +791,7 @@ namespace MtbGraph.HLBarLinePlot
                 _boxplot.ALineLst.Add(line);
                 Mtblib.Graph.Component.Annotation.Marker mark = new Mtblib.Graph.Component.Annotation.Marker()
                 {
-                    Size = 1.5,
+                    Size = BoxPlotMeanSymbolSize,
                     Type = 6,
                     Color = 64
                 };
@@ -996,36 +996,80 @@ namespace MtbGraph.HLBarLinePlot
             Mtb.Column[] MinByCol = (Mtb.Column[])MinBy;
             _dataCols.Add(MinByCol[0]);
 
+            Mtb.Column[] GroupByCol = (Mtb.Column[])GroupingBy;
+            for (int i = 0; i < GroupByCol.Length; i++) _dataCols.Add(GroupByCol[i]);
+
             // 取值並調整label位置
             System.Data.DataTable dtt = new System.Data.DataTable();
             dtt = Mtblib.Tools.MtbTools.GetDataTableFromMtbCols(_dataCols.ToArray());
             dtt.Columns.Add(new DataColumn("RowNum", typeof(int)));
             if (_maxVisible) dtt.Columns[0].ColumnName = "MaxOnly";
             if (_minVisible) dtt.Columns[1].ColumnName = "MinOnly";
-            
+            for (int i = 0; i < GroupByCol.Length; i++) dtt.Columns[2 + i].ColumnName = string.Format("GroupBy {0}", 2 + i);
+
+            string groupMaxused = "";
+            string groupMinused = "";
+
             for (int i = 0; i < dtt.Rows.Count; i++)
             {
+                string groupusing = "";
+                for (int j = 0; j < GroupByCol.Length; j++) groupusing += dtt.Rows[i][string.Format("GroupBy {0}", 2 + j)].ToString();
                 dtt.Rows[i]["RowNum"] = i + 1;
                 if (_maxVisible)
                 {
                     if (!(dtt.Rows[i]["MaxOnly"].ToString() == Mtblib.Tools.MtbTools.MISSINGVALUE.ToString()))
                     {
-                        Mtblib.Graph.Component.LabelPosition alabelmax = new Mtblib.Graph.Component.LabelPosition();
-                        alabelmax.Model = 1;
-                        alabelmax.RowId = i + 1;
-                        alabelmax.Placement = new double[2] { 1, 1 };
-                        _boxplot.IndivDatlab.PositionList.Add(alabelmax);
+                        if (groupusing != groupMaxused)
+                        {
+                            Mtblib.Graph.Component.LabelPosition alabelmax = new Mtblib.Graph.Component.LabelPosition();
+                            alabelmax.Model = 1;
+                            alabelmax.RowId = i + 1;
+                            //double tmpMax = 0;
+                            //double.TryParse(dtt.Rows[i]["MaxOnly"].ToString(), out tmpMax);
+                            //if (DatlabOptionAtBoxPlot.AutoDecimal) alabelmax.Text = Math.Round(tmpMax, 3).ToString();
+                            //else alabelmax.Text = Math.Round(tmpMax, DatlabOptionAtBoxPlot.DecimalPlace).ToString();
+                            alabelmax.Placement = new double[2] { 1, 1 };
+                            _boxplot.IndivDatlab.PositionList.Add(alabelmax);
+                            groupMaxused = groupusing;
+                        }
+                        else
+                        {
+                            Mtblib.Graph.Component.LabelPosition alabelmax = new Mtblib.Graph.Component.LabelPosition();
+                            alabelmax.Model = 1;
+                            alabelmax.RowId = i + 1;
+                            alabelmax.Text = "";
+                            //alabelmax.Placement = new double[2] { 1, 1 };
+                            _boxplot.IndivDatlab.PositionList.Add(alabelmax);
+                        }
                     }
                 }
                 if (_minVisible)
                 {
                     if (!(dtt.Rows[i]["MinOnly"].ToString() == Mtblib.Tools.MtbTools.MISSINGVALUE.ToString()))
                     {
-                        Mtblib.Graph.Component.LabelPosition alabelmin = new Mtblib.Graph.Component.LabelPosition();
-                        alabelmin.Model = 1;
-                        alabelmin.RowId = i + 1;
-                        alabelmin.Placement = new double[2] { 1, -1 };
-                        _boxplot.IndivDatlab.PositionList.Add(alabelmin);
+                        if (groupusing != groupMinused)
+                        {
+                            Mtblib.Graph.Component.LabelPosition alabelmin = new Mtblib.Graph.Component.LabelPosition();
+                            alabelmin.Model = 1;
+                            alabelmin.RowId = i + 1;
+                            //double tmpMin = 0;
+                            //double.TryParse(dtt.Rows[i]["MinOnly"].ToString(), out tmpMin);
+                            //if (DatlabOptionAtBoxPlot.AutoDecimal) alabelmin.Text = Math.Round(tmpMin, 3).ToString();
+                            //else alabelmin.Text = Math.Round(tmpMin, DatlabOptionAtBoxPlot.DecimalPlace).ToString();
+                            //alabelmin.Text = dtt.Rows[i]["MinOnly"].ToString();
+                            alabelmin.Placement = new double[2] { 1, -1 };
+                            _boxplot.IndivDatlab.PositionList.Add(alabelmin);
+                            groupMinused = groupusing;
+                        }
+                        else
+                        {
+                            Mtblib.Graph.Component.LabelPosition alabelmin = new Mtblib.Graph.Component.LabelPosition();
+                            alabelmin.Model = 1;
+                            alabelmin.RowId = i + 1;
+                            alabelmin.Text = "";
+                            //alabelmin.Placement = new double[2] { 1, -1 };
+                            _boxplot.IndivDatlab.PositionList.Add(alabelmin);
+                        }
                     }
                 }
             }

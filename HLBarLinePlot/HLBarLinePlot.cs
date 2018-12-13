@@ -359,6 +359,36 @@ namespace MtbGraph.HLBarLinePlot
         public DatalabOption DatlabOptionAtBoxPlotIndiv { get { return _datlabOptAtBoxPlotIndiv; } }
         private DatalabOption _datlabOptAtBoxPlotIndiv;
 
+        private double _boxplotmeansymbolsize;
+        /// <summary>
+        /// 設定 Mean symbol size
+        /// </summary>
+        public double BoxPlotMeanSymbolSize {
+            //get { return _boxplot.Mean.Size; }
+            get { return _boxplotmeansymbolsize; }
+            set
+            {
+                _boxplotmeansymbolsize = value;
+                _boxplot.Mean.Size = (dynamic)_boxplotmeansymbolsize;
+            }
+        }
+
+        private double _boxplotindivsymbolsize;
+        /// <summary>
+        /// 設定 Individual symbol size
+        /// </summary>
+        public double BoxPlotIndivSymbolSize
+        {
+            get { return _boxplotindivsymbolsize; }
+            //get { return _boxplot.Individual.Size; }
+            set
+            {
+                _boxplotindivsymbolsize = value;
+                _boxplot.Individual.Size = (dynamic)_boxplotindivsymbolsize;
+            }
+        }
+
+
         /// <summary>
         /// 設定分割的比例值(由下往上所占的比例)
         /// </summary>
@@ -409,6 +439,9 @@ namespace MtbGraph.HLBarLinePlot
             _boxplot.Mean.Size = 1.5;
             _boxplot.Individual.Visible = true;
             _boxplot.Individual.Color = 20; // Medium Gray
+
+            _boxplotmeansymbolsize = 1.5;
+            _boxplotindivsymbolsize = 1;
 
             _boxplot.IQRBox.Visible = false;
             _boxplot.Whisker.Visible = false;
@@ -690,10 +723,7 @@ namespace MtbGraph.HLBarLinePlot
                 _chart.DataLabel.LabelColumn = "dlab";
             }
 
-
-            //if (!BoxPlotVisibleOnly)
-            //{
-                #region 建立 Bar chart
+            #region 建立 Bar chart
                 cmnd.AppendFormat("chart {0}(y) &\r\n", _chart.FuncType.ToString());
                 if (gps != null)
                 {
@@ -819,6 +849,7 @@ namespace MtbGraph.HLBarLinePlot
                 cmnd.Append(_chart.GetAnnotationCommand());
                 cmnd.AppendLine(".");
                 #endregion
+                
 
                 if (pane == null && DatlabOptionAtBoxPlot.AutoDecimal == false)
                 {
@@ -870,23 +901,85 @@ namespace MtbGraph.HLBarLinePlot
                         cmnd.AppendFormat("let dlabtrnd = if(trnd=dlabmin, text(round(trnd,{0})), \"\" )\r\n", 3);
                     else;
                 }
+                //cmnd.AppendFormat("let dlabtrnd = if(trnd=dlabmin, \"\", \"\" )\r\n");
+                //cmnd.AppendFormat("let dlabtrnd = if(trnd=dlabmin, MISS(), MISS() )\r\n");
+                //cmnd.AppendFormat("let dlabtrnd = if(trnd=dlabmin, *, * )\r\n");
+
                 _boxplot.IndivDatlab.DatlabType = Mtblib.Graph.Component.Datlab.DisplayType.Column;
-                _boxplot.IndivDatlab.LabelColumn = "dlabtrnd";
+                _boxplot.IndivDatlab.LabelColumn = "dlabtrnd"; // no need or need missing
 
-                // add for to increase this?
-                //Mtblib.Graph.Component.LabelPosition alabelmax = new Mtblib.Graph.Component.LabelPosition();
-                //alabelmax.Model = 1;
-                //alabelmax.RowId = 2;
-                //alabelmax.Placement = new double[2] { 1, -1 };
-
-                //Mtblib.Graph.Component.LabelPosition alabelmin = new Mtblib.Graph.Component.LabelPosition();
-                //alabelmin.Model = 1;
-                //alabelmin.RowId = 11;
-                //alabelmin.Placement = new double[2] { 1, 1 };
-                //_boxplot.IndivDatlab.PositionList.Add(alabelmax);
-                //_boxplot.IndivDatlab.PositionList.Add(alabelmin);
-
+                #region label在Minitab裡 PCR20181025, delete after test
                 //將要label的值算出並儲存
+                //StringBuilder cmnd22 = new StringBuilder();
+                //cmnd22.AppendLine("Name c1000 \"Minimum\" c999 \"Maximum\" c998 \"MinOnly\" c997 \"MaxOnly\"");
+                //for (int i = 0; i < ((Mtb.Column[])GroupingBy).Select(x => x.SynthesizedName).Count(); i++)
+                //{
+                //    cmnd22.AppendFormat("Name c{0} \"ByVar{1}\" \r\n", 996 - i, i + 1);
+                //}
+                ////cmnd22.AppendLine("Name c29 \"ByVar1\" c30 \"ByVar2\" c31 \"Minimum\" c32 \"Maximum\" c33 \"MinOnly\" c34 \"MaxOnly\"");
+                //cmnd22.AppendFormat("stat {0}; \r\n", string.Join(" &\r\n", ((Mtb.Column[])VariablesAtBoxPlot).Select(x => x.SynthesizedName).ToArray()));
+                //cmnd22.AppendFormat(" by {0}; \r\n", string.Join(" ", ((Mtb.Column[])GroupingBy).Select(x => x.SynthesizedName).ToArray()));
+                //cmnd22.AppendLine("Expand;");
+                //cmnd22.AppendFormat("gval 'ByVar{0}'-'ByVar{1}'; \r\n", 1, ((Mtb.Column[])GroupingBy).Select(x => x.SynthesizedName).Count());
+                ////cmnd22.AppendFormat("gval {0}; \r\n", "'ByVar1' 'ByVar2'");
+                //cmnd22.AppendLine("Minimum 'Minimum';");
+                //cmnd22.AppendLine("Maximum 'Maximum'.");
+                //if (_minVisible) cmnd22.AppendFormat("let MinOnly = if( {0} = Minimum, {1}, MISS()) \r\n", VariablesAtBoxPlot[0].SynthesizedName.ToString(), VariablesAtBoxPlot[0].SynthesizedName.ToString());
+                //else cmnd22.AppendFormat("let MinOnly = if( {0} = Minimum, MISS(), MISS()) \r\n", VariablesAtBoxPlot[0].SynthesizedName.ToString());
+                //if (_maxVisible) cmnd22.AppendFormat("let MaxOnly = if( {0} = Maximum, {1}, MISS()) \r\n", VariablesAtBoxPlot[0].SynthesizedName.ToString(), VariablesAtBoxPlot[0].SynthesizedName.ToString());
+                //else cmnd22.AppendFormat("let MaxOnly = if( {0} = Maximum, MISS(), MISS()) \r\n", VariablesAtBoxPlot[0].SynthesizedName.ToString());
+
+                //string fpath = Mtblib.Tools.MtbTools.BuildTemporaryMacro("mycode.mtb", cmnd22.ToString());
+                //_proj.ExecuteCommand(string.Format("exec \"{0}\" 1", fpath));
+
+                //List<Mtb.Column> _dataCols = new List<Mtb.Column>();
+
+                //dynamic maxby = "MaxOnly";
+                //dynamic MaxBy = Mtblib.Tools.MtbTools.GetMatchColumns(maxby, _ws);
+                //Mtb.Column[] MaxByCol = (Mtb.Column[])MaxBy;
+                //_dataCols.Add(MaxByCol[0]);
+
+                //dynamic minby = "MinOnly";
+                //dynamic MinBy = Mtblib.Tools.MtbTools.GetMatchColumns(minby, _ws);
+                //Mtb.Column[] MinByCol = (Mtb.Column[])MinBy;
+                //_dataCols.Add(MinByCol[0]);
+
+                //System.Data.DataTable dtt = new System.Data.DataTable();
+                //dtt = Mtblib.Tools.MtbTools.GetDataTableFromMtbCols(_dataCols.ToArray());
+                //dtt.Columns.Add(new DataColumn("RowNum", typeof(int)));
+                //dtt.Columns[0].ColumnName = "MaxOnly";
+                //dtt.Columns[1].ColumnName = "MinOnly";
+
+                //// 調整label位置
+                //for (int i = 0; i < dtt.Rows.Count; i++)
+                //{
+                //    dtt.Rows[i]["RowNum"] = i + 1;
+                //    if (_maxVisible)
+                //    {
+                //        if (!(dtt.Rows[i]["MaxOnly"].ToString() == Mtblib.Tools.MtbTools.MISSINGVALUE.ToString()))
+                //        {
+                //            Mtblib.Graph.Component.LabelPosition alabelmax = new Mtblib.Graph.Component.LabelPosition();
+                //            alabelmax.Model = 1;
+                //            alabelmax.RowId = i + 1;
+                //            alabelmax.Placement = new double[2] { 1, 1 };
+                //            _boxplot.IndivDatlab.PositionList.Add(alabelmax);
+                //        }
+                //    }
+
+                //    if (_minVisible)
+                //    {
+                //        if (!(dtt.Rows[i]["MinOnly"].ToString() == Mtblib.Tools.MtbTools.MISSINGVALUE.ToString()))
+                //        {
+                //            Mtblib.Graph.Component.LabelPosition alabelmin = new Mtblib.Graph.Component.LabelPosition();
+                //            alabelmin.Model = 1;
+                //            alabelmin.RowId = i + 1;
+                //            alabelmin.Placement = new double[2] { 1, -1 };
+                //            _boxplot.IndivDatlab.PositionList.Add(alabelmin);
+                //        }
+                //    }
+                //}
+                #endregion
+                #region label 跟 group 讀近c#處理
                 StringBuilder cmnd22 = new StringBuilder();
                 cmnd22.AppendLine("Name c1000 \"Minimum\" c999 \"Maximum\" c998 \"MinOnly\" c997 \"MaxOnly\"");
                 for (int i = 0; i < ((Mtb.Column[])GroupingBy).Select(x => x.SynthesizedName).Count(); i++)
@@ -921,25 +1014,52 @@ namespace MtbGraph.HLBarLinePlot
                 Mtb.Column[] MinByCol = (Mtb.Column[])MinBy;
                 _dataCols.Add(MinByCol[0]);
 
+                Mtb.Column[] GroupByCol = (Mtb.Column[])GroupingBy;
+                for (int i = 0; i < GroupByCol.Length; i++) _dataCols.Add(GroupByCol[i]);
+
                 System.Data.DataTable dtt = new System.Data.DataTable();
                 dtt = Mtblib.Tools.MtbTools.GetDataTableFromMtbCols(_dataCols.ToArray());
                 dtt.Columns.Add(new DataColumn("RowNum", typeof(int)));
                 dtt.Columns[0].ColumnName = "MaxOnly";
                 dtt.Columns[1].ColumnName = "MinOnly";
+                for (int i = 0; i < GroupByCol.Length; i++)
+                    dtt.Columns[2 + i].ColumnName = string.Format("GroupBy {0}", 2 + i);
 
                 // 調整label位置
+                string groupMaxused = "";
+                string groupMinused = "";
                 for (int i = 0; i < dtt.Rows.Count; i++)
                 {
+                    string groupusing = "";
+                    for (int j = 0; j < GroupByCol.Length; j++) groupusing += dtt.Rows[i][string.Format("GroupBy {0}", 2 + j)].ToString();
                     dtt.Rows[i]["RowNum"] = i + 1;
                     if (_maxVisible)
                     {
                         if (!(dtt.Rows[i]["MaxOnly"].ToString() == Mtblib.Tools.MtbTools.MISSINGVALUE.ToString()))
                         {
-                            Mtblib.Graph.Component.LabelPosition alabelmax = new Mtblib.Graph.Component.LabelPosition();
-                            alabelmax.Model = 1;
-                            alabelmax.RowId = i + 1;
-                            alabelmax.Placement = new double[2] { 1, 1 };
-                            _boxplot.IndivDatlab.PositionList.Add(alabelmax);
+                            if(groupusing != groupMaxused)
+                            {
+                                Mtblib.Graph.Component.LabelPosition alabelmax = new Mtblib.Graph.Component.LabelPosition();
+                                alabelmax.Model = 1;
+                                alabelmax.RowId = i + 1;
+                                //double tmpMax = 0;
+                                //double.TryParse(dtt.Rows[i]["MaxOnly"].ToString(), out tmpMax);
+                                //if (DatlabOptionAtBoxPlot.AutoDecimal) alabelmax.Text = Math.Round(tmpMax, 3).ToString();
+                                //else alabelmax.Text = Math.Round(tmpMax, DatlabOptionAtBoxPlotIndiv.DecimalPlace).ToString();
+                                //alabelmax.Text = dtt.Rows[i]["MaxOnly"].ToString();
+                                alabelmax.Placement = new double[2] { 1, 1 };
+                                _boxplot.IndivDatlab.PositionList.Add(alabelmax);
+                                groupMaxused = groupusing;
+                            }
+                            else
+                            {
+                                Mtblib.Graph.Component.LabelPosition alabelmax = new Mtblib.Graph.Component.LabelPosition();
+                                alabelmax.Model = 1;
+                                alabelmax.RowId = i + 1;
+                                alabelmax.Text = "";
+                                //alabelmax.Placement = new double[2] { 1, 1 };
+                                _boxplot.IndivDatlab.PositionList.Add(alabelmax);
+                            }
                         }
                     }
 
@@ -947,15 +1067,33 @@ namespace MtbGraph.HLBarLinePlot
                     {
                         if (!(dtt.Rows[i]["MinOnly"].ToString() == Mtblib.Tools.MtbTools.MISSINGVALUE.ToString()))
                         {
-                            Mtblib.Graph.Component.LabelPosition alabelmin = new Mtblib.Graph.Component.LabelPosition();
-                            alabelmin.Model = 1;
-                            alabelmin.RowId = i + 1;
-                            alabelmin.Placement = new double[2] { 1, -1 };
-                            _boxplot.IndivDatlab.PositionList.Add(alabelmin);
+                            if (groupusing != groupMinused)
+                            {
+                                Mtblib.Graph.Component.LabelPosition alabelmin = new Mtblib.Graph.Component.LabelPosition();
+                                alabelmin.Model = 1;
+                                alabelmin.RowId = i + 1;
+                                //double tmpMin = 0;
+                                //double.TryParse(dtt.Rows[i]["MinOnly"].ToString(), out tmpMin);
+                                //if (DatlabOptionAtBoxPlot.AutoDecimal) alabelmin.Text = Math.Round(tmpMin, 3).ToString();
+                                //else alabelmin.Text = Math.Round(tmpMin, DatlabOptionAtBoxPlotIndiv.DecimalPlace).ToString();
+                                //alabelmin.Text = dtt.Rows[i]["MinOnly"].ToString();
+                                alabelmin.Placement = new double[2] { 1, -1 };
+                                _boxplot.IndivDatlab.PositionList.Add(alabelmin);
+                                groupMinused = groupusing;
+                            }
+                            else
+                            {
+                                Mtblib.Graph.Component.LabelPosition alabelmin = new Mtblib.Graph.Component.LabelPosition();
+                                alabelmin.Model = 1;
+                                alabelmin.RowId = i + 1;
+                                alabelmin.Text = "";
+                                //alabelmin.Placement = new double[2] { 1, -1 };
+                                _boxplot.IndivDatlab.PositionList.Add(alabelmin);
+                            }
                         }
                     }
                 }
-
+                #endregion
             }
             else { }
             #endregion

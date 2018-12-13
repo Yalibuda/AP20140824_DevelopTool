@@ -36,6 +36,8 @@ namespace MtbGraph.HLBarLinePlot
         /// </summary>
         double Division { set; get; }
         bool BoxPlotVisibleOnly { get; set; }
+        double BoxPlotMeanSymbolSize { get; set; }
+        double BoxPlotIndivSymbolSize { get; set; }
         string GSave { set; get; }
         void SetMtbEnvironment(Mtb.Project proj, Mtb.Worksheet ws);
         void Run();
