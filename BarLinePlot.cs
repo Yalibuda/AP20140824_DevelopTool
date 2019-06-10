@@ -45,8 +45,10 @@ namespace MtbGraph
             BarRef = new Reference(ScaleType.Y_axis);
             TrendRef = new Reference(ScaleType.Y_axis);
             LegendBox = new BarLineLegendBox();
+            LegendBox.FontSize = 12; // 應該是LegendBox 初始化先給比較好,暫時先在此initialize
             this.dLineColor = new int[5] { 64, 9, 12, 18, 34 }; // remove the default color to avoid red for using
             this.dLineType = new int[5] { 1, 1, 1, 1, 1 }; // change all default line type to 1
+            this.dFillColor = new int[14] { 127, 7, 58, 116, 78, 29, 45, 123, 35, 73, 8, 49, 57, 26 }; // remove red
         }
         public void CreateBarLinePlot(Mtb.Project proj, Mtb.Worksheet ws, BarTypes btype = BarTypes.Stack)
         {
@@ -577,10 +579,10 @@ namespace MtbGraph
                 mtbCmnd.Append("  OVER;\r\n   VLAST;\r\n");
                 mtbCmnd.Append("  BAR;\r\n   VASS;\r\n");
                 mtbCmnd.Append("  Color "); // PCR20180827
-                for (int i = 0; i < dBarColor.Length; i++)
+                for (int i = 0; i < dFillColor.Length; i++)
                 {
-                    mtbCmnd.AppendFormat("{0} ", dBarColor[i].ToString());
-                    if (i == (dBarColor.Length - 1)) mtbCmnd.Append(";\r\n");
+                    mtbCmnd.AppendFormat("{0} ", dFillColor[i].ToString());
+                    if (i == (dFillColor.Length - 1)) mtbCmnd.Append(";\r\n");
                 }
                 if (!showBarEdge) mtbCmnd.Append("    ETYPE 0;\r\n");
             }
@@ -1185,6 +1187,6 @@ namespace MtbGraph
         private bool isShowSecScale = true;
         //private double xlabAglign = 45;
 
-        private int[] dBarColor = new int[5] { 127, 7, 58, 116, 78 }; // prepare for bar default colors
+        //private int[] dBarColor = new int[5] { 127, 7, 58, 116, 78 }; // prepare for bar default colors
     }
 }
