@@ -69,10 +69,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MathNet.Numerics">
-      <HintPath>packages\MathNet.Numerics.3.3.0\lib\net40\MathNet.Numerics.dll</HintPath>
+      <HintPath>bin\Release\v_3.3.6\MathNet.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="Mtblib">
-      <HintPath>..\Mtblib\Mtblib\bin\Release\Mtblib.dll</HintPath>
+      <HintPath>..\..\..\00.GeneralTool\Mtblib\Mtblib\bin\Release\Mtblib.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -92,7 +92,10 @@
   <ItemGroup>
     <Compile Include="BarChart\Chart.cs" />
     <Compile Include="Component\Adapter_Footnote.cs" />
+    <Compile Include="Component\Adapter_LabelPosition.cs" />
     <Compile Include="Component\IFootnote.cs" />
+    <Compile Include="Component\ILabelPosition.cs" />
+    <Compile Include="Component\IPosition.cs" />
     <Compile Include="Component\Region\Adapter_Graph.cs" />
     <Compile Include="Component\Region\IGraph.cs" />
     <Compile Include="HLBarLinePlot\HLBarLinePlot.cs" />

@@ -363,7 +363,10 @@ namespace MtbGraph
 
             if (barColList.Count == 1)
             {
-                mtbCmnd.Append("TSET " + colStr[2] + "\r\n " + n + "(\"" + ws.Columns.Item(barColList[0]).Label + "\")\r\n END\r\n");
+                //mtbCmnd.Append("TSET " + colStr[2] + "\r\n " + n + "(\"" + ws.Columns.Item(barColList[0]).Label + "\")\r\n END\r\n");
+                mtbCmnd.Append("Stack "+ barStr + " C1000 C999;\r\n");
+                mtbCmnd.Append("Subs " + colStr[2] + ";\r\n");
+                mtbCmnd.Append("Usen.");
             }
 
             //Prepare stacked bar chart data label
@@ -962,7 +965,7 @@ namespace MtbGraph
 
             mtbCmnd.Clear();
             mtbCmnd.Append("ERASE " + colStr[0] + "-" + colStr[colStr.Length - 1] + " " +
-                constStr[0] + "-" + constStr[constStr.Length - 1] + " " + trndgroupCol[0] + "\r\n");
+                constStr[0] + "-" + constStr[constStr.Length - 1] + " " + trndgroupCol[0] + " C999 C1000" + "\r\n");
             mtbCmnd.Append("TITLE\r\nBRIEF 2\r\n");
 
             sw = new StreamWriter(path);
