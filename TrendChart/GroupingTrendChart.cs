@@ -39,6 +39,15 @@ namespace MtbGraph.TrendChart
             //_y2LabelVisible = true;
             #endregion
             Datlab.Visible = Y1LabelVisible = Y2LabelVisible = true;
+
+            #region PCR20190731
+            Y1OOSDatlabColor = 8;
+            Y2OOSDatlabColor = 8;
+            Y1OOSSymbolColor = 8;
+            Y2OOSSymbolColor = 8;
+            Y1DatlabColor = COLOR[0];
+            Y2DatlabColor = COLOR[1];
+            #endregion
         }
 
         /// <summary>
@@ -185,6 +194,24 @@ namespace MtbGraph.TrendChart
 
         #region PCR 201810XX(未開放)
         /// <summary>
+        /// 設定 y1 equal zero visible
+        /// </summary>
+        public void SetY1ZeroVisible(dynamic var)
+        {
+            if (var != null) _y1zerovisible = var;
+        }
+        private bool? _y1zerovisible = true;
+
+        /// <summary>
+        /// 設定 y1 equal zero visible
+        /// </summary>
+        public void SetY2ZeroVisible(dynamic var)
+        {
+            if (var != null) _y2zerovisible = var;
+        }
+        private bool? _y2zerovisible = true;
+
+        /// <summary>
         /// OOS Symbol Size
         /// </summary>
         private string _oossymbolsize = "1.0";
@@ -197,18 +224,115 @@ namespace MtbGraph.TrendChart
         {
             OOSSymbolSize = var;
         }
+
+        private bool nooosdatlabvisible = true;
+        private bool NoOOSDatlabVisible
+        {
+            get { return nooosdatlabvisible; }
+            set { nooosdatlabvisible = value; }
+        }
         /// <summary>
-        /// OOS Symbol Size
+        /// 設定無OOS datlab是否顯示
         /// </summary>
-        private int? _oossymbolcolor = 8;
-        private dynamic OOSSymbolColor
+        public void SetNoOOSDatlabVisible(dynamic var)
         {
-            get { return _oossymbolcolor; }
-            set { _oossymbolcolor = value; }
-        }   
-        public void SetOOSSymbolColor(dynamic var)
+            NoOOSDatlabVisible = var;
+        }
+        ///// <summary>
+        ///// OOS Symbol Size
+        ///// </summary>
+        //private int? _oossymbolcolor = 8;
+        //private dynamic OOSSymbolColor
+        //{
+        //    get { return _oossymbolcolor; }
+        //    set { _oossymbolcolor = value; }
+        //}   
+        //public void SetOOSSymbolColor(dynamic var)
+        //{
+        //    OOSSymbolColor = var;
+        //}
+
+
+
+        /// <summary>
+        /// Y1 OOS Symbol Color
+        /// </summary>
+        private int? _y1oossymbolcolor;
+        private dynamic Y1OOSSymbolColor
         {
-            OOSSymbolColor = var;
+            get { return _y1oossymbolcolor; }
+            set { _y1oossymbolcolor = value; }
+        }
+        public void SetY1OOSSymbolColor(dynamic var)
+        {
+            Y1OOSSymbolColor = var;
+        }
+        /// <summary>
+        /// Y2 OOS Symbol Color
+        /// </summary>
+        private int? _y2oossymbolcolor;
+        private dynamic Y2OOSSymbolColor
+        {
+            get { return _y2oossymbolcolor; }
+            set { _y2oossymbolcolor = value; }
+        }
+        public void SetY2OOSSymbolColor(dynamic var)
+        {
+            Y2OOSSymbolColor = var;
+        }
+
+        /// <summary>
+        /// Y1 OOS Symbol Size
+        /// </summary>
+        private int? _y1oosdatlabcolor;
+        private dynamic Y1OOSDatlabColor
+        {
+            get { return _y1oosdatlabcolor; }
+            set { _y1oosdatlabcolor = value; }
+        }
+        public void SetY1OOSDatlabColor(dynamic var)
+        {
+            Y1OOSDatlabColor = var;
+        }
+        /// <summary>
+        /// Y2 OOS Datlab Color
+        /// </summary>
+        private int? _y2oosdatlabcolor;
+        private dynamic Y2OOSDatlabColor
+        {
+            get { return _y2oosdatlabcolor; }
+            set { _y2oosdatlabcolor = value; }
+        }
+        public void SetY2OOSDatlabColor(dynamic var)
+        {
+            Y2OOSDatlabColor = var;
+        }
+
+        /// <summary>
+        /// Y1 OOS Symbol Size
+        /// </summary>
+        private int? _y1datlabcolor;
+        private dynamic Y1DatlabColor
+        {
+            get { return _y1datlabcolor; }
+            set { _y1datlabcolor = value; }
+        }
+        public void SetY1DatlabColor(dynamic var)
+        {
+            Y1DatlabColor = var;
+        }
+        /// <summary>
+        /// Y2 OOS Datlab Color
+        /// </summary>
+        private int? _y2datlabcolor;
+        private dynamic Y2DatlabColor
+        {
+            get { return _y2datlabcolor; }
+            set { _y2datlabcolor = value; }
+        }
+        public void SetY2DatlabColor(dynamic var)
+        {
+            Y2DatlabColor = var;
         }
 
         /// <summary>
@@ -217,6 +341,7 @@ namespace MtbGraph.TrendChart
         public void SetY1Color(dynamic var)
         {
             COLOR[0] = var;
+            if (!(Y1DatlabColor != 64)) Y1DatlabColor = COLOR[0];
         }
         ///<summary>
         /// 設定Y2 COLOR
@@ -224,6 +349,7 @@ namespace MtbGraph.TrendChart
         public void SetY2Color(dynamic var)
         {
             COLOR[1] = var;
+            if (!(Y1DatlabColor != 9)) Y1DatlabColor = COLOR[1];
         }
 
         /// <summary>
@@ -394,6 +520,14 @@ namespace MtbGraph.TrendChart
                 stmp = (Mtb.Column[])_tsplot.Stamp;
             }
 
+            StringBuilder execcmd = new StringBuilder();
+            execcmd.AppendLine("Sort;");
+            execcmd.AppendFormat("  By ");
+            for (int i = 0; i < _xgroups.Count(); i++) execcmd.AppendFormat("'{0}' ", _xgroups[i].Name);
+            execcmd.AppendLine(";");
+            execcmd.AppendLine("  Original.");
+            string fpathtmp = Mtblib.Tools.MtbTools.BuildTemporaryMacro("exectmp.mtb", execcmd.ToString());
+            _proj.ExecuteCommand(string.Format("exec \"{0}\" 1", fpathtmp));
 
             StringBuilder cmnd = new StringBuilder();
 
@@ -652,7 +786,9 @@ namespace MtbGraph.TrendChart
             if (_y2Target != null) dty2target = Mtblib.Tools.MtbTools.GetDataTableFromMtbCols(_y2Target);
 
             #region get grouping id and row id
-            StringBuilder execcmd = new StringBuilder();
+
+            execcmd.Clear();
+            execcmd.AppendLine("Erase C990-C1000.");
             execcmd.AppendLine("Name C1000 'RowId_tmp'");
             execcmd.AppendLine("Set 'RowId_tmp'");
             execcmd.AppendFormat("1(1 : {0} / 1)1 \r\n", dttmp.Rows.Count);
@@ -670,7 +806,7 @@ namespace MtbGraph.TrendChart
             execcmd.Append(";\r\n");
             execcmd.AppendLine("CumN 'GroupingId_tmp'.");
 
-            string fpathtmp = Mtblib.Tools.MtbTools.BuildTemporaryMacro("exectmp.mtb", execcmd.ToString());
+            fpathtmp = Mtblib.Tools.MtbTools.BuildTemporaryMacro("exectmp.mtb", execcmd.ToString());
             _proj.ExecuteCommand(string.Format("exec \"{0}\" 1", fpathtmp));
 
             Mtb.Column[] rowid_column = Mtblib.Tools.MtbTools.GetMatchColumns("C1000", _ws);
@@ -701,11 +837,11 @@ namespace MtbGraph.TrendChart
                 if (Y1LabelVisible == true) // now follow datlab.visible
                 {
                     
-                    labelpositionitem.FontColor = COLOR[0]; // default 50, light green 
+                    labelpositionitem.FontColor = Y1DatlabColor; // default 64, light green 
                     for (int j = 0; j < Y1Decimal; j++) decimaltmp *= 10;
                     labelstring = (Math.Round(decimaltmp * (double)dttmp.Rows[i].ItemArray[0]) / decimaltmp).ToString();
 
-                    if (_y1Target != null && (double)dty1target.Rows[i].ItemArray[0] != 0) //有目標
+                    if (_y1Target != null && (double)dty1target.Rows[i].ItemArray[0] != 0) //有目標且目標不為0
                     {
                         if (_ifonlylastlabel) // only last visible
                         {
@@ -714,8 +850,8 @@ namespace MtbGraph.TrendChart
                             else //分群最後一個label
                             {
                                 labelpositionitem.FontColor =
-                                    ((double)dttmp.Rows[i].ItemArray[0] > (double)dty1target.Rows[i].ItemArray[0]) ? OOSSymbolColor : COLOR[0];
-
+                                    ((double)dttmp.Rows[i].ItemArray[0] > (double)dty1target.Rows[i].ItemArray[0]) ? Y1OOSDatlabColor : Y1DatlabColor;
+                                if ((double)dttmp.Rows[i].ItemArray[0] == 0 & _y1zerovisible == false) labelstring = "";
                                 //if oos, change color and size
                                 dataViewPositionItem = new Mtblib.Graph.Component.DataView.DataViewPosition(Mtblib.Graph.Component.DataView.DataViewPosition.DataViewType.Symbol);
                                 dataViewPositionItem.Model = labelpositionitem.Model;
@@ -725,12 +861,12 @@ namespace MtbGraph.TrendChart
                                 if (_symbolcolor != 0)
                                 {
                                     dataViewPositionItem.Color =
-                                    ((double)dttmp.Rows[i].ItemArray[0] > (double)dty1target.Rows[i].ItemArray[0]) ? OOSSymbolColor : _symbolcolor;
+                                    ((double)dttmp.Rows[i].ItemArray[0] > (double)dty1target.Rows[i].ItemArray[0]) ? Y1OOSSymbolColor : _symbolcolor;
                                 }
                                 else
                                 {
                                     dataViewPositionItem.Color =
-                                    ((double)dttmp.Rows[i].ItemArray[0] > (double)dty1target.Rows[i].ItemArray[0]) ? OOSSymbolColor : COLOR[0];
+                                    ((double)dttmp.Rows[i].ItemArray[0] > (double)dty1target.Rows[i].ItemArray[0]) ? Y1OOSSymbolColor : COLOR[0];
                                 }
                                 dataViewPositionsList.Add(dataViewPositionItem);
                             }
@@ -739,9 +875,9 @@ namespace MtbGraph.TrendChart
                         {
                             if ((double)dttmp.Rows[i].ItemArray[0] > (double)dty1target.Rows[i].ItemArray[0]) //oos
                             {
-                                labelpositionitem.FontColor = OOSSymbolColor; //改顏色? user define
-
-                                //調整color and symbol
+                                labelpositionitem.FontColor = Y1OOSDatlabColor; //改顏色? user define
+                                if ((double)dttmp.Rows[i].ItemArray[0] == 0 & _y1zerovisible == false) labelstring = "";
+                                    //調整color and symbol
                                 dataViewPositionItem = new Mtblib.Graph.Component.DataView.DataViewPosition(Mtblib.Graph.Component.DataView.DataViewPosition.DataViewType.Symbol);
                                 dataViewPositionItem.Model = labelpositionitem.Model;
                                 dataViewPositionItem.RowId = i + 1;
@@ -750,16 +886,16 @@ namespace MtbGraph.TrendChart
                                 if (_symbolcolor != 0)
                                 {
                                     dataViewPositionItem.Color =
-                                   ((double)dttmp.Rows[i].ItemArray[0] > (double)dty1target.Rows[i].ItemArray[0]) ? OOSSymbolColor : _symbolcolor;
+                                   ((double)dttmp.Rows[i].ItemArray[0] > (double)dty1target.Rows[i].ItemArray[0]) ? Y1OOSSymbolColor : _symbolcolor;
                                 }
                                 else
                                 {
                                     dataViewPositionItem.Color =
-                                   ((double)dttmp.Rows[i].ItemArray[0] > (double)dty1target.Rows[i].ItemArray[0]) ? OOSSymbolColor : COLOR[0];
+                                   ((double)dttmp.Rows[i].ItemArray[0] > (double)dty1target.Rows[i].ItemArray[0]) ? Y1OOSSymbolColor : COLOR[0];
                                 }
                                 dataViewPositionsList.Add(dataViewPositionItem);
                             }
-                            else labelstring = "";
+                            else if (!NoOOSDatlabVisible) labelstring = "";
                         }
                         labelpositionitem.Text = labelstring;
                         _tsplot.DataLabel.PositionList.Add(labelpositionitem);
@@ -786,6 +922,7 @@ namespace MtbGraph.TrendChart
                         if (_ifonlylastlabel)
                             //非分群最後一個 label ""
                             if (rowid.Rows[i].ItemArray[0].ToString() != groupingid.Rows[i].ItemArray[0].ToString()) labelstring = "";
+                        if ((double)dttmp.Rows[i].ItemArray[0] == 0 & _y1zerovisible == false) labelstring = "";
                         labelpositionitem.Text = labelstring;
                         _tsplot.DataLabel.PositionList.Add(labelpositionitem);
                     }
@@ -856,7 +993,7 @@ namespace MtbGraph.TrendChart
                 //Y2LabelVisible = false; // for testing 
                 if (Y2LabelVisible == true)
                 {
-                    labelpositionitem.FontColor = COLOR[1]; 
+                    labelpositionitem.FontColor = Y2DatlabColor; 
                     for (int j = 0; j < Y2Decimal; j++) decimaltmp *= 10;
                     labelstring = (Math.Round(decimaltmp * (double)dttmp.Rows[i].ItemArray[1]) / decimaltmp).ToString();
 
@@ -869,8 +1006,8 @@ namespace MtbGraph.TrendChart
                             else //分群最後一個label
                             {
                                 labelpositionitem.FontColor =
-                                    ((double)dttmp.Rows[i].ItemArray[0] > (double)dty2target.Rows[i].ItemArray[0]) ? OOSSymbolColor : COLOR[1];
-
+                                    ((double)dttmp.Rows[i].ItemArray[0] > (double)dty2target.Rows[i].ItemArray[0]) ? Y2OOSDatlabColor : Y2DatlabColor;
+                                if ((double)dttmp.Rows[i].ItemArray[0] == 0 & _y2zerovisible == false) labelstring = "";
                                 //if oos, change color and size
                                 dataViewPositionItem = new Mtblib.Graph.Component.DataView.DataViewPosition(Mtblib.Graph.Component.DataView.DataViewPosition.DataViewType.Symbol);
                                 dataViewPositionItem.Model = labelpositionitem.Model;
@@ -880,12 +1017,12 @@ namespace MtbGraph.TrendChart
                                 if (_symbolcolor != 0)
                                 {
                                     dataViewPositionItem.Color =
-                                        ((double)dttmp.Rows[i].ItemArray[0] > (double)dty2target.Rows[i].ItemArray[0]) ? OOSSymbolColor : _symbolcolor;
+                                        ((double)dttmp.Rows[i].ItemArray[0] > (double)dty2target.Rows[i].ItemArray[0]) ? Y2OOSSymbolColor : _symbolcolor;
                                 }
                                 else
                                 {
                                     dataViewPositionItem.Color =
-                                        ((double)dttmp.Rows[i].ItemArray[0] > (double)dty2target.Rows[i].ItemArray[0]) ? OOSSymbolColor : COLOR[1];
+                                        ((double)dttmp.Rows[i].ItemArray[0] > (double)dty2target.Rows[i].ItemArray[0]) ? Y2OOSSymbolColor : COLOR[1];
                                 }
                                 dataViewPositionsList.Add(dataViewPositionItem);
                             }
@@ -894,8 +1031,8 @@ namespace MtbGraph.TrendChart
                         {
                             if ((double)dttmp.Rows[i].ItemArray[0] > (double)dty2target.Rows[i].ItemArray[0]) //oos
                             {
-                                labelpositionitem.FontColor = OOSSymbolColor; //改顏色? user define
-
+                                labelpositionitem.FontColor = Y2OOSDatlabColor; //改顏色? user define
+                                if ((double)dttmp.Rows[i].ItemArray[0] == 0 & _y2zerovisible == false) labelstring = "";
                                 //調整color and symbol
                                 dataViewPositionItem = new Mtblib.Graph.Component.DataView.DataViewPosition(Mtblib.Graph.Component.DataView.DataViewPosition.DataViewType.Symbol);
                                 dataViewPositionItem.Model = labelpositionitem.Model;
@@ -905,17 +1042,17 @@ namespace MtbGraph.TrendChart
                                 if (_symbolcolor != 0)
                                 {
                                     dataViewPositionItem.Color =
-                                   ((double)dttmp.Rows[i].ItemArray[1] > (double)dty2target.Rows[i].ItemArray[0]) ? OOSSymbolColor : _symbolcolor;
+                                   ((double)dttmp.Rows[i].ItemArray[1] > (double)dty2target.Rows[i].ItemArray[0]) ? Y2OOSSymbolColor : _symbolcolor;
 
                                 }
                                 else
                                 {
                                     dataViewPositionItem.Color =
-                                   ((double)dttmp.Rows[i].ItemArray[1] > (double)dty2target.Rows[i].ItemArray[0]) ? OOSSymbolColor : COLOR[1];
+                                   ((double)dttmp.Rows[i].ItemArray[1] > (double)dty2target.Rows[i].ItemArray[0]) ? Y2OOSSymbolColor : COLOR[1];
                                 }
                                 dataViewPositionsList.Add(dataViewPositionItem);
                             }
-                            else labelstring = "";
+                            else if (!NoOOSDatlabVisible) labelstring = "";
                         }
                         labelpositionitem.Text = labelstring;
                         _tsplot.DataLabel.PositionList.Add(labelpositionitem);
@@ -925,6 +1062,7 @@ namespace MtbGraph.TrendChart
                         if (_ifonlylastlabel)
                             //非分群最後一個 label ""
                             if (rowid.Rows[i].ItemArray[0].ToString() != groupingid.Rows[i].ItemArray[0].ToString()) labelstring = "";
+                        if ((double)dttmp.Rows[i].ItemArray[0] == 0 & _y2zerovisible == false) labelstring = "";
                         labelpositionitem.Text = labelstring;
                         _tsplot.DataLabel.PositionList.Add(labelpositionitem);
                     }

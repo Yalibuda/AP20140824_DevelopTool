@@ -27,8 +27,18 @@ namespace MtbGraph.TrendChart
         void SetY1Color(dynamic var);
         void SetY2Color(dynamic var);
         bool IfOnlyLastLabel { get; set; }
+        void SetNoOOSDatlabVisible(dynamic var);
         void SetOOSSymbolSize(dynamic var);
-        void SetOOSSymbolColor(dynamic var);
+        //void SetOOSSymbolColor(dynamic var);
+        void SetY1OOSSymbolColor(dynamic var);
+        void SetY2OOSSymbolColor(dynamic var);
+        void SetY1DatlabColor(dynamic var);
+        void SetY2DatlabColor(dynamic var);
+        void SetY1OOSDatlabColor(dynamic var);
+        void SetY2OOSDatlabColor(dynamic var);
+        void SetY1ZeroVisible(dynamic var);
+        void SetY2ZeroVisible(dynamic var);
+        
         void SetSymbolColor(dynamic var);
         Component.Scale.IContScale XScale { get; }
         Component.Scale.IContScale YScale { get; }
