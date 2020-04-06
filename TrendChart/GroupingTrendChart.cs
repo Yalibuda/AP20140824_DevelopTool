@@ -896,6 +896,7 @@ namespace MtbGraph.TrendChart
                                 dataViewPositionsList.Add(dataViewPositionItem);
                             }
                             else if (!NoOOSDatlabVisible) labelstring = "";
+                            else if ((double)dttmp.Rows[i].ItemArray[0] == 0 & _y1zerovisible == false) labelstring = "";
                         }
                         labelpositionitem.Text = labelstring;
                         _tsplot.DataLabel.PositionList.Add(labelpositionitem);
@@ -1053,6 +1054,7 @@ namespace MtbGraph.TrendChart
                                 dataViewPositionsList.Add(dataViewPositionItem);
                             }
                             else if (!NoOOSDatlabVisible) labelstring = "";
+                            else if ((double)dttmp.Rows[i].ItemArray[1] == 0 & _y2zerovisible == false) labelstring = "";
                         }
                         labelpositionitem.Text = labelstring;
                         _tsplot.DataLabel.PositionList.Add(labelpositionitem);
