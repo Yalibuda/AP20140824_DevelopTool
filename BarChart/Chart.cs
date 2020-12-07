@@ -14,7 +14,7 @@ namespace MtbGraph.BarChart
         private Mtb.Worksheet _ws;
         public Chart()
         {
-
+            
         }
         public Chart(Mtb.Project proj, Mtb.Worksheet ws)
         {
@@ -291,7 +291,11 @@ namespace MtbGraph.BarChart
                 }
 
 
-                cmnd.AppendLine("text xx.1-xx.m xx.1-xx.m");
+                //cmnd.AppendLine("text xx.1-xx.m xx.1-xx.m"); // text multi columns only have 8 words, 
+                // at most 3 grouping varibles
+                cmnd.AppendLine("text xx.1 xx.1");
+                cmnd.AppendLine("text xx.2 xx.2");
+                cmnd.AppendLine("text xx.3 xx.3");
                 cmnd.AppendLine("vorder xx.1-xx.m;");
                 cmnd.AppendLine("work.");
             }
