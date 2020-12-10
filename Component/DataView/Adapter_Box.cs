@@ -9,7 +9,7 @@ namespace MtbGraph.Component.DataView
     internal class Adapter_Box : IBox
     {
         Mtblib.Graph.Component.IDataView _dataview;
-        Adapter_Box(Mtblib.Graph.Component.IDataView dataview)
+        public Adapter_Box(Mtblib.Graph.Component.IDataView dataview)
         {
             _dataview = dataview;
         }
