@@ -89,10 +89,16 @@ namespace MtbGraph.Categoricalplot
 
             #region textbox auto computation
             Mtblib.Graph.Component.Annotation.Textbox tb = new Mtblib.Graph.Component.Annotation.Textbox();
-            tb.SetCoordinate(0, -5.655);
-            tb.Text = "\"aaaaaa\raaa\raa\ra\"";
-            tb.Unit = 1;
-            tb.Angle = 0;
+            MtbGraph.Component.Annotation.ITextBox textBox = new MtbGraph.Component.Annotation.Adapter_Textbox(tb);
+            textBox.SetCoordinate(0, -5.655);
+            textBox.Text = "\"aaaaaa\raaa\raa\ra\"";
+            textBox.Unit = 1;
+            textBox.SetBoxposition(-0.5, 0.5, -5.65, -3);
+            cmnd.AppendLine(textBox.GetCommand());
+            //tb.SetCoordinate(0, -5.655);
+            //tb.Text = "\"aaaaaa\raaa\raa\ra\"";
+            //tb.Unit = 1;
+            //tb.Angle = 0;
             // placement 跟 offset很難用, 自己寫textbox語法彌補沒有box位置/大小調整
             //tb.SetCoordinate(0, 5, -4, -7);
             _boxplot.ATextLst.Add(tb);
