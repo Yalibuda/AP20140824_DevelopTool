@@ -11,6 +11,7 @@ namespace MtbGraph.Component.Annotation
         string[] Boxposition { get; set; }
         string Text { get; set; }
         int Unit { get; set; }
+        //void SetTextSize(dynamic var);
         void SetBoxposition(params object[] args);
         void SetCoordinate(params object[] args);
         string[] GetCoordinate();

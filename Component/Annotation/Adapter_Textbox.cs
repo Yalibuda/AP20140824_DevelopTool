@@ -23,6 +23,11 @@ namespace MtbGraph.Component.Annotation
             get { return _textbox.Unit; }
             set { _textbox.Unit = value; }
         }
+       
+        //public void SetTextSize(dynamic var)
+        //{
+        //    _textbox.Size = var;
+        //}
         public void SetCoordinate(params object[] args)
         {
             _textbox.SetCoordinate(args);
@@ -65,6 +70,7 @@ namespace MtbGraph.Component.Annotation
             foreach (string str in Boxposition) cmnd.AppendFormat("   {0} & \r\n", str);
             cmnd.AppendLine("   ;");
             cmnd.AppendLine(string.Format("Unit {0};", Unit));
+            //cmnd.AppendLine(string.Format("PSize {0};", _textbox.Size));
             return cmnd.ToString();
             #region Closed
             //if (FontColor > 0) cmnd.AppendLine(string.Format("TColor {0};", FontColor));
