@@ -293,9 +293,16 @@ namespace MtbGraph.BarChart
 
                 //cmnd.AppendLine("text xx.1-xx.m xx.1-xx.m"); // text multi columns only have 8 words, 
                 // at most 3 grouping varibles
+
                 cmnd.AppendLine("text xx.1 xx.1");
-                cmnd.AppendLine("text xx.2 xx.2");
-                cmnd.AppendLine("text xx.3 xx.3");
+                if (gps.Length > 1)
+                {
+                    for (int i = 1; i < gps.Length; i++)
+                    {
+                        cmnd.AppendFormat("text xx.{0}\r\n", i + 1);
+                    }
+                }
+
                 cmnd.AppendLine("vorder xx.1-xx.m;");
                 cmnd.AppendLine("work.");
             }

@@ -329,6 +329,10 @@ namespace MtbGraph.GraphComponent
             }
         }
 
+        public List<String> GetValue()
+        {
+            return this.value;
+        }
 
         private List<String> RegExOfRefe(String inputStr, RefComponemt refcomp = RefComponemt.Value)
         {

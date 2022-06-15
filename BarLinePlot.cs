@@ -45,7 +45,7 @@ namespace MtbGraph
             BarRef = new Reference(ScaleType.Y_axis);
             TrendRef = new Reference(ScaleType.Y_axis);
             LegendBox = new BarLineLegendBox();
-            LegendBox.FontSize = 12; // 應該是LegendBox 初始化先給比較好,暫時先在此initialize
+            LegendBox.FontSize = 8; // 應該是LegendBox 初始化先給比較好,暫時先在此initialize
             this.dLineColor = new int[5] { 64, 9, 12, 18, 34 }; // remove the default color to avoid red for using
             this.dLineType = new int[5] { 1, 1, 1, 1, 1 }; // change all default line type to 1
             this.dFillColor = new int[14] { 127, 7, 58, 116, 78, 29, 45, 123, 35, 73, 8, 49, 57, 26 }; // remove red
@@ -158,6 +158,10 @@ namespace MtbGraph
             refStr = names.ToArray();
             LegendBox.SetVariables(ref refStr);
             lLgndSize = LegendBox.GetSize();
+            
+            // LegendBox FontSize by colList.count
+            if (barColList.Count > 20) LegendBox.FontSize = 6;
+            else if (barColList.Count > 10) LegendBox.FontSize = 7;
 
             if (barColList.Count + trndColList.Count + tgColList.Count <= 3 && _legendBoxPosiAutoSetting == true)
             {
@@ -449,6 +453,85 @@ namespace MtbGraph
                 if ((double)sizeLabel.Width > 145) dXMin = dXMin + ((double)sizeLabel.Width - 145) * Math.Abs(Math.Cos(Math.PI * (this.xLabelAngle < 1.23456E+30 ? this.xLabelAngle : 45) / 180.0)) / d_gWidth;
             }
 
+
+            #region 2022 PCR
+            if (BarRef.GetValue() != null)
+            {
+
+            }
+            if (TrendRef.GetValue() != null)
+            {
+                List<string> atmp = BarRef.GetValue();
+                List<double> btmp = new List<double>();
+                foreach (string a in atmp) btmp.Add(Convert.ToDouble(a));
+                btmp.Max();
+            }
+
+            #endregion
+            /*
+             * 取 ref 最大值與tickvalue取大
+             */
+
+
+            if (BarRef.GetValue() != null)
+            {
+                List<string> atmp = BarRef.GetValue();
+                List<double> btmp = new List<double>();
+                foreach (string a in atmp) btmp.Add(Convert.ToDouble(a));
+
+                if (this.bScalePrimary == ScalePrimary.Primary)
+                {
+                    tickValue[1] = Math.Max(tickValue[1], btmp.Max());
+                    tickValue[0] = Math.Min(tickValue[0], btmp.Min());
+                }
+                else
+                {
+                    tickValue[9] = Math.Max(tickValue[9], btmp.Max());
+                    tickValue[8] = Math.Min(tickValue[8], btmp.Min());
+                }
+            }
+
+            if (TrendRef.GetValue() != null)
+            {
+                List<string> atmp = TrendRef.GetValue();
+                List<double> btmp = new List<double>();
+                foreach (string a in atmp) btmp.Add(Convert.ToDouble(a));
+
+                if (this.tScalePrimary == ScalePrimary.Primary)
+                {
+                    tickValue[1] = Math.Max(tickValue[1], btmp.Max());
+                    tickValue[8] = Math.Min(tickValue[8], btmp.Min());
+                }
+                else
+                {
+                    tickValue[9] = Math.Max(tickValue[9], btmp.Max());
+                    tickValue[8] = Math.Min(tickValue[8], btmp.Min());
+                }
+            }
+
+            //if (this.bScalePrimary == this.tScalePrimary)
+            //{
+            //    if (this.bScalePrimary == ScalePrimary.Primary)
+            //    {
+
+            //    }
+            //    else
+            //    {
+
+            //    }
+            //}
+            //else
+            //{
+            //    if (this.bScalePrimary == ScalePrimary.Primary)
+            //    {
+
+            //    }
+            //    else
+            //    {
+
+            //    }
+            //}
+
             #region PCR20180704
             /*
              * 如果設定為整數,則優先調整為整數,一併處理雙軸同scale
@@ -536,6 +619,8 @@ namespace MtbGraph
             {
                 mtbCmnd.Append("FNUM " + trndStr + ";\r\n FIXED " + dNum + ".\r\n");
             }
+
+
 
             //Prepare datlabel position for stack bar chart            
             if (isShowBDatlab & btype == BarTypes.Stack & barColList.Count > 1)
@@ -636,7 +721,7 @@ namespace MtbGraph
                 else mtbCmnd.Append("   HDIS 0 0 0 0;\r\n");
                 if (this.yScaleSize < 1.23456E+30) mtbCmnd.Append(string.Format("    PSIZE {0}; \r\n", yScaleSize));
                 if (this.yScaleMin < 1.23456E+30) mtbCmnd.Append("   Min " + this.yScaleMin + ";\r\n");
-                else if (this.yScaleMin == 1.23456E+30) mtbCmnd.AppendLine(string.Format("   Min {0}", tickValue[0]));
+                else if (this.yScaleMin == 1.23456E+30) mtbCmnd.AppendLine(string.Format("   Min {0};", tickValue[0]));
                 //if (this.yScaleMax < 1.23456E+30 && yScaleMax > 10)
                 //{
                 //    mtbCmnd.Append("   Max " + Math.Ceiling(this.yScaleMax / 10) * 10 + ";\r\n");
@@ -644,7 +729,7 @@ namespace MtbGraph
                 //else if (this.yScaleMax < 1.23456E+30 && yScaleMax <= 10) 
                 if (this.yScaleMax != 1.23456E+30)
                     mtbCmnd.Append("   Max " + this.yScaleMax + ";\r\n");
-                else if (this.yScaleMax == 1.23456E+30) mtbCmnd.AppendLine(string.Format("   Max {0}", tickValue[1]));
+                else if (this.yScaleMax == 1.23456E+30) mtbCmnd.AppendLine(string.Format("   Max {0};", tickValue[1]));
                 if (this.yTickAttr == ScaleTickAttribute.None)
                 {
                     if (this.yScaleMax != 1.23456E+30 || this.yScaleMin != 1.23456E+30) mtbCmnd.Append("   NMAJ 11;\r\n");
@@ -823,7 +908,7 @@ namespace MtbGraph
             mtbCmnd.AppendLine("   TICK 1:" + ws.Columns.Item(barColList[0]).RowCount + ";");//不確定是使用 trend 或是 target..直接使用 bar variable 的長度
             if (hasLab == 1) mtbCmnd.Append("  STAMP " + labCol[0] + ";\r\n");
             mtbCmnd.Append("  AXLA 1 " + (this.xLabel == String.Empty ? ";\r\n   ADIS 0;\r\n" :
-                (hasLab == 1 ? (this.xLabel == null ? "" : "\"" + this.xLabel + "\"") : ";\r\n") + "   ADIS 1;\r\n"));
+                (hasLab == 1 ? (this.xLabel == null ? ";\r\n" : "\"" + this.xLabel + "\" ;\r\n") : ";\r\n") + "   ADIS 1;\r\n"));
             if (this.tScalePrimary == ScalePrimary.Primary)
             {
                 mtbCmnd.Append("  SCALE 2;\r\n");

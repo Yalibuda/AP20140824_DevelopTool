@@ -43,8 +43,8 @@ namespace MtbGraph.TrendChart
             #region PCR20190731
             Y1OOSDatlabColor = 8;
             Y2OOSDatlabColor = 8;
-            Y1OOSSymbolColor = 8;
-            Y2OOSSymbolColor = 8;
+            Y1OOSSymbolColor = 2;
+            Y2OOSSymbolColor = 2;
             Y1DatlabColor = COLOR[0];
             Y2DatlabColor = COLOR[1];
             #endregion
