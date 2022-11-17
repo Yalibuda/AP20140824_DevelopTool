@@ -454,18 +454,20 @@ namespace MtbGraph
             }
 
 
-            #region 2022 PCR
-            if (BarRef.GetValue() != null)
-            {
+            #region 2022 PCR 
 
-            }
-            if (TrendRef.GetValue() != null)
-            {
-                List<string> atmp = BarRef.GetValue();
-                List<double> btmp = new List<double>();
-                foreach (string a in atmp) btmp.Add(Convert.ToDouble(a));
-                btmp.Max();
-            }
+            //中間測試
+            //if (BarRef.GetValue() != null)
+            //{
+
+            //}
+            //if (TrendRef.GetValue() != null)
+            //{
+            //    List<string> atmp = BarRef.GetValue();
+            //    List<double> btmp = new List<double>();
+            //    foreach (string a in atmp) btmp.Add(Convert.ToDouble(a));
+            //    btmp.Max();
+            //}
 
             #endregion
             /*
@@ -707,7 +709,8 @@ namespace MtbGraph
                     mtbCmnd.Append("  NMAJ " + this.secTickAttrValue + ";\r\n");
                 }
 
-                mtbCmnd.Append("  AXLA 2" + (this.secsLabel == String.Empty ? "\"\"" : (this.secsLabel == null ? "" : "\"" + this.secsLabel + "\"")) + ";\r\n   ADIS 2;\r\n");
+                mtbCmnd.Append("  AXLA 2 " + (this.secsLabel == String.Empty ? "\"\"" : (this.secsLabel == null ? "" : "\"" + this.secsLabel + "\"")) + ";\r\n   ADIS 2;\r\n");
+                mtbCmnd.Append(string.Format("    PSize {0};\r\n", yLabelSize));
                 if (BarRef.haveValues() == true)
                 {
                     BarRef.Side = 2;
@@ -746,6 +749,7 @@ namespace MtbGraph
                     mtbCmnd.Append("  NMAJ " + this.yTickAttrValue + ";\r\n");
                 }
                 mtbCmnd.Append("  AXLA 2" + (this.yLabel == String.Empty ? "\"\"" : (this.yLabel == null ? "" : "\"" + this.yLabel + "\"")) + ";\r\n   ADIS 1;\r\n");
+                mtbCmnd.Append(string.Format("    PSize {0};\r\n", yLabelSize));
                 if (BarRef.haveValues() == true)
                 {
                     BarRef.Side = 1;
@@ -907,8 +911,13 @@ namespace MtbGraph
                 "   LDIS 0 1 1 0;\r\n   HDIS 0 0 0 0;\r\n   ANGLE " + (this.xLabelAngle < 1.23456E+30 ? this.xLabelAngle : 45) + ";\r\n");
             mtbCmnd.AppendLine("   TICK 1:" + ws.Columns.Item(barColList[0]).RowCount + ";");//不確定是使用 trend 或是 target..直接使用 bar variable 的長度
             if (hasLab == 1) mtbCmnd.Append("  STAMP " + labCol[0] + ";\r\n");
+
+            
+
             mtbCmnd.Append("  AXLA 1 " + (this.xLabel == String.Empty ? ";\r\n   ADIS 0;\r\n" :
                 (hasLab == 1 ? (this.xLabel == null ? ";\r\n" : "\"" + this.xLabel + "\" ;\r\n") : ";\r\n") + "   ADIS 1;\r\n"));
+            mtbCmnd.Append(string.Format("    PSize {0}; \r\n", xLabelSize));
+
             if (this.tScalePrimary == ScalePrimary.Primary)
             {
                 mtbCmnd.Append("  SCALE 2;\r\n");
@@ -954,6 +963,7 @@ namespace MtbGraph
                 }
 
                 mtbCmnd.Append("  AXLA 2" + (this.yLabel == String.Empty ? "\"\"" : (this.yLabel == null ? "" : " \"" + this.yLabel + "\"")) + ";\r\n");
+                mtbCmnd.Append(string.Format("    PSize {0};\r\n", yLabelSize));
                 mtbCmnd.Append("   ADIS " + (this.bScalePrimary == ScalePrimary.Primary ? "0" : "1") + ";\r\n");
             }
             else
@@ -1002,6 +1012,7 @@ namespace MtbGraph
                 }
 
                 mtbCmnd.Append("  AXLA 2" + (this.secsLabel == String.Empty ? "\"\"" : (this.secsLabel == null ? "" : " \"" + this.secsLabel + "\"")) + ";\r\n");
+                mtbCmnd.Append(string.Format("    PSize {0}; \r\n", yLabelSize));
                 mtbCmnd.Append("   ADIS " + (this.bScalePrimary == ScalePrimary.Secondary ? "0" : "2") + ";\r\n");
             }
             if (isShowTDatlab & hasTrnd == 1)
@@ -1231,6 +1242,15 @@ namespace MtbGraph
         {
             isShowSecScale = ifSecScaleVisible;
         }
+        public void SetXLabelSize(ref int inputInt)
+        {
+            this.xLabelSize = inputInt;
+        }
+        public void SetYLabelSize(ref int inputInt)
+        {
+            this.yLabelSize = inputInt;
+        }
+
 
         public override void Dispose()
         {
@@ -1274,6 +1294,9 @@ namespace MtbGraph
         private bool isSameScale = false;
         private bool isShowSecScale = true;
         //private double xlabAglign = 45;
+
+        private int xLabelSize = 11;
+        private int yLabelSize = 11;
 
         //private int[] dBarColor = new int[5] { 127, 7, 58, 116, 78 }; // prepare for bar default colors
     }

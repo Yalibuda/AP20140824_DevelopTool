@@ -33,8 +33,8 @@ namespace MtbGraph.TrendChart
             IsGridYVisible = false;
             
             #region PCR 201810XX(未開放)
-            _y1Decimal = 5;
-            _y2Decimal = 5;
+            //_y1Decimal = 5;
+            //_y2Decimal = 5;
             //_y1LabelVisible = true;
             //_y2LabelVisible = true;
             #endregion
@@ -484,6 +484,29 @@ namespace MtbGraph.TrendChart
             }
         }
 
+        public void SetYRefeValues(dynamic var)
+        {
+            this.yRefeValues = var;
+        }
+
+        //public void SetY2RefeValues(dynamic var)
+        //{
+        //    this.y2RefeValues = var;
+        //}
+        private double[] yRefeValues;
+        //private double[] y2RefeValues;
+        private string[] yRefeColors;
+        //private string[] y2RefeColors;
+
+        public void SetYRefeColors(dynamic var)
+        {
+            this.yRefeColors = var;
+        }
+
+        //public void SetY2RefeColors(dynamic var)
+        //{
+        //    this.y2RefeColors = var;
+        //}
         protected override string GetCommand()
         {
 
@@ -520,14 +543,16 @@ namespace MtbGraph.TrendChart
                 stmp = (Mtb.Column[])_tsplot.Stamp;
             }
 
+            #region PCR202211 tmp close the sort
             StringBuilder execcmd = new StringBuilder();
-            execcmd.AppendLine("Sort;");
-            execcmd.AppendFormat("  By ");
-            for (int i = 0; i < _xgroups.Count(); i++) execcmd.AppendFormat("'{0}' ", _xgroups[i].Name);
-            execcmd.AppendLine(";");
-            execcmd.AppendLine("  Original.");
+            //execcmd.AppendLine("Sort;");
+            //execcmd.AppendFormat("  By ");
+            //for (int i = 0; i < _xgroups.Count(); i++) execcmd.AppendFormat("'{0}' ", _xgroups[i].Name);
+            //execcmd.AppendLine(";");
+            //execcmd.AppendLine("  Original.");
             string fpathtmp = Mtblib.Tools.MtbTools.BuildTemporaryMacro("exectmp.mtb", execcmd.ToString());
-            _proj.ExecuteCommand(string.Format("exec \"{0}\" 1", fpathtmp));
+            //_proj.ExecuteCommand(string.Format("exec \"{0}\" 1", fpathtmp));
+            #endregion
 
             StringBuilder cmnd = new StringBuilder();
 
@@ -771,10 +796,28 @@ namespace MtbGraph.TrendChart
                 }
                 tmpYScale.SecScale.Variable = sec_scale_var_in_macro;
             }
+            ////tmpYScale.Refes.Values(2, 3);
+
+            //tmpYScale.Refes.Values = new double[2] { 2, 3 };
+            ////tmpYScale.Refes.Color = new string[2] { "1", "2" };
+            //tmpYScale.Refes.Color = new string[2] { "1", "2" };
+            ////tmpYScale.SecScale.Refes
+            if (yRefeValues is null) { }
+            else {
+                tmpYScale.Refes.Values = yRefeValues;
+                tmpYScale.Refes.Color = yRefeColors;
+            }
+            //if (y2RefeValues is null) { }
+            //else {
+            //    tmpYScale.SecScale.Refes.Values = y2RefeValues;
+            //    tmpYScale.SecScale.Refes.Color = y2RefeColors;
+            //}
+
+            
             cmnd.Append(tmpYScale.GetCommand());
-
-
-            #region PCR 201810XX(待測試)
+            
+            //YScale.re
+            #region PCR 201810XX(待測試) 合併202211 PCR
             // 處理 y label相關，包含Y1, Y2是否顯示、調整小數位數、超過Target顯示，尚未開放 PCR 201810XX
             DataTable dttmp = Mtblib.Tools.MtbTools.GetDataTableFromMtbCols(vars);
             DataTable dty1target = null;
@@ -788,7 +831,16 @@ namespace MtbGraph.TrendChart
             #region get grouping id and row id
 
             execcmd.Clear();
-            execcmd.AppendLine("Erase C990-C1000.");
+
+            for (int i = 0; i < _xgroups.Count(); i++) {
+                execcmd.AppendFormat("VORDER '{0}';\r\n", _xgroups[i].Name);
+                execcmd.AppendFormat("  Values '{0}'.\r\n", _xgroups[i].Name);
+            }
+
+
+            execcmd.AppendLine("notitle");
+            execcmd.AppendLine("brief 0");
+            execcmd.AppendLine("Erase C990-C1001.");
             execcmd.AppendLine("Name C1000 'RowId_tmp'");
             execcmd.AppendLine("Set 'RowId_tmp'");
             execcmd.AppendFormat("1(1 : {0} / 1)1 \r\n", dttmp.Rows.Count);
@@ -796,7 +848,13 @@ namespace MtbGraph.TrendChart
             for (int i = 0; i < _xgroups.Count(); i++)
                 execcmd.AppendFormat("Name C{0} '{1}_tmp'\r\n", 999 - i, _xgroups[i].Name);
             execcmd.AppendFormat("Name C{0} 'GroupingId_tmp'\r\n", 999 - _xgroups.Count());
-            execcmd.AppendFormat("Statistics '{0}';\r\n", vars[0].Name);
+
+            execcmd.AppendFormat("Name C1001 '{0}_count' \r\n", vars[0].Name);
+            execcmd.AppendFormat("Code ('*') -65535 '{0}' '{0}_count' ;\r\n", vars[0].Name);
+            execcmd.AppendFormat("  TSummary.\r\n");
+
+
+            execcmd.AppendFormat("Statistics '{0}_count';\r\n", vars[0].Name);
             execcmd.AppendFormat("By ");
             for (int i = 0; i < _xgroups.Count(); i++) execcmd.AppendFormat("'{0}' ", _xgroups[i].Name);
             execcmd.Append(";\r\n");
@@ -805,6 +863,9 @@ namespace MtbGraph.TrendChart
             for (int i = 0; i < _xgroups.Count(); i++) execcmd.AppendFormat("'{0}_tmp' ", _xgroups[i].Name);
             execcmd.Append(";\r\n");
             execcmd.AppendLine("CumN 'GroupingId_tmp'.");
+
+            execcmd.AppendLine("title");
+            execcmd.AppendLine("brief 2");
 
             fpathtmp = Mtblib.Tools.MtbTools.BuildTemporaryMacro("exectmp.mtb", execcmd.ToString());
             _proj.ExecuteCommand(string.Format("exec \"{0}\" 1", fpathtmp));
@@ -992,7 +1053,7 @@ namespace MtbGraph.TrendChart
                 labelpositionitem.Model = 2;
                 labelpositionitem.RowId = i + 1;
                 //Y2LabelVisible = false; // for testing 
-                if (Y2LabelVisible == true)
+                if (Y2LabelVisible == true && vars.Length > 1)
                 {
                     labelpositionitem.FontColor = Y2DatlabColor; 
                     for (int j = 0; j < Y2Decimal; j++) decimaltmp *= 10;
@@ -1285,7 +1346,7 @@ namespace MtbGraph.TrendChart
             cmnd.Append(_tsplot.GetOptionCommand());
             cmnd.Append(_tsplot.GetRegionCommand());
             cmnd.AppendLine(".");
-
+            
 
             cmnd.AppendLine("endmacro");
             return cmnd.ToString();
@@ -1317,6 +1378,7 @@ namespace MtbGraph.TrendChart
             }
 
             cmnd.AppendLine(".");
+            cmnd.AppendLine("Erase C990-C1001.");
             cmnd.AppendLine("title");
             cmnd.AppendLine("brief 2");
             string fpath = Mtblib.Tools.MtbTools.BuildTemporaryMacro("mycode.mtb", cmnd.ToString());

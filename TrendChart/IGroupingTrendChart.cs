@@ -40,6 +40,12 @@ namespace MtbGraph.TrendChart
         void SetY2ZeroVisible(dynamic var);
         
         void SetSymbolColor(dynamic var);
+
+        void SetYRefeValues(dynamic var);
+        void SetYRefeColors(dynamic var);
+        //void SetY2RefeValues(dynamic var);
+        //void SetY2RefeColors(dynamic var);
+
         Component.Scale.IContScale XScale { get; }
         Component.Scale.IContScale YScale { get; }
         Component.IDatlab Datlab { get; }

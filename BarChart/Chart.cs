@@ -299,7 +299,7 @@ namespace MtbGraph.BarChart
                 {
                     for (int i = 1; i < gps.Length; i++)
                     {
-                        cmnd.AppendFormat("text xx.{0}\r\n", i + 1);
+                        cmnd.AppendFormat("text xx.{0} xx.{0}\r\n", i + 1);
                     }
                 }
 

@@ -30,6 +30,7 @@ namespace MtbGraph
         void RemoveTrendVariable();
         void RemoveTargetVariable();
         void SetDefaultTargetAttribute();
+        
 
 
         //MtbGraphFrame
@@ -64,7 +65,10 @@ namespace MtbGraph
         //Primary & Secondary scale
         void SetYScaleInt(bool b1, bool b2);
         void SetSameScale(bool b);
-        
+
+        //X Y Axis 
+        void SetXLabelSize(ref int inputInt);
+        void SetYLabelSize(ref int inputInt);
 
         void SetDefaultTitle();
         void Dispose();
