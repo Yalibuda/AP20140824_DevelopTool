@@ -454,86 +454,49 @@ namespace MtbGraph
             }
 
 
-            #region 2022 PCR 
+            /*
+             * 取 ref 最大值與tickvalue取大，有需要嗎?給軟體自動校正?(先全關測試)
+             */
 
-            //中間測試
+
             //if (BarRef.GetValue() != null)
-            //{
-
-            //}
-            //if (TrendRef.GetValue() != null)
             //{
             //    List<string> atmp = BarRef.GetValue();
             //    List<double> btmp = new List<double>();
             //    foreach (string a in atmp) btmp.Add(Convert.ToDouble(a));
-            //    btmp.Max();
+
+            //    tickValue[1] = Math.Max(tickValue[1], btmp.Max());
+            //    tickValue[0] = Math.Min(tickValue[0], btmp.Min());
+
+            //    //if (this.bScalePrimary == ScalePrimary.Primary)
+            //    //{
+                    
+            //    //}
+            //    //else
+            //    //{
+            //    //    tickValue[9] = Math.Max(tickValue[9], btmp.Max());
+            //    //    tickValue[8] = Math.Min(tickValue[8], btmp.Min());
+            //    //}
             //}
 
-            #endregion
-            /*
-             * 取 ref 最大值與tickvalue取大
-             */
-
-
-            if (BarRef.GetValue() != null)
-            {
-                List<string> atmp = BarRef.GetValue();
-                List<double> btmp = new List<double>();
-                foreach (string a in atmp) btmp.Add(Convert.ToDouble(a));
-
-                if (this.bScalePrimary == ScalePrimary.Primary)
-                {
-                    tickValue[1] = Math.Max(tickValue[1], btmp.Max());
-                    tickValue[0] = Math.Min(tickValue[0], btmp.Min());
-                }
-                else
-                {
-                    tickValue[9] = Math.Max(tickValue[9], btmp.Max());
-                    tickValue[8] = Math.Min(tickValue[8], btmp.Min());
-                }
-            }
-
-            if (TrendRef.GetValue() != null)
-            {
-                List<string> atmp = TrendRef.GetValue();
-                List<double> btmp = new List<double>();
-                foreach (string a in atmp) btmp.Add(Convert.ToDouble(a));
-
-                if (this.tScalePrimary == ScalePrimary.Primary)
-                {
-                    tickValue[1] = Math.Max(tickValue[1], btmp.Max());
-                    tickValue[8] = Math.Min(tickValue[8], btmp.Min());
-                }
-                else
-                {
-                    tickValue[9] = Math.Max(tickValue[9], btmp.Max());
-                    tickValue[8] = Math.Min(tickValue[8], btmp.Min());
-                }
-            }
-
-            //if (this.bScalePrimary == this.tScalePrimary)
+            //if (TrendRef.GetValue() != null)
             //{
-            //    if (this.bScalePrimary == ScalePrimary.Primary)
-            //    {
+            //    List<string> atmp = TrendRef.GetValue();
+            //    List<double> btmp = new List<double>();
+            //    foreach (string a in atmp) btmp.Add(Convert.ToDouble(a));
 
-            //    }
-            //    else
-            //    {
-
-            //    }
+            //    //if (this.tScalePrimary == ScalePrimary.Primary)
+            //    //{
+            //    //    tickValue[1] = Math.Max(tickValue[1], btmp.Max());
+            //    //    tickValue[8] = Math.Min(tickValue[8], btmp.Min());
+            //    //}
+            //    //else
+            //    //{
+            //        tickValue[9] = Math.Max(tickValue[9], btmp.Max());
+            //        tickValue[8] = Math.Min(tickValue[8], btmp.Min());
+            //    //}
             //}
-            //else
-            //{
-            //    if (this.bScalePrimary == ScalePrimary.Primary)
-            //    {
-
-            //    }
-            //    else
-            //    {
-
-            //    }
-            //}
-
+            
             #region PCR20180704
             /*
              * 如果設定為整數,則優先調整為整數,一併處理雙軸同scale
@@ -542,70 +505,57 @@ namespace MtbGraph
             if (isYScaleInt) 
             {
                 if (this.yScaleMax != 1.23456E+30) this.yScaleMax = Math.Ceiling(this.yScaleMax / 10) * 10;
-                else tickValue[1] = Math.Ceiling(tickValue[1] / 10) * 10;
                 if (this.yScaleMin != 1.23456E+30) this.yScaleMin = Math.Floor(this.yScaleMin / 10) * 10;
-                else tickValue[0] = Math.Ceiling(tickValue[0] / 10) * 10;
+
+                if (bScalePrimary == ScalePrimary.Primary)
+                { 
+                    tickValue[1] = Math.Ceiling(tickValue[1] / 10) * 10;
+                    tickValue[0] = Math.Floor(tickValue[0] / 10) * 10;
+                }
+                if (tScalePrimary == ScalePrimary.Primary) 
+                {
+                    tickValue[9] = Math.Ceiling(tickValue[9] / 10) * 10;
+                    tickValue[8] = Math.Floor(tickValue[8] / 10) * 10;
+                }
             }
             // set sec scale int 
             if (isSecScaleInt) 
             {
                 if (this.secScaleMax != 1.23456E+30) this.secScaleMax = Math.Ceiling(this.secScaleMax / 10) * 10;
-                else tickValue[9] = Math.Ceiling(tickValue[9] / 10) * 10;
                 if (this.secScaleMin != 1.23456E+30) this.secScaleMin = Math.Floor(this.secScaleMin / 10) * 10;
-                else tickValue[8] = Math.Ceiling(tickValue[8] / 10) * 10;
+                
+                if (bScalePrimary == ScalePrimary.Secondary)
+                {
+                    tickValue[1] = Math.Ceiling(tickValue[1] / 10) * 10;
+                    tickValue[0] = Math.Floor(tickValue[0] / 10) * 10;
+                }
+                if (tScalePrimary == ScalePrimary.Secondary) 
+                {
+                    tickValue[9] = Math.Ceiling(tickValue[9] / 10) * 10;
+                    tickValue[8] = Math.Floor(tickValue[8] / 10) * 10;
+                }
             }
 
             /// if Same Scale
             if (isSameScale)
             {
+                tickValue[0] = Math.Min(tickValue[0], tickValue[8]);
+                tickValue[8] = tickValue[0];
+
+                tickValue[1] = Math.Max(tickValue[1], tickValue[9]);
+                tickValue[9] = tickValue[1];
+
                 #region MAX
                 if (this.yScaleMax != 1.23456E+30 && this.secScaleMax != 1.23456E+30)
-                {
-                    this.yScaleMax = Math.Max(this.yScaleMax, this.secScaleMax);
-                    this.secScaleMax = this.yScaleMax;
-                }
-                else if (this.yScaleMax != 1.23456E+30 && this.secScaleMax == 1.23456E+30)
-                {
-                    this.yScaleMax = Math.Max(this.yScaleMax, tickValue[9]);
-                    //this.secScaleMax = this.yScaleMax; //or tickvalue change?
-                    tickValue[9] = this.yScaleMax;
-                }
-                else if (this.yScaleMax == 1.23456E+30 && this.secScaleMax != 1.23456E+30)
-                {
-                    this.secScaleMax = Math.Max(this.secScaleMax, tickValue[1]);
-                    //this.yScaleMax = this.secScaleMax; // or tick value change
-                    tickValue[1] = this.secScaleMax;
-                }
-                else
-                {
-                    tickValue[1] = Math.Max(tickValue[1], tickValue[9]);
-                    tickValue[9] = tickValue[1];
-                }
+                    this.secScaleMax = this.yScaleMax = Math.Max(this.yScaleMax, this.secScaleMax);
+                else if (this.yScaleMax != 1.23456E+30 && this.secScaleMax == 1.23456E+30) secScaleMax = yScaleMax;
+                else if (this.yScaleMax == 1.23456E+30 && this.secScaleMax != 1.23456E+30) yScaleMax = secScaleMax;
                 #endregion
-
                 #region MIN
                 if (this.secScaleMin != 1.23456E+30 && this.secScaleMin != 1.23456E+30)
-                {
-                    this.yScaleMin = Math.Min(this.yScaleMin, this.secScaleMin);
-                    this.secScaleMin = this.yScaleMin;
-                }
-                else if (this.yScaleMin != 1.23456E+30 && this.secScaleMin == 1.23456E+30)
-                {
-                    this.yScaleMin = Math.Min(this.yScaleMin, tickValue[8]);
-                    //this.secScaleMin = this.yScaleMin; //or tickvalue change?
-                    tickValue[8] = this.yScaleMin;
-                }
-                else if (this.yScaleMin == 1.23456E+30 && this.secScaleMin != 1.23456E+30)
-                {
-                    this.secScaleMin = Math.Min(this.secScaleMin, tickValue[1]);
-                    //this.yScaleMin = this.secScaleMin; // or tick value change
-                    tickValue[0] = this.secScaleMin;
-                }
-                else
-                {
-                    tickValue[0] = Math.Min(tickValue[0], tickValue[8]);
-                    tickValue[8] = tickValue[0];
-                }
+                    this.secScaleMin = this.yScaleMin = Math.Min(this.yScaleMin, this.secScaleMin);
+                else if (this.yScaleMin != 1.23456E+30 && this.secScaleMin == 1.23456E+30) secScaleMin = yScaleMin;
+                else if (this.yScaleMin == 1.23456E+30 && this.secScaleMin != 1.23456E+30) yScaleMin = secScaleMin;
                 #endregion
             }
 
@@ -684,14 +634,14 @@ namespace MtbGraph
                 else mtbCmnd.Append("   HDIS 0 0 0 0;\r\n");
                 if (this.ySecScaleSize < 1.23456E+30) mtbCmnd.Append(string.Format("    PSIZE {0}; \r\n", ySecScaleSize));
                 if (this.secScaleMin < 1.23456E+30) mtbCmnd.Append("   Min " + this.secScaleMin + ";\r\n");
-                else mtbCmnd.Append("   Min " + tickValue[0].ToString() + ";\r\n");
+                //else mtbCmnd.Append("   Min " + tickValue[0].ToString() + ";\r\n");
                 //if (this.secScaleMax < 1.23456E+30 && secScaleMax > 10)
                 //{
                 //    mtbCmnd.Append("   Max " + Math.Ceiling(this.secScaleMax / 10) * 10 + ";\r\n");
                 //}
                 //else if (this.secScaleMax < 1.23456E+30 && secScaleMax <= 10) 
                 if (this.secScaleMax < 1.23456E+30) mtbCmnd.Append("   Max " + this.secScaleMax + ";\r\n");
-                else mtbCmnd.Append("   Max " + tickValue[1].ToString() + ";\r\n"); // PCR20180704
+                //else mtbCmnd.Append("   Max " + tickValue[1].ToString() + ";\r\n"); // PCR20180704
 
                 if (this.secTickAttr == ScaleTickAttribute.None)
                 {
@@ -724,19 +674,17 @@ namespace MtbGraph
                 else mtbCmnd.Append("   HDIS 0 0 0 0;\r\n");
                 if (this.yScaleSize < 1.23456E+30) mtbCmnd.Append(string.Format("    PSIZE {0}; \r\n", yScaleSize));
                 if (this.yScaleMin < 1.23456E+30) mtbCmnd.Append("   Min " + this.yScaleMin + ";\r\n");
-                else if (this.yScaleMin == 1.23456E+30) mtbCmnd.AppendLine(string.Format("   Min {0};", tickValue[0]));
+                //else if (this.yScaleMin == 1.23456E+30) mtbCmnd.AppendLine(string.Format("   Min {0};", tickValue[0]));
                 //if (this.yScaleMax < 1.23456E+30 && yScaleMax > 10)
                 //{
                 //    mtbCmnd.Append("   Max " + Math.Ceiling(this.yScaleMax / 10) * 10 + ";\r\n");
                 //}
                 //else if (this.yScaleMax < 1.23456E+30 && yScaleMax <= 10) 
-                if (this.yScaleMax != 1.23456E+30)
-                    mtbCmnd.Append("   Max " + this.yScaleMax + ";\r\n");
-                else if (this.yScaleMax == 1.23456E+30) mtbCmnd.AppendLine(string.Format("   Max {0};", tickValue[1]));
+                if (this.yScaleMax != 1.23456E+30) mtbCmnd.Append("   Max " + this.yScaleMax + ";\r\n");
+                //else if (this.yScaleMax == 1.23456E+30) mtbCmnd.AppendLine(string.Format("   Max {0};", tickValue[1]));
+                
                 if (this.yTickAttr == ScaleTickAttribute.None)
-                {
                     if (this.yScaleMax != 1.23456E+30 || this.yScaleMin != 1.23456E+30) mtbCmnd.Append("   NMAJ 11;\r\n");
-                }
                 else if (this.yTickAttr == ScaleTickAttribute.IntervalBetweenTick)
                 {
                     mtbCmnd.Append("  TICK " + (this.yScaleMin < 1.23456E+30 ? this.yScaleMin : tickValue[0]) + ":" +
@@ -758,10 +706,10 @@ namespace MtbGraph
             }
             mtbCmnd.Append("  SCALE 1;\r\n   ANGLE " + (this.xLabelAngle < 1.23456E+30 ? this.xLabelAngle : 45) + ";\r\n");
             mtbCmnd.Append("  AxLa 1;\r\n   LSHOW;\r\n  TSHOW;\r\n");
-            if (this.yRefValue != null)
-            {
-                mtbCmnd.Append(GetRefCmndString(this.yRefValue, this.yRefType, this.yRefColor));
-            }
+            //if (this.yRefValue != null)
+            //{
+            //    mtbCmnd.Append(GetRefCmndString(this.yRefValue, this.yRefType, this.yRefColor));
+            //}
             mtbCmnd.Append("  LEGE " + bLgndXMin + " " + bLgndXMax + " " + bLgndYMin + " " + bLgndYMax + ";\r\n");
             mtbCmnd.Append("   ETYPE 0;\r\n   TYPE 0;\r\n   SECT 1;\r\n   CHHIDE;\r\n");
             // here is hector try revising
@@ -924,22 +872,16 @@ namespace MtbGraph
                 mtbCmnd.Append("   LDIS " + (this.bScalePrimary == ScalePrimary.Secondary ? "0 1 1 0;\r\n" : "0 0 0 0;\r\n"));
                 mtbCmnd.Append("   HDIS 0 0 0 0;\r\n");
                 if (this.yScaleSize < 1.23456E+30) mtbCmnd.Append(string.Format("    PSIZE {0}; \r\n", yScaleSize));
-                if (this.yScaleMin != 1.23456E+30)
-                {
-                    mtbCmnd.Append("   MIN " + this.yScaleMin + ";\r\n");
-                }
-                else // if (this.tScalePrimary == this.bScalePrimary) PCR20180704
-                {
-                    mtbCmnd.Append("   MIN " + tickValue[8] + ";\r\n"); // PCR20180704 0->8
-                }
-                if (this.yScaleMax != 1.23456E+30)
-                {
-                    mtbCmnd.Append("   MAX " + this.yScaleMax + ";\r\n");
-                }
-                else // if (this.tScalePrimary == this.bScalePrimary) PCR20180704
-                {
-                    mtbCmnd.Append("   MAX " + tickValue[9] + ";\r\n"); //PCR20180704 1->9
-                }
+                if (this.yScaleMin != 1.23456E+30) mtbCmnd.Append("   MIN " + this.yScaleMin + ";\r\n");
+                //else // if (this.tScalePrimary == this.bScalePrimary) PCR20180704
+                //{
+                //    mtbCmnd.Append("   MIN " + tickValue[8] + ";\r\n"); // PCR20180704 0->8
+                //}
+                if (this.yScaleMax != 1.23456E+30) mtbCmnd.Append("   MAX " + this.yScaleMax + ";\r\n");
+                //else // if (this.tScalePrimary == this.bScalePrimary) PCR20180704
+                //{
+                //    mtbCmnd.Append("   MAX " + tickValue[9] + ";\r\n"); //PCR20180704 1->9
+                //}
                 //Set the tick
                 if (this.yTickAttr == ScaleTickAttribute.None)
                 {
@@ -973,22 +915,16 @@ namespace MtbGraph
                 if (!isShowSecScale) mtbCmnd.Append("   HDIS 0 0 0 0;\r\n");
                 else mtbCmnd.Append("   HDIS " + (this.bScalePrimary == ScalePrimary.Primary ? "0 1 1 0;\r\n" : "0 0 0 0;\r\n"));
                 if (this.ySecScaleSize < 1.23456E+30) mtbCmnd.Append(string.Format("    PSIZE {0}; \r\n", ySecScaleSize));
-                if (this.secScaleMin < 1.23456E+30)
-                {
-                    mtbCmnd.Append("   MIN " + this.secScaleMin + ";\r\n");
-                }
-                else // if (this.tScalePrimary == this.bScalePrimary) PCR20180704
-                {
-                    mtbCmnd.Append("   MIN " + tickValue[8] + ";\r\n"); //PCR20180704 0 -> 8
-                }
-                if (this.secScaleMax < 1.23456E+30)
-                {
-                    mtbCmnd.Append("   MAX " + this.secScaleMax + ";\r\n");
-                }
-                else // if (this.tScalePrimary == this.bScalePrimary) PCR20180704
-                {
-                    mtbCmnd.Append("   MAX " + tickValue[9] + ";\r\n"); // PCR20180704 1 -> 9
-                }
+                if (this.secScaleMin < 1.23456E+30) mtbCmnd.Append("   MIN " + this.secScaleMin + ";\r\n");
+                //else // if (this.tScalePrimary == this.bScalePrimary) PCR20180704
+                //{
+                //    mtbCmnd.Append("   MIN " + tickValue[8] + ";\r\n"); //PCR20180704 0 -> 8
+                //}
+                if (this.secScaleMax < 1.23456E+30) mtbCmnd.Append("   MAX " + this.secScaleMax + ";\r\n");
+                //else // if (this.tScalePrimary == this.bScalePrimary) PCR20180704
+                //{
+                //    mtbCmnd.Append("   MAX " + tickValue[9] + ";\r\n"); // PCR20180704 1 -> 9
+                //}
                 //Set the tick
                 if (this.secTickAttr == ScaleTickAttribute.None)
                 {

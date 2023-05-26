@@ -389,6 +389,20 @@ namespace MtbGraph.HLBarLinePlot
         }
 
 
+        private double _boxPlotMeanConnectLineSize;
+        public double BoxPlotMeanConnectLineSize 
+        { 
+            get 
+            {
+                return _boxplot.CMean.Size;
+            }
+            set
+            {
+                _boxPlotMeanConnectLineSize = value;
+                _boxplot.CMean.Size = (dynamic)_boxPlotMeanConnectLineSize;
+            }
+        }
+
         /// <summary>
         /// 設定分割的比例值(由下往上所占的比例)
         /// </summary>

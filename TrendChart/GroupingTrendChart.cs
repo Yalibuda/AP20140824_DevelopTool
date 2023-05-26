@@ -48,6 +48,9 @@ namespace MtbGraph.TrendChart
             Y1DatlabColor = COLOR[0];
             Y2DatlabColor = COLOR[1];
             #endregion
+
+            // PCR202303
+            
         }
 
         /// <summary>
@@ -802,8 +805,8 @@ namespace MtbGraph.TrendChart
             ////tmpYScale.Refes.Color = new string[2] { "1", "2" };
             //tmpYScale.Refes.Color = new string[2] { "1", "2" };
             ////tmpYScale.SecScale.Refes
-            if (yRefeValues is null) { }
-            else {
+            if (yRefeValues != null)
+            {
                 tmpYScale.Refes.Values = yRefeValues;
                 tmpYScale.Refes.Color = yRefeColors;
             }
@@ -1346,8 +1349,6 @@ namespace MtbGraph.TrendChart
             cmnd.Append(_tsplot.GetOptionCommand());
             cmnd.Append(_tsplot.GetRegionCommand());
             cmnd.AppendLine(".");
-            
-
             cmnd.AppendLine("endmacro");
             return cmnd.ToString();
 

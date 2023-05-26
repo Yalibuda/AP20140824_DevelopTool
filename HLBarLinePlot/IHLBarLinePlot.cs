@@ -43,6 +43,7 @@ namespace MtbGraph.HLBarLinePlot
         bool BoxPlotVisibleOnly { get; set; }
         double BoxPlotMeanSymbolSize { get; set; }
         double BoxPlotIndivSymbolSize { get; set; }
+        double BoxPlotMeanConnectLineSize { get; set; }
         string GSave { set; get; }
         void SetMtbEnvironment(Mtb.Project proj, Mtb.Worksheet ws);
         void Run();
